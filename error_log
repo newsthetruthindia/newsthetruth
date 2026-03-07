@@ -1,0 +1,15 @@
+[24-Nov-2024 07:41:26 UTC] PHP Fatal error:  Maximum execution time of 60 seconds exceeded in /home2/newstew1/public_html/vendor/intervention/image/src/Intervention/Image/Gd/Commands/ResizeCommand.php on line 66
+[24-Nov-2024 07:46:35 UTC] PHP Fatal error:  Maximum execution time of 60 seconds exceeded in /home2/newstew1/public_html/vendor/intervention/image/src/Intervention/Image/Gd/Encoder.php on line 78
+[10-Jan-2025 06:57:10 UTC] PHP Fatal error:  gd-webp encoding failed in /home2/newstew1/public_html/vendor/intervention/image/src/Intervention/Image/Gd/Encoder.php on line 77
+[10-Jan-2025 07:00:26 UTC] PHP Fatal error:  gd-webp encoding failed in /home2/newstew1/public_html/vendor/intervention/image/src/Intervention/Image/Gd/Encoder.php on line 77
+[10-Jan-2025 07:02:05 UTC] PHP Fatal error:  gd-webp encoding failed in /home2/newstew1/public_html/vendor/intervention/image/src/Intervention/Image/Gd/Encoder.php on line 77
+[08-Dec-2025 08:07:26 UTC] PHP Fatal error:  gd-webp encoding failed in /home2/newstew1/public_html/vendor/intervention/image/src/Intervention/Image/Gd/Encoder.php on line 77
+[08-Dec-2025 08:09:17 UTC] PHP Fatal error:  gd-webp encoding failed in /home2/newstew1/public_html/vendor/intervention/image/src/Intervention/Image/Gd/Encoder.php on line 77
+[31-Jan-2026 10:36:07 America/Chicago] PHP Fatal error:  Uncaught Error: Call to undefined function each() in /home2/newstew1/public_html/mail.php:8
+Stack trace:
+#0 {main}
+  thrown in /home2/newstew1/public_html/mail.php on line 8
+[31-Jan-2026 10:36:43 America/Chicago] PHP Warning:  Undefined variable $message_body in /home2/newstew1/public_html/mail.php on line 8
+[31-Jan-2026 10:37:53 America/Chicago] PHP Warning:  Undefined variable $message_body in /home2/newstew1/public_html/mail.php on line 8
+[31-Jan-2026 10:38:03 America/Chicago] PHP Warning:  Undefined variable $message_body in /home2/newstew1/public_html/mail.php on line 8
+[31-Jan-2026 10:38:04 America/Chicago] PHP Warning:  Undefined variable $message_body in /home2/newstew1/public_html/mail.php on line 8

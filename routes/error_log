@@ -1,0 +1,12 @@
+[25-Mar-2025 01:11:29 America/Chicago] PHP Fatal error:  Uncaught Error: Class "Illuminate\Support\Facades\Route" not found in /home2/newstew1/public_html/routes/web.php:16
+Stack trace:
+#0 {main}
+  thrown in /home2/newstew1/public_html/routes/web.php on line 16
+[02-Apr-2025 10:01:52 America/Chicago] PHP Fatal error:  Uncaught Error: Class "Illuminate\Support\Facades\Route" not found in /home2/newstew1/public_html/routes/web.php:16
+Stack trace:
+#0 {main}
+  thrown in /home2/newstew1/public_html/routes/web.php on line 16
+[14-Apr-2025 13:29:44 America/Chicago] PHP Fatal error:  Uncaught Error: Class "Illuminate\Support\Facades\Route" not found in /home2/newstew1/public_html/routes/api.php:17
+Stack trace:
+#0 {main}
+  thrown in /home2/newstew1/public_html/routes/api.php on line 17
