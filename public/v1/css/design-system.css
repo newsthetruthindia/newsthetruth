@@ -1,0 +1,98 @@
+:root {
+    /* Premium Color Palette */
+    --ntt-primary: #8C0000;
+    --ntt-primary-light: #ef9c9c;
+    --ntt-dark: #0f1111;
+    --ntt-text: #1c1e1e;
+    --ntt-text-muted: #666e6e;
+
+    /* Glassmorphism Tokens */
+    --ntt-glass-bg: rgba(255, 255, 255, 0.7);
+    --ntt-glass-border: rgba(255, 255, 255, 0.3);
+    --ntt-glass-blur: blur(12px);
+
+    --ntt-dark-glass-bg: rgba(15, 17, 17, 0.8);
+    --ntt-dark-glass-border: rgba(255, 255, 255, 0.1);
+
+    /* Typography */
+    --ntt-font-heading: 'Outfit', sans-serif;
+    --ntt-font-body: 'Inter', sans-serif;
+
+    /* Effects */
+    --ntt-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+    --ntt-shadow-md: 0 8px 32px rgba(0, 0, 0, 0.08);
+    --ntt-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Global Typography Apply */
+body {
+    font-family: var(--ntt-font-body);
+    -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.sec-title,
+.box-title {
+    font-family: var(--ntt-font-heading);
+}
+
+/* Glassmorphism Utilities */
+.glass-header {
+    background: var(--ntt-glass-bg) !important;
+    backdrop-filter: var(--ntt-glass-blur);
+    border-bottom: 1px solid var(--ntt-glass-border);
+}
+
+.dark-theme .glass-header {
+    background: var(--ntt-dark-glass-bg) !important;
+    border-bottom: 1px solid var(--ntt-dark-glass-border);
+}
+
+.premium-card {
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    box-shadow: var(--ntt-shadow-sm);
+    transition: var(--ntt-transition);
+    overflow: hidden;
+}
+
+.premium-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--ntt-shadow-md);
+    border-color: var(--ntt-primary-light);
+}
+
+/* Smooth Transitions & Hover Effects */
+.blog-img {
+    overflow: hidden;
+    border-radius: 12px 12px 0 0;
+}
+
+.blog-img img {
+    transition: var(--ntt-transition);
+}
+
+.blog-style1:hover .blog-img img,
+.blog-style2:hover .blog-img img,
+.blog-style3:hover .blog-img img,
+.blog-style4:hover .blog-img img {
+    transform: scale(1.05);
+}
+
+.th-btn {
+    border-radius: 8px !important;
+    transition: var(--ntt-transition) !important;
+    font-family: var(--ntt-font-heading);
+    font-weight: 500;
+}
+
+.th-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(140, 0, 0, 0.2);
+}

@@ -1,32 +1,79 @@
-.box-title-cus{
-font-size: 15px;
-margin-bottom: 5px;
+.blog-style2,
+.blog-style3,
+.blog-style4,
+.blog-style1 {
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    box-shadow: var(--ntt-shadow-sm);
+    transition: var(--ntt-transition);
+    overflow: hidden;
+    padding: 15px;
+    height: 100%;
 }
+
+.dark-theme .blog-style2,
+.dark-theme .blog-style3,
+.dark-theme .blog-style4,
+.dark-theme .blog-style1 {
+    background: var(--ntt-dark-glass-bg);
+    border: 1px solid var(--ntt-dark-glass-border);
+    backdrop-filter: var(--ntt-glass-blur);
+    color: #fff;
+}
+
+.box-title-cus {
+    font-size: 15px;
+    margin-bottom: 5px;
+}
+
 .home-post-sidebar .border-blog:not(:first-child) {
-  margin-top: 5px;
+    margin-top: 5px;
 }
-.recent-post-sidebar .post-title{
+
+.recent-post-sidebar .post-title {
     font-size: 15px !important;
     margin-bottom: 5px !important;
     line-height: 18.2px !important;
 }
+
 .th-carousel .post-title-1 {
     font-size: 16px;
     font-weight: 600;
 }
-.sidebar-wrap-cus .box-title-c{
+
+.sidebar-wrap-cus .box-title-c {
     font-weight: 500;
     line-height: 1.2;
     margin-bottom: 5px;
-    font-size:15px;
+    font-size: 15px;
 }
-.blog-details .blog-title {font-size: 30px;}
-@media screen and (min-width: 768px){
-    .blog-style1 .blog-img img {height: 178px;}
+
+.blog-details .blog-title {
+    font-size: 30px;
 }
-@media screen and (max-width: 768px){
-    .header-logo img{max-width: 140px;}
-    .blog-details .blog-title {font-size: 25px;}
-    .blog-style1 .blog-img img {height: 150px;}
-    .blog-style4 h3 {font-size: 16px;font-weight: 600;}
+
+@media screen and (min-width: 768px) {
+    .blog-style1 .blog-img img {
+        height: 178px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .header-logo img {
+        max-width: 140px;
+    }
+
+    .blog-details .blog-title {
+        font-size: 25px;
+    }
+
+    .blog-style1 .blog-img img {
+        height: 150px;
+    }
+
+    .blog-style4 h3 {
+        font-size: 16px;
+        font-weight: 600;
+    }
 }
