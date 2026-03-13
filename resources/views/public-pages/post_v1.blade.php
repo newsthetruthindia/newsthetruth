@@ -17,11 +17,12 @@
 </head>
 <body>
     @include('layouts.header_v1')
-    <div class="breadcumb-wrapper">
-        <div class="container">
-            <ul class="breadcumb-menu">
-                <li><a href="{{route('v1.home')}}">Home</a></li>
-                <li>{{ $the_post->title }}</li>
+    <div class="breadcumb-wrapper py-4 bg-light border-bottom border-light">
+        <div class="container-fluid px-lg-5">
+            <ul class="breadcumb-menu list-unstyled d-flex align-items-center gap-2 mb-0 x-small text-uppercase tracking-wider">
+                <li><a href="{{route('v1.home')}}" class="text-muted text-decoration-none hover:text-primary transition-colors">Home</a></li>
+                <li class="text-muted opacity-50"><i class="far fa-chevron-right"></i></li>
+                <li class="text-dark fw-bold">{{ \Illuminate\Support\Str::limit($the_post->title, 50) }}</li>
             </ul>
         </div>
     </div>
@@ -30,47 +31,53 @@
             <div class="blog-style-bg">
                 <div class="row">
                     <div class="col-lg-8">
-                        <div class="th-blog blog-single">
-
-                            @if( !empty( $the_post->tags ) && count( $the_post->tags ) > 0 )
-                            @foreach( $the_post->tags as $tag )
-                            @if( !empty( $tag->tag_data ) )
-                            <a data-theme-color="#4E4BD0" href="{{ route('public.page', ['x' => $tag->tag_data->slug]) }}" class="category">{{ $tag->tag_data->title }}</a>
-                            @endif
-                            @endforeach
-                            @endif
-                            <h1 class="blog-title">{{ $the_post->title }}</h1>
-                            <div class="blog-meta">
-                                <a class="author" href="javascript:void(0);">
-                                    <i class="far fa-user"></i>{{ !empty($meta['credit']) ? $meta['credit'] : (!empty( $the_post->user ) ? $the_post->user->firstname.' '.$the_post->user->lastname:'Staff Reporter')}}</a>
-                                <a href="javascript:void(0);"><i class="fal fa-calendar-days"></i>
-                                    <?php date_default_timezone_set('Asia/Kolkata'); ?>
-
-                                    {{ date('M d, Y h:i a', strtotime($the_post->created_at.'+330 minutes') ) }}</a>
+                        <div class="th-blog blog-single bg-white p-4 p-md-5 rounded-4 shadow-sm mb-5">
+                            <div class="mb-4">
+                                @if( !empty( $the_post->tags ) && count( $the_post->tags ) > 0 )
+                                    <div class="d-flex flex-wrap gap-2 mb-3">
+                                        @foreach( $the_post->tags as $tag )
+                                            @if( !empty( $tag->tag_data ) )
+                                                <a href="{{ route('public.page', ['x' => $tag->tag_data->slug]) }}" class="badge bg-primary/10 text-primary border border-primary/20 px-3 py-2 text-uppercase tracking-widest x-small text-decoration-none hover:bg-primary hover:text-white transition-all">
+                                                    {{ $tag->tag_data->title }}
+                                                </a>
+                                            @endif
+                                        @endforeach
+                                    </div>
+                                @endif
+                                <h1 class="h2 fw-bold text-dark lh-sm mb-4" style="font-family: var(--ntt-font-heading);">{{ $the_post->title }}</h1>
+                                
+                                <div class="blog-meta d-flex flex-wrap align-items-center gap-4 text-muted small pb-4 border-bottom border-light">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="w-8 h-8 rounded-circle bg-light d-flex align-items-center justify-content-center">
+                                            <i class="far fa-user"></i>
+                                        </div>
+                                        <span>BY <span class="fw-bold text-dark">{{ !empty($meta['credit']) ? $meta['credit'] : (!empty( $the_post->user ) ? $the_post->user->firstname.' '.$the_post->user->lastname:'Staff Reporter')}}</span></span>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="fal fa-calendar-days"></i>
+                                        <span>{{ date('M d, Y h:i a', strtotime($the_post->created_at.'+330 minutes') ) }}</span>
+                                    </div>
+                                </div>
                             </div>
                             @if(!empty($the_post->thumbnails))
-                            <div class="row thumbnails">
-                                <div class="col-lg-12">
-                                    <div class="blog-img">
-                                        <img
-                                            src="{{ url($the_post->thumbnails->url) }}"
-                                            srcset="{{ get_image_srcset($the_post->thumbnails->id) }}" />
-                                    </div>
-
-
-                                    @if(!empty($meta['pic_credit']))
-                                    <div class="pic_credit">
-                                        <p>Photo Credit</p>
-                                        <p>{{ $meta['pic_credit'] }}</p>
-                                    </div>
+                            <div class="thumbnails mb-5">
+                                <div class="blog-img rounded-4 overflow-hidden shadow-md">
+                                    <img
+                                        src="{{ url($the_post->thumbnails->url) }}"
+                                        srcset="{{ get_image_srcset($the_post->thumbnails->id) }}"
+                                        class="w-100 h-auto" />
+                                    
+                                    @if(!empty($meta['pic_credit']) || !empty($meta['img_meta']))
+                                        <div class="p-3 bg-light/80 backdrop-blur-sm small text-muted italic">
+                                            @if(!empty($meta['img_meta']))
+                                                <div class="mb-1">{{ $meta['img_meta'] }}</div>
+                                            @endif
+                                            @if(!empty($meta['pic_credit']))
+                                                <div class="x-small text-uppercase tracking-widest opacity-75">Photo: {{ $meta['pic_credit'] }}</div>
+                                            @endif
+                                        </div>
                                     @endif
                                 </div>
-
-                                @if(!empty($meta['img_meta']))
-                                <div class="col-lg-12 img_meta">
-                                    <p><i>{{ $meta['img_meta'] }}</i></p>
-                                </div>
-                                @endif
                             </div>
                             @endif
 
@@ -84,86 +91,31 @@
                             @endif
                             <div class="blog-content-wrap">
                                 @if(!empty($settings['enable_social_share']) && $settings['enable_social_share'] == '1')
-                                <div class="share-links-wrap">
-                                    <div class="share-links">
-                                        <span class="share-links-title">Share Post:</span>
+                                <div class="share-links-wrap mb-5 p-3 bg-light rounded-3 d-flex align-items-center justify-content-between flex-wrap gap-3">
+                                    <div class="share-links d-flex align-items-center gap-3">
+                                        <span class="fw-bold text-uppercase small tracking-wider text-muted">Share:</span>
 
-                                        <div class="multi-social">
-
-                                            @if(!empty($settings['share_facebook']) && $settings['share_facebook'] == '1' && !empty($the_post->thumbnails->url))
-                                            <a
-                                                href="https://www.facebook.com/sharer/sharer.php?u={{ url($the_post->slug) }}&t={{ $the_post->title }}&p[images][0]={{ url($the_post->thumbnails->url) }}"
-                                                target="_blank"
-                                                title="Facebook">
-                                                <i class="fab fa-facebook-f"></i>
-                                            </a>
-                                            @endif
-
-                                            @if(!empty($settings['share_twitter']) && $settings['share_twitter'] == '1')
-                                            <a
-                                                href="https://twitter.com/intent/tweet?text={{ $the_post->title }}&url={{ url($the_post->slug) }}&via=NewsTheTruth"
-                                                target="_blank"
-                                                title="Twitter">
-                                                <i class="fab fa-twitter"></i>
-                                            </a>
-                                            @endif
-
-                                            @if(!empty($settings['share_linkdin']) && $settings['share_linkdin'] == '1')
-                                            <a
-                                                href="https://www.linkedin.com/shareArticle?mini=true&url={{ url($the_post->slug) }}&title={{ $the_post->title }}"
-                                                target="_blank"
-                                                title="LinkedIn">
-                                                <i class="fab fa-linkedin-in"></i>
-                                            </a>
-                                            @endif
-
-                                            @if(!empty($settings['share_pinterrest']) && $settings['share_pinterrest'] == '1' && !empty($the_post->thumbnails->url))
-                                            <a
-                                                href="https://pinterest.com/pin/create/button/?url={{ url($the_post->slug) }}&media={{ url($the_post->thumbnails->url) }}&description={{ $the_post->title }}"
-                                                target="_blank"
-                                                title="Pinterest">
-                                                <i class="fab fa-pinterest-p"></i>
-                                            </a>
-                                            @endif
-
-                                            @if(!empty($settings['share_tumbler']) && $settings['share_tumbler'] == '1')
-                                            <a
-                                                href="https://www.tumblr.com/share/link?url={{ url($the_post->slug) }}&name={{ $the_post->title }}&description={{ $the_post->description }}"
-                                                target="_blank"
-                                                title="Tumblr">
-                                                <i class="fab fa-tumblr"></i>
-                                            </a>
-                                            @endif
-
-                                            @if(!empty($settings['share_whatsapp']) && $settings['share_whatsapp'] == '1')
-                                            <a
-                                                href="https://web.whatsapp.com/send?text={{ url($the_post->slug) }}"
-                                                target="_blank"
-                                                title="WhatsApp">
-                                                <i class="fab fa-whatsapp"></i>
-                                            </a>
-                                            @endif
-
-                                            @if(!empty($settings['share_telegram']) && $settings['share_telegram'] == '1')
-                                            <a
-                                                href="https://telegram.me/share/url?url={{ url($the_post->slug) }}&text={{ $the_post->title }}"
-                                                target="_blank"
-                                                title="Telegram">
-                                                <i class="fab fa-telegram-plane"></i>
-                                            </a>
-                                            @endif
-
-                                            {{-- Generic Share Button --}}
-                                            <a
-                                                href="#"
-                                                id="ntt_share"
-                                                data-url="{{ url($the_post->slug) }}"
-                                                title="Share">
-                                                <i class="fas fa-share-alt"></i>
-                                            </a>
-
+                                        <div class="multi-social d-flex gap-2">
+                                            @foreach(['facebook', 'twitter', 'linkedin', 'whatsapp', 'telegram'] as $platform)
+                                                @php
+                                                    $share_link = '';
+                                                    $icon = 'fab fa-'.$platform;
+                                                    if($platform == 'facebook') $share_link = "https://www.facebook.com/sharer/sharer.php?u=".url($the_post->slug);
+                                                    if($platform == 'twitter') $share_link = "https://twitter.com/intent/tweet?text=".urlencode($the_post->title)."&url=".url($the_post->slug);
+                                                    if($platform == 'linkedin') $share_link = "https://www.linkedin.com/shareArticle?mini=true&url=".url($the_post->slug);
+                                                    if($platform == 'whatsapp') $share_link = "https://api.whatsapp.com/send?text=".url($the_post->slug);
+                                                    if($platform == 'telegram') $share_link = "https://telegram.me/share/url?url=".url($the_post->slug);
+                                                @endphp
+                                                <a href="{{ $share_link }}" target="_blank" class="w-9 h-9 d-flex align-items-center justify-content-center rounded-circle bg-white text-dark hover:bg-primary hover:text-white transition-all shadow-sm border border-light">
+                                                    <i class="{{ $icon }}"></i>
+                                                </a>
+                                            @endforeach
                                         </div>
                                     </div>
+                                    
+                                    <button id="ntt_share" data-url="{{ url($the_post->slug) }}" class="th-btn style3 py-2 px-3 small rounded-pill">
+                                        <i class="fas fa-copy me-2"></i>Copy Link
+                                    </button>
                                 </div>
                                 @endif
 
@@ -211,34 +163,32 @@
                         </div>
                     </div>
                     <div class="col-lg-4 sidebar-wrap recent-post-sidebar">
-                        <aside class="sidebar-area">
-                            <!-- <div class="widget widget_search">
-                                <form class="search-form">
-                                    <input type="text" placeholder="Enter Keyword">
-                                    <button type="submit"><i class="far fa-search"></i></button>
-                                </form>
-                            </div> -->
-                            <div class="widget">
-                                <h3 class="widget_title">Recent Posts</h3>
-                                <div class="recent-post-wrap">
+                            <div class="sidebar-area">
+                                <h3 class="widget_title text-uppercase tracking-widest small fw-bold mb-4">The Latest</h3>
+                                <div class="recent-post-wrap d-flex flex-column gap-4">
                                     @foreach( $the_latest as $key => $latest )
-                                    <div class="recent-post mb-3">
-                                        <div class="media-img">
+                                    <div class="recent-post d-flex align-items-center gap-3 pb-3 border-bottom border-light">
+                                        <div class="media-img w-20 h-20 flex-shrink-0 rounded-3 overflow-hidden">
                                             <a href="{{ route('public.page', ['x' => $latest->slug]) }}">
                                                 @if( $latest->thumbnails)
-                                                <img src="{{ url($latest->thumbnails->url) }}" srcset="{{ get_image_srcset($latest->thumbnails->id)}}">
+                                                <img src="{{ url($latest->thumbnails->url) }}" class="w-100 h-100 object-fit-cover" srcset="{{ get_image_srcset($latest->thumbnails->id)}}">
                                                 @else
-                                                <img src="{{ asset('public/img/product/bg-1.jpg') }}" alt="" />
+                                                <img src="{{ asset('public/v1/img/blog/blog_5_2_4.jpg') }}" alt="" class="w-100 h-100 object-fit-cover" />
                                                 @endif
                                             </a>
                                         </div>
                                         <div class="media-body">
-                                            <h4 class="post-title"><a class="hover-line" href="{{ route('public.page', ['x' => $latest->slug]) }}">{{ substr($latest->title,0,70); }}...</a></h4>
-                                            <div class="recent-post-meta"><a href="javascript:void(0);"><i class="fal fa-calendar-days"></i>{{ $latest->updated_at->format('d M, Y') }}</a></div>
+                                            <h4 class="h6 fw-bold mb-2">
+                                                <a class="text-dark text-decoration-none hover-line" href="{{ route('public.page', ['x' => $latest->slug]) }}">
+                                                    {{ \Illuminate\Support\Str::limit($latest->title, 60) }}
+                                                </a>
+                                            </h4>
+                                            <div class="text-muted x-small d-flex align-items-center">
+                                                <i class="fal fa-calendar-days me-2"></i>{{ $latest->updated_at->format('d M, Y') }}
+                                            </div>
                                         </div>
                                     </div>
                                     @endforeach
-
                                 </div>
                             </div>
                             <div class="widget">
@@ -251,62 +201,47 @@
                 </div>
             </div>
             @if(!empty($similars) && count($similars) > 0)
-            <div class="related-post-wrapper pt-30 mb-30">
-                <div class="row align-items-center">
+            <div class="related-post-wrapper pt-5 mt-5 border-top border-light">
+                <div class="row align-items-center mb-4">
                     <div class="col">
-                        <h2 class="sec-title has-line">Related Post</h2>
-                    </div>
-                    <div class="col-auto">
-                        <div class="sec-btn">
-                            <div class="icon-box">
-                                <button data-slick-prev="#related-post-slide" class="slick-arrow default">
-                                    <i class="far fa-arrow-left"></i>
-                                </button>
-                                <button data-slick-next="#related-post-slide" class="slick-arrow default">
-                                    <i class="far fa-arrow-right"></i>
-                                </button>
-                            </div>
-                        </div>
+                        <h2 class="sec-title show-line fw-bold text-uppercase tracking-wider h4 mb-0">Related Stories</h2>
                     </div>
                 </div>
 
-                <div class="row tslider-shadow th-carousel"
-                        id="related-post-slide"
-                        data-slide-show="4"
-                        data-lg-slide-show="3"
-                        data-md-slide-show="2"
-                        data-sm-slide-show="2"
-                        data-xs-slide-show="2">
+                <div class="row gy-4">
                     @foreach($similars as $latest)
-                    <div class="col-sm-6 col-xl-4">
-                        <div class="blog-style1">
-                            <div class="blog-img">
+                    <div class="col-sm-6 col-lg-3">
+                        <div class="premium-card h-100 p-0 border-0 bg-white">
+                            <div class="blog-img mb-0" style="aspect-ratio: 16/10;">
                                 <a href="{{ route('public.page', ['x' => $latest->slug]) }}">
                                     @if($latest->thumbnails)
                                     <img
                                         src="{{ url($latest->thumbnails->url) }}"
                                         srcset="{{ get_image_srcset($latest->thumbnails->id) }}"
-                                        alt="{{ $latest->title }}" />
+                                        alt="{{ $latest->title }}"
+                                        class="w-100 h-100 object-fit-cover transition-all duration-500 hover:scale-110" />
                                     @else
                                     <img
-                                        src="{{ asset('public/img/product/bg-1.jpg') }}"
-                                        alt="{{ $latest->title }}" />
+                                        src="{{ asset('public/v1/img/blog/blog_5_2_4.jpg') }}"
+                                        alt="{{ $latest->title }}"
+                                        class="w-100 h-100 object-fit-cover" />
                                     @endif
                                 </a>
                             </div>
 
-                            <h3 class="box-title-22 post-title-1">
-                                <a class="hover-line" href="{{ route('public.page', ['x' => $latest->slug]) }}">
-                                    {{ \Illuminate\Support\Str::limit($latest->title, 45) }}
-                                </a>
-                            </h3>
+                            <div class="blog-content p-3">
+                                <h3 class="h6 fw-bold lh-base mb-2">
+                                    <a class="text-dark text-decoration-none hover-line" href="{{ route('public.page', ['x' => $latest->slug]) }}">
+                                        {{ \Illuminate\Support\Str::limit($latest->title, 55) }}
+                                    </a>
+                                </h3>
 
-                            <div class="blog-meta">
-                                
-                                <a href="{{ route('public.page', ['x' => $latest->slug]) }}">
-                                    <i class="fal fa-calendar-days"></i>
-                                    {{ \Carbon\Carbon::parse($latest->post_publish_time)->format('d M, Y') }}
-                                </a>
+                                <div class="blog-meta mt-auto">
+                                    <div class="text-muted x-small d-flex align-items-center">
+                                        <i class="fal fa-calendar-days me-2"></i>
+                                        {{ \Carbon\Carbon::parse($latest->post_publish_time)->format('d M, Y') }}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -1,27 +1,35 @@
 :root {
-    /* Premium Color Palette */
-    --ntt-primary: #8C0000;
-    --ntt-primary-light: #ef9c9c;
-    --ntt-dark: #0f1111;
-    --ntt-text: #1c1e1e;
-    --ntt-text-muted: #666e6e;
+    /* Premium Color Palette - News Standard */
+    --ntt-primary: #8C0000;         /* Deep Crimson */
+    --ntt-primary-hover: #A00000;
+    --ntt-primary-soft: rgba(140, 0, 0, 0.08);
+    
+    --ntt-dark: #0f171c;            /* Rich Slate Dark */
+    --ntt-dark-soft: #1e293b;
+    
+    --ntt-bg-light: #f8fafc;        /* Soft White */
+    --ntt-surface: #ffffff;
+    
+    --ntt-text-main: #0f172a;       /* Near Black for readability */
+    --ntt-text-muted: #64748b;
+    
+    /* Premium Typography */
+    --ntt-font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --ntt-font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
-    /* Glassmorphism Tokens */
-    --ntt-glass-bg: rgba(255, 255, 255, 0.7);
-    --ntt-glass-border: rgba(255, 255, 255, 0.3);
-    --ntt-glass-blur: blur(12px);
+    /* Glassmorphism 2.0 */
+    --ntt-glass-bg: rgba(255, 255, 255, 0.85);
+    --ntt-glass-border: rgba(255, 255, 255, 0.4);
+    --ntt-glass-blur: blur(20px);
+    
+    /* Modern Shadow System (Soft UI) */
+    --ntt-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --ntt-shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    --ntt-shadow-md: 0 12px 24px -4px rgba(0, 0, 0, 0.08), 0 8px 16px -4px rgba(0, 0, 0, 0.04);
+    --ntt-shadow-lg: 0 20px 40px -8px rgba(0, 0, 0, 0.12), 0 12px 20px -8px rgba(0, 0, 0, 0.08);
 
-    --ntt-dark-glass-bg: rgba(15, 17, 17, 0.8);
-    --ntt-dark-glass-border: rgba(255, 255, 255, 0.1);
-
-    /* Typography */
-    --ntt-font-heading: 'Outfit', sans-serif;
-    --ntt-font-body: 'Inter', sans-serif;
-
-    /* Effects */
-    --ntt-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
-    --ntt-shadow-md: 0 8px 32px rgba(0, 0, 0, 0.08);
-    --ntt-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --ntt-transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    --ntt-radius: 12px;
 }
 
 /* Global Typography Apply */
@@ -54,18 +62,18 @@ h6,
 }
 
 .premium-card {
-    background: #fff;
-    border: 1px solid #eee;
-    border-radius: 12px;
+    background: var(--ntt-surface);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: var(--ntt-radius);
     box-shadow: var(--ntt-shadow-sm);
     transition: var(--ntt-transition);
     overflow: hidden;
 }
 
 .premium-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--ntt-shadow-md);
-    border-color: var(--ntt-primary-light);
+    transform: translateY(-6px);
+    box-shadow: var(--ntt-shadow-lg);
+    border-color: rgba(140, 0, 0, 0.1);
 }
 
 /* Smooth Transitions & Hover Effects */

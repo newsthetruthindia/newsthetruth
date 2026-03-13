@@ -19,76 +19,64 @@
 <body>
     @include('layouts.header_v1')
     @if(!empty($top_post) && count($top_post) > 0)
-        <section class="space--- pt-1">
-            <div class="container">
-                <div class="row">
-
-                    {{-- LEFT BIG POST --}}
+        <section class="space--- pt-4 pb-5">
+            <div class="container-fluid px-lg-5">
+                <div class="row g-4">
+                    {{-- MAIN HERO STORY --}}
                     @php $first = $top_post->first(); @endphp
-                    <div class="col-xl-9 mb-4 mb-xl-0">
-                        <div class="row gy-4">
-                            <div class="dark-theme img-overlay2">
-                                <div class="blog-style3">
-
-                                    <div class="blog-img">
-                                        <img src="{{ $first->thumbnails ? url($first->thumbnails->url) : asset('public/v1/img/blog/blog_5_7.jpg') }}"
-                                            alt="{{ $first->title }}">
-                                    </div>
-
-                                    <div class="blog-content">
-                                        @php
-                                            // $link = $first->metas()->where('key','alter_link')->first()->description ?? url($first->slug);
-                                            $link = route('public.page', ['x' => $first->slug]);
-                                        @endphp
-
-                                        <a href="javascript:void(0);" class="category">
+                    <div class="col-xl-8 col-lg-7">
+                        <div class="premium-card h-100 position-relative border-0 shadow-lg overflow-hidden group">
+                            <div class="blog-img h-100">
+                                <img src="{{ $first->thumbnails ? url($first->thumbnails->url) : asset('public/v1/img/blog/blog_5_7.jpg') }}"
+                                    alt="{{ $first->title }}" class="w-100 h-100 object-fit-cover transition-all duration-700 group-hover:scale-105">
+                                <div class="position-absolute bottom-0 start-0 w-100 p-4 p-lg-5 bg-gradient-to-t from-black/90 to-transparent">
+                                    <div class="mb-3">
+                                        <span class="badge bg-primary px-3 py-2 text-uppercase tracking-wider">
                                             {{ $first->metas()->where('key', 'category')->first()->description ?? 'Top Story' }}
-                                        </a>
-
-                                        <h3 class="box-title-30">
-                                            <a class="hover-line" href="{{ $link }}">
-                                                {{ $first->title }}
-                                            </a>
-                                        </h3>
-
-                                        <div class="blog-meta">
-                                            <a href="javascript:void(0);"><i
-                                                    class="fal fa-calendar-days"></i>{{ $first->created_at->format('d M, Y') }}</a>
-                                        </div>
+                                        </span>
                                     </div>
-
+                                    <h2 class="text-white display-5 fw-bold mb-3">
+                                        <a href="{{ route('public.page', ['x' => $first->slug]) }}" class="text-white text-decoration-none hover-line">
+                                            {{ $first->title }}
+                                        </a>
+                                    </h2>
+                                    <div class="text-white/80 d-flex align-items-center small">
+                                        <i class="fal fa-calendar-days me-2"></i> {{ $first->created_at->format('d M, Y') }}
+                                        <span class="mx-3 opacity-30">|</span>
+                                        <span class="fw-medium">By Editorial Team</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-xl-3 mt-35 mt-xl-0">
-                        <div class="tab-content home-post-sidebar">
-                            <div class="tab-pane fade show active" id="nav-one" role="tabpanel"
-                                aria-labelledby="nav-one-tab">
-                                <div class="row gy-4">
-                                    @foreach($top_post->slice(1, 5) as $t_p)
-                                        @php
-                                            $link = $t_p->metas()->where('key', 'alter_link')->first()->description ?? url($t_p->slug);
-                                        @endphp
-                                        <div class="col-xl-12 col-md-6 border-blog">
-                                            <div class="blog-style2 pb-2">
-                                                <div class="blog-img"><img
-                                                        src="{{ $t_p->thumbnails ? url($t_p->thumbnails->url) : asset('public/v1/img/blog/blog_5_2_1.jpg') }}"
-                                                        alt="{{ $t_p->title }}"></div>
-                                                <div class="blog-content"><a data-theme-color="#FF9500"
-                                                        href="javascript:void(0);"
-                                                        class="category mb-1">{{ $t_p->metas()->where('key', 'category')->first()->title ?? 'News' }}</a>
-                                                    <h3 class="box-title-cus"><a class="hover-line"
-                                                            href="{{ $link }}">{{ \Illuminate\Support\Str::limit($t_p->title, 55) }}</a>
-                                                    </h3>
-                                                    <div class="blog-meta"><a href="javascript:void(0);"><i
-                                                                class="fal fa-calendar-days"></i>{{ $t_p->created_at->format('d M, Y') }}</a>
-                                                    </div>
+
+                    {{-- SIDEBAR TRENDING GRID --}}
+                    <div class="col-xl-4 col-lg-5">
+                        <div class="h-100 d-flex flex-column">
+                            <div class="mb-3 d-flex align-items-center justify-content-between">
+                                <h4 class="mb-0 fw-bold border-start border-primary border-4 ps-3 text-uppercase small tracking-widest">Trending Now</h4>
+                                <a href="#" class="small text-muted text-decoration-none hover:text-primary transition-colors">View All</a>
+                            </div>
+                            <div class="flex-grow-1 overflow-auto pe-2" style="max-height: 600px;">
+                                @foreach($top_post->slice(1, 4) as $t_p)
+                                    @php $link = route('public.page', ['x' => $t_p->slug]); @endphp
+                                    <div class="premium-card mb-3 p-3 border-0 bg-light/50 hover:bg-white transition-all">
+                                        <div class="row g-3 align-items-center">
+                                            <div class="col-4">
+                                                <div class="rounded-3 overflow-hidden shadow-sm" style="aspect-ratio: 1/1;">
+                                                    <img src="{{ $t_p->thumbnails ? url($t_p->thumbnails->url) : asset('public/v1/img/blog/blog_5_2_1.jpg') }}"
+                                                         class="w-100 h-100 object-fit-cover hover:scale-110 transition-transform duration-500" alt="{{ $t_p->title }}">
                                                 </div>
                                             </div>
+                                            <div class="col-8">
+                                                <span class="text-primary x-small fw-bold text-uppercase mb-1 d-block">{{ $t_p->metas()->where('key', 'category')->first()->title ?? 'Update' }}</span>
+                                                <h5 class="mb-0 h6 fw-bold lh-base">
+                                                    <a href="{{ $link }}" class="text-dark text-decoration-none hover-line">{{ \Illuminate\Support\Str::limit($t_p->title, 55) }}</a>
+                                                </h5>
+                                            </div>
                                         </div>
-                                    @endforeach
-                                </div>
+                                    </div>
+                                @endforeach
                             </div>
                         </div>
                     </div>
@@ -120,29 +108,29 @@
                         @foreach($others['BENGAL'] as $the_data)
                             @if(!empty($the_data))
                                 <div class="col-sm-6 col-xl-4">
-                                    <div class="blog-style1">
-
-                                        <div class="blog-img">
+                                    <div class="premium-card h-100 p-0 border-0 bg-white">
+                                        <div class="blog-img mb-0" style="aspect-ratio: 16/10;">
                                             <img src="{{ $the_data->thumbnails ? url($the_data->thumbnails->url) : asset('public/v1/img/blog/blog_5_2_4.jpg') }}"
-                                                alt="{{ $the_data->title }}">
-
-                                            <a href="javascript:void(0);" class="category">
-                                                {{ $the_data->metas()->where('key', 'category')->first()->description ?? 'Breaking' }}
-                                            </a>
+                                                alt="{{ $the_data->title }}" class="w-100 h-100 object-fit-cover transition-all duration-500 hover:scale-110">
+                                            <div class="position-absolute top-0 start-0 m-3">
+                                                <span class="badge bg-primary px-3 py-2 text-uppercase tracking-wider small shadow-sm">
+                                                    {{ $the_data->metas()->where('key', 'category')->first()->description ?? 'Bengal' }}
+                                                </span>
+                                            </div>
                                         </div>
 
-                                        <h3 class="box-title-22 post-title-1">
-                                            <a class="hover-line" href="{{ route('public.page', ['x' => $the_data->slug]) }}">
-                                                {{ \Illuminate\Support\Str::limit($the_data->title, 65) }}
-                                            </a>
-                                        </h3>
+                                        <div class="blog-content p-4">
+                                            <h3 class="h6 fw-bold lh-base mb-3">
+                                                <a class="text-dark text-decoration-none hover-line" href="{{ route('public.page', ['x' => $the_data->slug]) }}">
+                                                    {{ \Illuminate\Support\Str::limit($the_data->title, 65) }}
+                                                </a>
+                                            </h3>
 
-                                        <div class="blog-meta">
-                                            <a href="javascript:void(0);"><i class="fal fa-calendar-days"></i>
+                                            <div class="blog-meta d-flex align-items-center text-muted small">
+                                                <i class="fal fa-calendar-days me-2"></i>
                                                 {{ $the_data->updated_at->format('d M, Y') }}
-                                            </a>
+                                            </div>
                                         </div>
-
                                     </div>
                                 </div>
                             @endif
@@ -164,35 +152,33 @@
                     <div class="col-xl-9">
                         <!-- Start : The Latest -->
                         @if(!empty($others['INDIA']) && count($others['INDIA']) > 0)
-                            <div class="row align-items-center mt-4">
+                            <div class="row align-items-center mb-4 mt-5">
                                 <div class="col">
-                                    <h2 class="sec-title has-line">The India</h2>
+                                    <h2 class="sec-title show-line fw-bold text-uppercase tracking-wider h3 mb-0">The India</h2>
                                 </div>
                             </div>
-                            <div class="filter-active">
+                            <div class="filter-active row g-4">
                                 @foreach($others['BENGAL'] as $latest)
-                                    <div class="border-blog2 filter-item cat1">
-                                        <div class="blog-style4">
-                                            <div class="blog-img">
+                                    <div class="col-md-6 filter-item cat1">
+                                        <div class="premium-card h-100 p-0 border-0 bg-white">
+                                            <div class="blog-img" style="aspect-ratio: 16/9;">
                                                 @if($latest->thumbnails)
-                                                    <img src="{{ url($latest->thumbnails->url) }}" />
+                                                    <img src="{{ url($latest->thumbnails->url) }}" class="w-100 h-100 object-fit-cover transition-all duration-500 hover:scale-105" />
                                                 @else
-                                                    <img src="{{ asset('public/img/product/bg-1.jpg') }}"
-                                                        alt="{{$latest->title}}" />
+                                                    <img src="{{ asset('public/img/product/bg-1.jpg') }}" alt="{{$latest->title}}" class="w-100 h-100 object-fit-cover" />
                                                 @endif
                                             </div>
-                                            <div class="blog-content">
-                                                <h3 class="box-title-24"><a class="hover-line"
-                                                        href="{{ route('public.page', ['x' => $latest->slug]) }}">{{ substr($latest->title, 0, 100) }}...</a>
+                                            <div class="blog-content p-4">
+                                                <h3 class="h5 fw-bold mb-3"><a class="text-dark text-decoration-none hover-line"
+                                                        href="{{ route('public.page', ['x' => $latest->slug]) }}">{{ \Illuminate\Support\Str::limit($latest->title, 80) }}</a>
                                                 </h3>
-                                                <p class="blog-text">{{ substr($latest->excerpt, 0, 100) }}...</p>
-                                                <div class="blog-meta">
-                                                    <a href="javascript:void(0);"><i
-                                                            class="fal fa-calendar-days"></i>{{ $latest->updated_at->format('d M, Y') }}</a>
+                                                <p class="text-muted small mb-4">{{ \Illuminate\Support\Str::limit(strip_tags($latest->excerpt), 120) }}</p>
+                                                <div class="d-flex align-items-center justify-content-between">
+                                                    <span class="small text-muted"><i class="fal fa-calendar-days me-2"></i>{{ $latest->updated_at->format('d M, Y') }}</span>
+                                                    <a href="{{ route('public.page', ['x' => $latest->slug]) }}"
+                                                        class="th-btn style2 py-2 px-3 small">Read More<i
+                                                            class="fas fa-arrow-up-right ms-2"></i></a>
                                                 </div>
-                                                <a href="{{ route('public.page', ['x' => $latest->slug]) }}"
-                                                    class="th-btn style2">Read More<i
-                                                        class="fas fa-arrow-up-right ms-2"></i></a>
                                             </div>
                                         </div>
                                     </div>
@@ -206,40 +192,40 @@
                                                 <?php
                             $the_exclusive = $others['THE EXCLUSIVE TRUTH'][0];
                                             ?>
-                                                <div class="row align-items-center mt-4">
+                                                <div class="row align-items-center mb-4 mt-5">
                                                     <div class="col">
-                                                        <h2 class="sec-title has-line">THE Exclusive Truth</h2>
+                                                        <h2 class="sec-title show-line fw-bold text-uppercase tracking-wider h3 mb-0">THE Exclusive Truth</h2>
                                                     </div>
                                                 </div>
                                                 <div class="filter-active">
                                                     <div class="border-blog2 filter-item cat1">
-                                                        <div class="blog-style4">
-                                                            <div class="blog-img">
-                                                                @if($the_exclusive->thumbnails)
-                                                                    <img src="{{ url($the_exclusive->thumbnails->url) }}" />
-                                                                @else
-                                                                    <img src="{{ asset('public/img/product/bg-1.jpg') }}"
-                                                                        alt="{{ $the_exclusive->title }}" />
-                                                                @endif
-                                                            </div>
+                                                            <div class="premium-card p-0 border-0 bg-white">
+                                                                <div class="blog-img" style="aspect-ratio: 16/9;">
+                                                                    @if($the_exclusive->thumbnails)
+                                                                        <img src="{{ url($the_exclusive->thumbnails->url) }}" class="w-100 h-100 object-fit-cover" />
+                                                                    @else
+                                                                        <img src="{{ asset('public/img/product/bg-1.jpg') }}"
+                                                                            alt="{{ $the_exclusive->title }}" class="w-100 h-100 object-fit-cover" />
+                                                                    @endif
+                                                                </div>
 
-                                                            <div class="blog-content">
-                                                                <h3 class="box-title-24">
+                                                                <div class="blog-content p-4">
+                                                                    <h3 class="h4 fw-bold mb-3">
+                                                                        <a href="{{ route('public.page', ['x' => $the_exclusive->slug]) }}"
+                                                                            class="text-dark text-decoration-none hover-line">
+                                                                            {{ $the_exclusive->title }}
+                                                                        </a>
+                                                                    </h3>
+
+                                                                    <p class="text-muted small mb-4">
+                                                                        {!! \Illuminate\Support\Str::limit(strip_tags($the_exclusive->excerpt), 200) !!}
+                                                                    </p>
+
                                                                     <a href="{{ route('public.page', ['x' => $the_exclusive->slug]) }}"
-                                                                        class="hover-line">
-                                                                        {{ $the_exclusive->title }}
-                                                                    </a>
-                                                                </h3>
-
-                                                                <p class="blog-text">
-                                                                    {!! $the_exclusive->excerpt !!}...
-                                                                </p>
-
-                                                                <a href="{{ route('public.page', ['x' => $the_exclusive->slug]) }}"
-                                                                    class="th-btn style2">Read More<i
-                                                                        class="fas fa-arrow-up-right ms-2"></i></a>
+                                                                        class="th-btn style2 py-2 px-4 shadow-sm">Read More<i
+                                                                            class="fas fa-arrow-up-right ms-2"></i></a>
+                                                                </div>
                                                             </div>
-                                                        </div>
                                                     </div>
                                                 </div>
                         @endif
@@ -251,17 +237,17 @@
                                                 <?php
                             $the_untold = $others['THE UNTOLD TRUTH'][0];
                                             ?>
-                                                <div class="row align-items-center mt-4">
+                                                <div class="row align-items-center mb-4 mt-5">
                                                     <div class="col">
-                                                        <h2 class="sec-title has-line">THE Exclusive Truth</h2>
+                                                        <h2 class="sec-title show-line fw-bold text-uppercase tracking-wider h3 mb-0">THE Untold Truth</h2>
                                                     </div>
                                                 </div>
                                                 <div class="filter-active">
                                                     <div class="border-blog2 filter-item cat1">
-                                                        <div class="blog-style4">
-                                                            <div class="blog-img">
+                                                        <div class="premium-card p-0 border-0 bg-white">
+                                                            <div class="blog-img" style="aspect-ratio: 16/9;">
                                                                 @if($the_untold->thumbnails)
-                                                                    <img src="{{ url($the_untold->thumbnails->url) }}" />
+                                                                    <img src="{{ url($the_untold->thumbnails->url) }}" class="w-100 h-100 object-fit-cover" />
                                                                 @endif
                                                                 @if(!empty($the_untold->gallery))
                                                                     @foreach($the_untold->gallery as $e_ut_k => $e_ut_v)
@@ -271,26 +257,26 @@
                                                                             $e_ut_image = getAttachmentById($e_ut_v->media_id);
                                                                         @endphp
                                                                         @if(!empty($e_ut_image->url))
-                                                                            <img src="{{ url($e_ut_image->url) }}" alt="{{ $the_untold->title }}" />
+                                                                            <img src="{{ url($e_ut_image->url) }}" alt="{{ $the_untold->title }}" class="w-100 h-100 object-fit-cover" />
                                                                         @endif
                                                                     @endforeach
                                                                 @endif
                                                             </div>
 
-                                                            <div class="blog-content">
-                                                                <h3 class="box-title-24">
+                                                            <div class="blog-content p-4">
+                                                                <h3 class="h4 fw-bold mb-3">
                                                                     <a href="{{ route('public.page', ['x' => $the_untold->slug]) }}"
-                                                                        class="hover-line">
+                                                                        class="text-dark text-decoration-none hover-line">
                                                                         {{ $the_untold->title }}
                                                                     </a>
                                                                 </h3>
 
-                                                                <p class="blog-text">
-                                                                    {!! $the_untold->excerpt !!}...
+                                                                <p class="text-muted small mb-4">
+                                                                    {!! \Illuminate\Support\Str::limit(strip_tags($the_untold->excerpt), 200) !!}
                                                                 </p>
 
                                                                 <a href="{{ route('public.page', ['x' => $the_untold->slug]) }}"
-                                                                    class="th-btn style2">Read More<i
+                                                                    class="th-btn style2 py-2 px-4 shadow-sm">Read More<i
                                                                         class="fas fa-arrow-up-right ms-2"></i></a>
                                                             </div>
                                                         </div>
@@ -302,40 +288,43 @@
 
                         <!-- Start : Yours Truly -->
                         @if(!empty($others['Your Truth']) && count($others['Your Truth']) > 0)
-                            <div class="row align-items-center mt-4">
+                            <div class="row align-items-center mb-4 mt-5">
                                 <div class="col">
-                                    <h2 class="sec-title has-line">Yours Truly</h2>
+                                    <h2 class="sec-title show-line fw-bold text-uppercase tracking-wider h3 mb-0">Yours Truly</h2>
                                 </div>
                             </div>
-                            <div class="filter-active">
+                            <div class="filter-active row g-4">
                                 @foreach($others['Your Truth'] as $the_data)
                                     @if(!empty($the_data))
-                                        <div class="border-blog2 filter-item cat1">
-                                            <div class="blog-style4">
-                                                <div class="blog-img">
+                                        <div class="col-md-6 filter-item cat1">
+                                            <div class="premium-card h-100 p-0 border-0 bg-white">
+                                                <div class="blog-img mb-0" style="aspect-ratio: 16/9;">
                                                     @if($the_data->thumbnails)
-                                                        <img src="{{ url($the_data->thumbnails->url) }}" />
+                                                        <img src="{{ url($the_data->thumbnails->url) }}" class="w-100 h-100 object-fit-cover transition-all duration-500 hover:scale-105" />
                                                     @else
                                                         <img src="{{ asset('public/img/product/bg-1.jpg') }}"
-                                                            alt="{{ $the_data->title }}" />
+                                                            alt="{{ $the_data->title }}" class="w-100 h-100 object-fit-cover" />
                                                     @endif
                                                 </div>
 
-                                                <div class="blog-content">
-                                                    <h3 class="box-title-24">
+                                                <div class="blog-content p-4">
+                                                    <h3 class="h5 fw-bold mb-3">
                                                         <a href="{{ route('public.page', ['x' => $the_data->slug]) }}"
-                                                            class="hover-line">
+                                                            class="text-dark text-decoration-none hover-line">
                                                             {{ $the_data->title }}
                                                         </a>
                                                     </h3>
 
-                                                    <p class="blog-text">
-                                                        {!! $the_data->excerpt !!}...
-                                                    </p>
+                                                    <div class="text-muted small mb-4 excerpt-truncate">
+                                                        {!! \Illuminate\Support\Str::limit(strip_tags($the_data->excerpt), 120) !!}
+                                                    </div>
 
-                                                    <a href="{{ route('public.page', ['x' => $the_data->slug]) }}"
-                                                        class="th-btn style2">Read More<i
-                                                            class="fas fa-arrow-up-right ms-2"></i></a>
+                                                    <div class="d-flex align-items-center justify-content-between mt-auto">
+                                                        <span class="small text-muted"><i class="fal fa-calendar-days me-2"></i>{{ $the_data->updated_at->format('d M, Y') }}</span>
+                                                        <a href="{{ route('public.page', ['x' => $the_data->slug]) }}"
+                                                            class="th-btn style2 py-2 px-3 small">Read More<i
+                                                                class="fas fa-arrow-up-right ms-2"></i></a>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -348,14 +337,14 @@
 
                     <div class="col-xl-3 mt-35 mt-xl-0 mb-10 sidebar-wrap sidebar-wrap-cus">
                         <div class="sidebar-area">
-                            <div class="nav tab-menu indicator-active" role="tablist">
+                            <div class="nav tab-menu indicator-active bg-light p-2 rounded-3 mb-4" role="tablist">
                                 @if(!empty($others['POLITICS']) && count($others['POLITICS']) > 0)
-                                    <button class="tab-btn active" id="nav3-one-tab" data-bs-toggle="tab"
+                                    <button class="tab-btn active border-0 bg-transparent fw-bold text-uppercase small tracking-wider py-2 px-3 transition-all" id="nav3-one-tab" data-bs-toggle="tab"
                                         data-bs-target="#nav3-one" type="button" role="tab" aria-controls="nav3-one"
                                         aria-selected="true">Politics</button>
                                 @endif
                                 @if(!empty($others['WORLD']) && count($others['WORLD']) > 0)
-                                    <button class="tab-btn" id="nav3-two-tab" data-bs-toggle="tab"
+                                    <button class="tab-btn border-0 bg-transparent fw-bold text-uppercase small tracking-wider py-2 px-3 transition-all" id="nav3-two-tab" data-bs-toggle="tab"
                                         data-bs-target="#nav3-two" type="button" role="tab" aria-controls="nav3-two"
                                         aria-selected="false">World</button>
                                 @endif
@@ -363,28 +352,30 @@
                             <div class="tab-content">
                                 <div class="tab-pane fade show active" id="nav3-one" role="tabpanel"
                                     aria-labelledby="nav3-one-tab">
-                                    <div class="row gy-4">
+                                    <div class="d-flex flex-column gap-4">
                                         @foreach($others['POLITICS'] as $the_data)
-                                            <div class="blog-content">
-                                                <h3 class="box-title-18 box-title-c"><a class="hover-line"
-                                                        href="{{ route('public.page', ['x' => $the_data->slug]) }}">{{ \Illuminate\Support\Str::limit($the_data->title, 65) }}</a>
+                                            <div class="blog-content pb-3 border-bottom border-light">
+                                                <h3 class="h6 fw-bold mb-2">
+                                                    <a class="text-dark text-decoration-none hover-line"
+                                                         href="{{ route('public.page', ['x' => $the_data->slug]) }}">{{ \Illuminate\Support\Str::limit($the_data->title, 65) }}</a>
                                                 </h3>
-                                                <div class="blog-meta"><a href="javascript:void(0);"><i
-                                                            class="fal fa-calendar-days"></i>{{ $the_data->updated_at->format('d M, Y') }}</a>
+                                                <div class="text-muted x-small d-flex align-items-center">
+                                                    <i class="fal fa-calendar-days me-2"></i>{{ $the_data->updated_at->format('d M, Y') }}
                                                 </div>
                                             </div>
                                         @endforeach
                                     </div>
                                 </div>
                                 <div class="tab-pane fade" id="nav3-two" role="tabpanel" aria-labelledby="nav3-two-tab">
-                                    <div class="row gy-4">
+                                    <div class="d-flex flex-column gap-4">
                                         @foreach($others['WORLD'] as $the_data)
-                                            <div class="blog-content">
-                                                <h3 class="box-title-18 box-title-c"><a class="hover-line"
-                                                        href="{{ route('public.page', ['x' => $the_data->slug]) }}">{{ \Illuminate\Support\Str::limit($the_data->title, 65) }}</a>
+                                            <div class="blog-content pb-3 border-bottom border-light">
+                                                <h3 class="h6 fw-bold mb-2">
+                                                    <a class="text-dark text-decoration-none hover-line"
+                                                         href="{{ route('public.page', ['x' => $the_data->slug]) }}">{{ \Illuminate\Support\Str::limit($the_data->title, 65) }}</a>
                                                 </h3>
-                                                <div class="blog-meta"><a href="javascript:void(0);"><i
-                                                            class="fal fa-calendar-days"></i>{{ $the_data->updated_at->format('d M, Y') }}</a>
+                                                <div class="text-muted x-small d-flex align-items-center">
+                                                    <i class="fal fa-calendar-days me-2"></i>{{ $the_data->updated_at->format('d M, Y') }}
                                                 </div>
                                             </div>
                                         @endforeach

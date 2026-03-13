@@ -1,0 +1,30 @@
+{
+  "version": 2,
+  "functions": {
+    "api/*.php": {
+      "runtime": "vercel-php@0.7.1"
+    }
+  },
+  "routes": [
+    {
+      "src": "/(css|js|images|assets|fonts)/(.*)",
+      "dest": "/public/$1/$2"
+    },
+    {
+      "src": "/v1/(.*)",
+      "dest": "/public/v1/$1"
+    },
+    {
+      "src": "/share.php",
+      "dest": "/api/share.php"
+    },
+    {
+      "src": "/mail.php",
+      "dest": "/api/mail.php"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/api/index.php"
+    }
+  ]
+}
