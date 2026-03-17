@@ -31,14 +31,11 @@ class Media extends Model
     {
         if (empty($value)) return $value;
 
-        $path = $value;
         // Strip redundant 'public/' from the start or /public/ from the middle
         if (str_starts_with($value, 'public/')) {
-            $path = substr($value, 7);
-        } else {
-            $path = str_replace('/public/', '/', $value);
+            return substr($value, 7);
         }
         
-        return '/' . ltrim($path, '/');
+        return str_replace('/public/', '/', $value);
     }
 }
