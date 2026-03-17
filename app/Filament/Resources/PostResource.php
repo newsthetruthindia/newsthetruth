@@ -153,7 +153,7 @@ class PostResource extends Resource
             ->columns([
                 ImageColumn::make('thumbnails.url')
                     ->label('Image')
-                    ->getStateUsing(fn (Post $record): ?string => $record->thumbnails ? url($record->thumbnails->url) : null)
+                    ->getStateUsing(fn (Post $record): ?string => $record->thumbnails ? $record->thumbnails->url : null)
                     ->circular(false)
                     ->size(60),
 
