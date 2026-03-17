@@ -23,4 +23,19 @@ class Media extends Model
         'height',
         'width',
     ];
+    
+    /**
+     * Get the clean URL without internal 'public/' prefix
+     */
+    public function getUrlAttribute($value)
+    {
+        if (empty($value)) return $value;
+
+        // Strip redundant 'public/' from the start or /public/ from the middle
+        if (str_starts_with($value, 'public/')) {
+            return substr($value, 7);
+        }
+        
+        return str_replace('/public/', '/', $value);
+    }
 }

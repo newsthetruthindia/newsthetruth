@@ -50,7 +50,8 @@ class SubscriberResource extends Resource
         return $table
             ->modifyQueryUsing(fn (Builder $query) => $query->where('type', 'user'))
             ->columns([
-                TextColumn::make('name')->searchable()->sortable(),
+                TextColumn::make('firstname')->searchable()->sortable(),
+                TextColumn::make('lastname')->searchable()->sortable(),
                 TextColumn::make('email')->searchable()->sortable(),
                 TextColumn::make('phone')->searchable(),
                 TextColumn::make('created_at')->dateTime('M j, Y')->sortable(),

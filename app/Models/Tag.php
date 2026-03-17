@@ -9,5 +9,14 @@ use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 class Tag extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
+
+    protected $fillable = [
+        'title',
+        'slug',
+        'user_id',
+        'subtitle',
+        'description',
+        'thumbnail',
+    ];
 }

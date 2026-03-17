@@ -70,15 +70,15 @@ class PostResource extends Resource
 
             Section::make('Categorization')
                 ->schema([
-                    Select::make('categories')
-                        ->relationship('categories', 'cat_data.title')
+                    Select::make('filamentCategories')
+                        ->relationship('filamentCategories', 'title')
                         ->multiple()
                         ->preload()
                         ->searchable()
                         ->label('Categories'),
 
-                    Select::make('tags')
-                        ->relationship('tags', 'name')
+                    Select::make('filamentTags')
+                        ->relationship('filamentTags', 'title')
                         ->multiple()
                         ->preload()
                         ->searchable()
@@ -87,11 +87,18 @@ class PostResource extends Resource
 
             Section::make('Media')
                 ->schema([
-                    FileUpload::make('thumbnail')
-                        ->label('Featured Image')
+                    Select::make('thumbnail')
+                        ->label('Select Existing Media')
+                        ->relationship('thumbnailMedia', 'url')
+                        ->searchable()
+                        ->columnSpanFull(),
+
+                    FileUpload::make('new_thumbnail_upload')
+                        ->label('Or Upload New Media')
                         ->image()
-                        ->directory('uploads/thumbnails')
+                        ->directory('uploads/media')
                         ->imagePreviewHeight('200')
+                        ->dehydrated(false)
                         ->columnSpanFull(),
                 ]),
 
@@ -110,15 +117,27 @@ class PostResource extends Resource
                     Select::make('status')
                         ->options([
                             'published' => 'Published',
-                            'draft' => 'Draft',
-                            'pending' => 'Pending Review',
+                            'drafted' => 'Drafted',
+                            'open' => 'Open Review',
                         ])
-                        ->default('draft')
+                        ->default('drafted')
                         ->required(),
 
                     Toggle::make('breaking')
                         ->label('Breaking News')
                         ->default(false),
+                    
+                    TextInput::make('image_credit')
+                        ->label('Image Credit')
+                        ->maxLength(255),
+
+                    TextInput::make('location')
+                        ->label('Location')
+                        ->maxLength(255),
+
+                    TextInput::make('reporter_name')
+                        ->label('Reporter Name')
+                        ->maxLength(255),
                 ])->columns(2),
         ]);
     }
@@ -139,7 +158,7 @@ class PostResource extends Resource
                     ->sortable()
                     ->weight('bold'),
 
-                TextColumn::make('categories.cat_data.title')
+                TextColumn::make('filamentCategories.title')
                     ->label('Category')
                     ->badge()
                     ->color('warning')
@@ -149,8 +168,8 @@ class PostResource extends Resource
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'published' => 'success',
-                        'draft' => 'gray',
-                        'pending' => 'warning',
+                        'drafted' => 'gray',
+                        'open' => 'warning',
                         default => 'gray',
                     }),
 
@@ -158,6 +177,16 @@ class PostResource extends Resource
                     ->label('Published')
                     ->dateTime('M j, Y')
                     ->sortable(),
+
+                TextColumn::make('reporter_name')
+                    ->label('Reporter')
+                    ->toggleable()
+                    ->searchable(),
+                
+                TextColumn::make('location')
+                    ->label('Location')
+                    ->toggleable()
+                    ->searchable(),
             ])
             ->filters([
                 SelectFilter::make('status')
@@ -168,6 +197,43 @@ class PostResource extends Resource
                     ]),
             ])
             ->actions([
+                Tables\Actions\Action::make('generate_audio')
+                    ->label('Audio')
+                    ->icon('heroicon-o-speaker-wave')
+                    ->action(function (\App\Models\Post $record) {
+                        try {
+                            $controller = app(\App\Http\Controllers\PostController::class);
+                            $req = new \Illuminate\Http\Request([
+                                'text' => strip_tags($record->description),
+                                'type' => 'text',
+                                'post_id' => $record->id,
+                            ]);
+                            $controller->updatePostAudio($req);
+                            \Filament\Notifications\Notification::make()
+                                ->title('Audio Generated')
+                                ->success()
+                                ->send();
+                        } catch (\Exception $e) {
+                            \Filament\Notifications\Notification::make()
+                                ->title('Generation Failed')
+                                ->body($e->getMessage())
+                                ->danger()
+                                ->send();
+                        }
+                    })
+                    ->requiresConfirmation(),
+                Tables\Actions\Action::make('publish')
+                    ->label('Publish')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('success')
+                    ->visible(fn (Post $record) => $record->status !== 'published')
+                    ->action(fn (Post $record) => $record->update(['status' => 'published'])),
+                Tables\Actions\Action::make('hide')
+                    ->label('Hide')
+                    ->icon('heroicon-o-eye-slash')
+                    ->color('danger')
+                    ->visible(fn (Post $record) => $record->status === 'published')
+                    ->action(fn (Post $record) => $record->update(['status' => 'drafted'])),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])

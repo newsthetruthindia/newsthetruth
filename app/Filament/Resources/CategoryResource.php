@@ -6,6 +6,7 @@ use App\Filament\Resources\CategoryResource\Pages;
 use App\Models\Category;
 use Filament\Forms;
 use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -41,6 +42,12 @@ class CategoryResource extends Resource
                 TextInput::make('description')
                     ->label('Description')
                     ->maxLength(255),
+
+                Select::make('category_id')
+                    ->label('Parent Category')
+                    ->relationship('parent', 'title')
+                    ->searchable()
+                    ->preload(),
             ]),
         ]);
     }

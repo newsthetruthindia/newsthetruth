@@ -27,7 +27,7 @@ class TagResource extends Resource
     {
         return $form->schema([
             Section::make('Tag Details')->schema([
-                TextInput::make('name')->required()->maxLength(100),
+                TextInput::make('title')->required()->maxLength(100),
                 TextInput::make('slug')->required()->unique(Tag::class, 'slug', ignoreRecord: true)->maxLength(100),
             ])->columns(2),
         ]);
@@ -37,7 +37,7 @@ class TagResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('name')->searchable()->sortable()->weight('bold'),
+                TextColumn::make('title')->searchable()->sortable()->weight('bold'),
                 TextColumn::make('slug')->searchable(),
                 TextColumn::make('created_at')->dateTime('M j, Y'),
             ])

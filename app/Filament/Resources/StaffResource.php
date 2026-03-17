@@ -34,7 +34,8 @@ class StaffResource extends Resource
     {
         return $form->schema([
             Section::make('User Information')->schema([
-                TextInput::make('name')->required()->maxLength(255),
+                TextInput::make('firstname')->required()->maxLength(255),
+                TextInput::make('lastname')->required()->maxLength(255),
                 TextInput::make('email')->email()->required()->unique(User::class, 'email', ignoreRecord: true),
                 TextInput::make('password')
                     ->password()
@@ -57,7 +58,8 @@ class StaffResource extends Resource
         return $table
             ->modifyQueryUsing(fn ($query) => $query->whereIn('type', ['admin', 'employee']))
             ->columns([
-                TextColumn::make('name')->searchable()->sortable(),
+                TextColumn::make('firstname')->searchable()->sortable(),
+                TextColumn::make('lastname')->searchable()->sortable(),
                 TextColumn::make('email')->searchable()->sortable(),
                 TextColumn::make('roles.name')
                     ->badge()
