@@ -46,6 +46,11 @@ class PostResource extends Resource
                         ->maxLength(500)
                         ->columnSpanFull(),
 
+                    TextInput::make('subtitle')
+                        ->label('Subtitle')
+                        ->maxLength(500)
+                        ->columnSpanFull(),
+
                     TextInput::make('slug')
                         ->label('URL Slug')
                         ->required()
@@ -58,7 +63,7 @@ class PostResource extends Resource
                         ->rows(3)
                         ->columnSpanFull(),
 
-                    RichEditor::make('content')
+                    RichEditor::make('description')
                         ->label('Full Story')
                         ->toolbarButtons([
                             'attachFiles', 'bold', 'bulletList', 'codeBlock',
