@@ -153,7 +153,7 @@ class PostResource extends Resource
             ->columns([
                 ImageColumn::make('thumbnails.url')
                     ->label('Image')
-                    ->disk('webapp_public')
+                    ->getStateUsing(fn (Post $record): ?string => $record->thumbnails ? url($record->thumbnails->url) : null)
                     ->circular(false)
                     ->size(60),
 
