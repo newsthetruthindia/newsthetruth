@@ -48,6 +48,7 @@ class MediaResource extends Resource
             ->columns([
                 ImageColumn::make('url')
                     ->label('Preview')
+                    ->disk('webapp_public')
                     ->size(80),
                 TextColumn::make('alt')->label('Alt Text')->searchable()->limit(50),
                 TextColumn::make('created_at')->label('Uploaded')->dateTime('M j, Y')->sortable(),
