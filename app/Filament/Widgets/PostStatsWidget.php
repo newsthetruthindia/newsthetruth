@@ -24,7 +24,7 @@ class PostStatsWidget extends BaseWidget
                 ->descriptionIcon('heroicon-m-check-circle')
                 ->color('success'),
 
-            Stat::make('Drafts', Post::where('status', 'draft')->count())
+            Stat::make('Drafts', Post::where('status', 'drafted')->count())
                 ->description('Awaiting publication')
                 ->descriptionIcon('heroicon-m-pencil')
                 ->color('warning'),
@@ -34,7 +34,7 @@ class PostStatsWidget extends BaseWidget
                 ->descriptionIcon('heroicon-m-users')
                 ->color('primary'),
 
-            Stat::make('Citizen Reports', CitizenJournalism::where('status', 'pending')->count())
+            Stat::make('Citizen Reports', CitizenJournalism::where('posted', 0)->count())
                 ->description('Awaiting review')
                 ->descriptionIcon('heroicon-m-megaphone')
                 ->color('danger'),

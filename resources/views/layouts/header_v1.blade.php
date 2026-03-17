@@ -8,7 +8,7 @@
     <div class="th-menu-area text-center">
         <button class="th-menu-toggle"><i class="fal fa-times"></i></button>
         <div class="mobile-logo">
-            <a href="{{route('v1.home')}}"><img src="{{ asset('public/v1/img/image_logo.jpg') }}"
+            <a href="{{route('v1.home')}}"><img src="{{ asset('v1/img/image_logo.jpg') }}"
                     alt="{{env('MAIL_FROM_NAME')}}"></a>
         </div>
         <div class="th-mobile-menu">
@@ -37,7 +37,7 @@
                 <div class="col-auto">
                     <div class="header-logo py-3">
                         <a href="{{route('v1.home')}}">
-                            <img src="{{ asset('public/v1/img/image_logo.jpg') }}" alt="{{env('MAIL_FROM_NAME')}}" style="max-height: 50px; filter: brightness(1.1);">
+                            <img src="{{ asset('v1/img/image_logo.jpg') }}" alt="{{env('MAIL_FROM_NAME')}}" style="max-height: 50px; filter: brightness(1.1);">
                         </a>
                     </div>
                 </div>
@@ -58,6 +58,14 @@
                 {{-- Actions --}}
                 <div class="col-auto">
                     <div class="header-button d-flex align-items-center">
+                        {{-- Search Form --}}
+                        <form action="{{ route('v1.search') }}" method="GET" class="d-none d-md-flex me-4">
+                            <div class="input-group">
+                                <input type="text" name="q" placeholder="Search..." class="form-control form-control-sm bg-dark border-secondary text-white" style="width: 150px;">
+                                <button class="btn btn-sm btn-primary" type="submit"><i class="far fa-search"></i></button>
+                            </div>
+                        </form>
+
                         {{-- Subtle News Ticker for Desktop --}}
                         <div class="d-none d-xl-flex align-items-center me-4 opacity-75 small">
                             <span class="text-primary fw-bold me-2">LATEST:</span>

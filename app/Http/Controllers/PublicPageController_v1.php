@@ -69,7 +69,21 @@ class PublicPageController_v1 extends Controller
         $data['seo_data']['meta']['image'] =  !empty($logo) ? url($logo->url) : '';
         $data['seo_data']['meta']['type'] = 'website';
         $data['seo_data']['meta']['modified_time'] = '2024-03-08T19:02:51+00:00';
-        $data['top_post'] = Post::where('top_post', 1)->where('status', 'published')->where('visibility', 'public')->where('ignore_top_scheduling', '1')->orWhere([['top_post_to_time', '>', date('H:i:s')], ['top_post_form_time', '<', date('H:i:s')], ['post_publish_time', '<', date('Y-m-d H:i:s')]])->limit(6)->offset(0)->orderBy('created_at', 'DESC')->get();
+        $data['top_post'] = Post::where('status', 'published')
+            ->where('visibility', 'public')
+            ->where(function ($query) {
+                $query->where('top_post', 1)
+                    ->where('ignore_top_scheduling', '1')
+                    ->orWhere([
+                        ['top_post_to_time', '>', date('H:i:s')],
+                        ['top_post_form_time', '<', date('H:i:s')],
+                        ['post_publish_time', '<', date('Y-m-d H:i:s')]
+                    ]);
+            })
+            ->limit(6)
+            ->offset(0)
+            ->orderBy('created_at', 'DESC')
+            ->get();
         $data['the_latest'] = Post::where('status', 'published')->where('visibility', 'public')->limit(10)->offset(0)->orderBy('created_at', 'DESC')->get();
         $just_in = JustIn::orderBy('updated_at', 'DESC')->first();
         $just_in_parent = !empty($just_in->parent->id) ? $just_in->parent->id : '';
@@ -105,6 +119,7 @@ class PublicPageController_v1 extends Controller
                 $q->whereIn('id', $categories);
             }])
             ->orderByDesc('updated_at')
+            ->limit(100) // Avoid pulling thousands of records
             ->get()
             ->groupBy(function ($post) {
                 return optional(
@@ -268,6 +283,29 @@ class PublicPageController_v1 extends Controller
         return view('public-pages.posts')->with(['posts' => $posts, 'body_classes' => $body_classes, 'settings' => $this->settings]);
     }
 
+    public function search(Request $request)
+    {
+        $query = $request->input('q');
+        $posts = Post::where('status', 'published')
+            ->where('visibility', 'public')
+            ->where(function($q) use ($query) {
+                $q->where('title', 'like', "%$query%")
+                    ->orWhere('description', 'like', "%$query%");
+            })
+            ->orderBy('updated_at', 'DESC')
+            ->paginate(20);
+
+        $categories = Category::get();
+        $body_classes = 'archive page-template-default term-page category-taxonomy no-sidebar';
+        return view('public-pages.search_v1')->with([
+            'posts' => $posts,
+            'search_query' => $query,
+            'categories' => $categories,
+            'body_classes' => $body_classes,
+            'settings' => $this->settings
+        ]);
+    }
+
     public function tag($x = '')
     {
         $posts = Post::where('status', 'published')->where('visibility', 'public')->whereHas('tags', function ($query) use ($x) {
@@ -283,7 +321,21 @@ class PublicPageController_v1 extends Controller
         $seo_data['meta']['type'] = 'article';
         $seo_data['meta']['modified_time'] = $x->updated_at;
         $the_archive = $posts->paginate(20);
-        $top_post = Post::where('top_post', 1)->where('status', 'published')->where('visibility', 'public')->where('ignore_top_scheduling', '1')->orWhere([['top_post_to_time', '>', date('H:i:s')], ['top_post_form_time', '<', date('H:i:s')], ['post_publish_time', '<', date('Y-m-d H:i:s')]])->limit(5)->offset(0)->orderBy('updated_at', 'DESC')->get();
+        $top_post = Post::where('status', 'published')
+            ->where('visibility', 'public')
+            ->where(function ($query) {
+                $query->where('top_post', 1)
+                    ->where('ignore_top_scheduling', '1')
+                    ->orWhere([
+                        ['top_post_to_time', '>', date('H:i:s')],
+                        ['top_post_form_time', '<', date('H:i:s')],
+                        ['post_publish_time', '<', date('Y-m-d H:i:s')]
+                    ]);
+            })
+            ->limit(5)
+            ->offset(0)
+            ->orderBy('updated_at', 'DESC')
+            ->get();
         $the_latest = Post::where('status', 'published')->where('visibility', 'public')->limit(5)->offset(0)->orderBy('updated_at', 'DESC')->get();
         $tags = Tag::get();
         $body_classes = 'archive page-template-default term-page category-taxonomy no-sidebar';

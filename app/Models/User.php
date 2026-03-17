@@ -20,7 +20,7 @@ class User extends Authenticatable implements FilamentUser
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return true; // In production: check role e.g. $this->hasRole('admin')
+        return in_array($this->type, ['admin', 'employee']);
     }
 
     public function getNameAttribute(): string
@@ -38,6 +38,7 @@ class User extends Authenticatable implements FilamentUser
         'lastname',
         'email',
         'password',
+        'type',
     ];
 
     /**
