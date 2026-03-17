@@ -32,6 +32,7 @@ class MediaResource extends Resource
                 FileUpload::make('url')
                     ->label('Image File')
                     ->image()
+                    ->disk('webapp_public')
                     ->directory('uploads/media')
                     ->imagePreviewHeight('250')
                     ->maxSize(10240)

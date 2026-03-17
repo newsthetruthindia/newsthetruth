@@ -153,6 +153,7 @@ class PostResource extends Resource
             ->columns([
                 ImageColumn::make('thumbnails.url')
                     ->label('Image')
+                    ->disk('webapp_public')
                     ->circular(false)
                     ->size(60),
 
