@@ -26,9 +26,10 @@ try {
     $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
     echo "OK<br>";
 
-    echo "Checking Environment Variables...<br>";
-    echo "APP_KEY: " . (env('APP_KEY') ? "SET" : "MISSING") . "<br>";
-    echo "DB_HOST: " . env('DB_HOST') . "<br>";
+    echo "Checking Laravel Configuration...<br>";
+    echo "Config App Key: " . (config('app.key') ? "SET" : "MISSING") . "<br>";
+    echo "Env App Key: " . (env('APP_KEY') ? "SET" : "MISSING") . "<br>";
+    echo "Config DB Host: " . config('database.connections.mysql.host') . "<br>";
 
 } catch (\Throwable $e) {
     echo "<br><b style='color:red'>FATAL ERROR CATATCHED:</b><br>";
