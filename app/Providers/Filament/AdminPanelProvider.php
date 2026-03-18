@@ -26,7 +26,10 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->login()
+            ->login(\App\Filament\Pages\Auth\Login::class)
+            ->passwordReset()
+            ->emailVerification()
+            ->profile()
             ->brandName('News The Truth')
             ->brandLogo(null)
             ->favicon(asset('favicon.ico'))
@@ -49,6 +52,9 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 Widgets\AccountWidget::class,
                 \App\Filament\Widgets\PostStatsWidget::class,
+                \App\Filament\Widgets\PublishedPostsChartWidget::class,
+                \App\Filament\Widgets\PostViewsChartWidget::class,
+                \App\Filament\Widgets\PostSharesChartWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,

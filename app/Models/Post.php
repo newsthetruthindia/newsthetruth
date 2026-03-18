@@ -19,6 +19,7 @@ class Post extends Model
         'excerpt',
         'thumbnail',
         'status',
+        'shares',
         'visibility',
         'image_credit',
         'location',

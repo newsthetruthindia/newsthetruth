@@ -65,6 +65,54 @@ class PostResource extends Resource
 
                     RichEditor::make('description')
                         ->label('Full Story')
+                        ->hintAction(
+                            Forms\Components\Actions\Action::make('checkGrammar')
+                                ->icon('heroicon-m-check-badge')
+                                ->label('Check Grammar')
+                                ->color('primary')
+                                ->action(function ($state) {
+                                    $text = strip_tags($state);
+                                    if(empty(trim($text))) {
+                                        \Filament\Notifications\Notification::make()->title('Editor is empty')->warning()->send();
+                                        return;
+                                    }
+                                    try {
+                                        $response = \Illuminate\Support\Facades\Http::asForm()->post('https://api.languagetoolplus.com/v2/check', [
+                                            'text' => $text,
+                                            'language' => 'en-US',
+                                        ]);
+                                        if ($response->successful()) {
+                                            $matches = $response->json('matches');
+                                            if (empty($matches)) {
+                                                \Filament\Notifications\Notification::make()->title('Perfect! No spelling or grammar errors found.')->success()->send();
+                                                return;
+                                            }
+                                            foreach($matches as $match) {
+                                                $replacements = collect($match['replacements'])->pluck('value')->take(3)->implode(', ');
+                                                $msg = $match['message'];
+                                                if($replacements) {
+                                                    $msg .= " Suggestions: " . $replacements;
+                                                }
+                                                // Extract snippet of where the error is
+                                                $context = "";
+                                                if(isset($match['context']['text']) && isset($match['context']['offset']) && isset($match['context']['length'])) {
+                                                    $context = "\nContext: \"... " . substr($match['context']['text'], max(0, $match['context']['offset'] - 10), $match['context']['length'] + 20) . " ...\"";
+                                                }
+                                                \Filament\Notifications\Notification::make()
+                                                    ->title('Review Needed')
+                                                    ->body($msg . $context)
+                                                    ->warning()
+                                                    ->duration(10000)
+                                                    ->send();
+                                            }
+                                        } else {
+                                           \Filament\Notifications\Notification::make()->title('API Error')->body('LanguageTool API failed.')->danger()->send(); 
+                                        }
+                                    } catch(\Exception $e) {
+                                        \Filament\Notifications\Notification::make()->title('Error')->body($e->getMessage())->danger()->send();
+                                    }
+                                })
+                        )
                         ->toolbarButtons([
                             'attachFiles', 'bold', 'bulletList', 'codeBlock',
                             'h2', 'h3', 'italic', 'link', 'orderedList',

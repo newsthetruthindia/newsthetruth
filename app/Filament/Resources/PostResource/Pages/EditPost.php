@@ -15,6 +15,32 @@ class EditPost extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            Actions\Action::make('generate_audio')
+                ->label('Generate Audio')
+                ->icon('heroicon-o-speaker-wave')
+                ->color('success')
+                ->action(function (\App\Models\Post $record) {
+                    try {
+                        $controller = app(\App\Http\Controllers\PostController::class);
+                        $req = new \Illuminate\Http\Request([
+                            'text' => strip_tags($record->description),
+                            'type' => 'text',
+                            'post_id' => $record->id,
+                        ]);
+                        $controller->updatePostAudio($req);
+                        \Filament\Notifications\Notification::make()
+                            ->title('Audio Generated')
+                            ->success()
+                            ->send();
+                    } catch (\Exception $e) {
+                        \Filament\Notifications\Notification::make()
+                            ->title('Generation Failed')
+                            ->body($e->getMessage())
+                            ->danger()
+                            ->send();
+                    }
+                })
+                ->requiresConfirmation(),
             Actions\DeleteAction::make(),
         ];
     }

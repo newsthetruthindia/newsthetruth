@@ -378,22 +378,32 @@ class PostController extends Controller{
 
     public function convertAudio( $text='', $type='text', $slug='' ){
         try{
-            /*$textToSpeechClient = new TextToSpeechClient([
-                'credentials'=>json_decode(public_path('thetruthnews-4a01f5cfb0da.json'), true),
-            ]);*/
             $slug = empty($slug)?time():$slug;
             $name = $slug.'.mp3';
-            $textToSpeechClient = new TextToSpeechClient();
+
+            $textToSpeechClient = new TextToSpeechClient([
+                'credentials' => public_path('thetruthnews-4a01f5cfb0da.json'),
+            ]);
+            
             $input = new SynthesisInput();
-            $input->setSsml( $text );
+            $input->setText( $text );
+
             $voice = new VoiceSelectionParams();
+            // Using Wavenet for more expressive, high quality audio in English (India)
             $voice->setLanguageCode('en-IN');
+            $voice->setName('en-IN-Wavenet-B');
+
             $audioConfig = new AudioConfig();
             $audioConfig->setAudioEncoding(AudioEncoding::MP3);
 
             $resp = $textToSpeechClient->synthesizeSpeech($input, $voice, $audioConfig);
-            file_put_contents('./public/audios/'.$name, $resp->getAudioContent());
-            //dd('/public/audios/'.$name);
+
+            $path = public_path('audios');
+            if (!file_exists($path)) {
+                mkdir($path, 0777, true);
+            }
+
+            file_put_contents($path . '/' . $name, $resp->getAudioContent());
             return $name;
         }catch( Exception $e ){
             dd($e);
