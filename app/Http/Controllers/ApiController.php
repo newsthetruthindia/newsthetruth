@@ -174,4 +174,28 @@ class ApiController extends Controller
             'data' => $post
         ]);
     }
+
+    /**
+     * Get all tags.
+     */
+    public function tags()
+    {
+        $tags = \App\Models\Tag::all();
+        return response()->json([
+            'success' => true,
+            'data' => $tags
+        ]);
+    }
+
+    /**
+     * Get all videos.
+     */
+    public function videos()
+    {
+        $videos = \App\Models\Video::orderBy('sort_order', 'asc')->get();
+        return response()->json([
+            'success' => true,
+            'data' => $videos
+        ]);
+    }
 }

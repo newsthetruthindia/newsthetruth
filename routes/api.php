@@ -2,35 +2,38 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ApiController;
+use App\Http\Controllers\ApiAuthController;
 
 /*
 |--------------------------------------------------------------------------
 | API Routes
 |--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
-|
 */
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
 // Auth Routes
-Route::post('/auth/register', [App\Http\Controllers\ApiAuthController::class, 'register']);
-Route::post('/auth/login', [App\Http\Controllers\ApiAuthController::class, 'login']);
-Route::middleware('auth:sanctum')->post('/auth/logout', [App\Http\Controllers\ApiAuthController::class, 'logout']);
+Route::post('/auth/register', [ApiAuthController::class, 'register']);
+Route::post('/auth/login', [ApiAuthController::class, 'login']);
+Route::middleware('auth:sanctum')->post('/auth/logout', [ApiAuthController::class, 'logout']);
 
 // Post Routes
-Route::get('/posts/latest', [App\Http\Controllers\ApiController::class, 'latestPosts']);
-Route::get('/posts/top', [App\Http\Controllers\ApiController::class, 'topPosts']);
-Route::get('/posts/category/{slug}', [App\Http\Controllers\ApiController::class, 'categoryPosts']);
-Route::get('/post/{slug}', [App\Http\Controllers\ApiController::class, 'post']);
+Route::get('/posts/latest', [ApiController::class, 'latestPosts']);
+Route::get('/posts/top', [ApiController::class, 'topPosts']);
+Route::get('/posts/category/{slug}', [ApiController::class, 'categoryPosts']);
+Route::get('/post/{slug}', [ApiController::class, 'post']);
+Route::get('/posts/search', [ApiController::class, 'searchPosts']);
 
 // Category & Settings Routes
-Route::get('/categories', [App\Http\Controllers\ApiController::class, 'categories']);
-Route::get('/settings', [App\Http\Controllers\ApiController::class, 'settings']);
+Route::get('/categories', [ApiController::class, 'categories']);
+Route::get('/settings', [ApiController::class, 'settings']);
+
+// Tags & Videos
+Route::get('/tags', [ApiController::class, 'tags']);
+Route::get('/videos', [ApiController::class, 'videos']);
 
 // Citizen Journalism API
-Route::post('/citizen-report', [App\Http\Controllers\ApiController::class, 'citizenReport']);
+Route::post('/citizen-report', [ApiController::class, 'citizenReport']);
