@@ -48,6 +48,22 @@ require __DIR__.'/vendor/autoload.php';
 |
 */
 
+// Vercel read-only filesystem fix
+if (isset($_SERVER['VERCEL_URL']) || isset($_ENV['VERCEL_URL'])) {
+    if (!defined('VERCEL_FIX_APPLIED')) {
+        define('VERCEL_FIX_APPLIED', true);
+        $_ENV['APP_STORAGE'] = '/tmp/storage';
+        $_SERVER['APP_STORAGE'] = '/tmp/storage';
+        
+        // Create necessary storage directories
+        foreach (['/tmp/storage/framework/cache', '/tmp/storage/framework/sessions', '/tmp/storage/framework/views', '/tmp/storage/logs'] as $path) {
+            if (!is_dir($path)) {
+                mkdir($path, 0755, true);
+            }
+        }
+    }
+}
+
 $app = require_once __DIR__.'/bootstrap/app.php';
 
 $kernel = $app->make(Kernel::class);
