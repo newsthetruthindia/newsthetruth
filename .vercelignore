@@ -18,7 +18,6 @@ client_secret_*.json
 scripts/
 backups/
 bengal/
-api/
 cgi-bin/
 error_log
 php.ini
