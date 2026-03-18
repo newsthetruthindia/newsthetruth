@@ -3,32 +3,42 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-echo "<h1>Vercel Filesystem Audit</h1>";
+echo "<h1>Final Laravel Bootstrap Verification</h1>";
 
-$paths = [
-    'root' => '/var/task/user',
-    'bootstrap' => '/var/task/user/bootstrap',
-    'cache' => '/var/task/user/bootstrap/cache',
-    'tmp' => '/tmp'
-];
+try {
+    echo "1. Autoloader... ";
+    require __DIR__ . '/../vendor/autoload.php';
+    echo "OK<br>";
 
-foreach ($paths as $name => $path) {
-    echo "Path [$name]: $path <br>";
-    echo " - Exists: " . (file_exists($path) ? "YES" : "NO") . "<br>";
-    if (file_exists($path)) {
-        echo " - Is Directory: " . (is_dir($path) ? "YES" : "NO") . "<br>";
-        echo " - Is Writable: " . (is_writable($path) ? "YES" : "NO") . "<br>";
-        if (is_dir($path)) {
-            echo " - Contents: <br>";
-            $files = scandir($path);
-            foreach ($files as $file) {
-                if ($file != "." && $file != "..") {
-                    echo "   -- $file<br>";
-                }
-            }
-        }
+    echo "2. App Instance & Redirects... ";
+    $app = require_once __DIR__ . '/../bootstrap/app.php';
+    echo "OK (App created and redirects applied)<br>";
+
+    $bootstrappers = [
+        'LoadEnvironmentVariables' => \Illuminate\Foundation\Bootstrap\LoadEnvironmentVariables::class,
+        'LoadConfiguration'        => \Illuminate\Foundation\Bootstrap\LoadConfiguration::class,
+        'HandleExceptions'        => \Illuminate\Foundation\Bootstrap\HandleExceptions::class,
+        'RegisterFacades'         => \Illuminate\Foundation\Bootstrap\RegisterFacades::class,
+        'RegisterProviders'       => \Illuminate\Foundation\Bootstrap\RegisterProviders::class,
+        'BootProviders'           => \Illuminate\Foundation\Bootstrap\BootProviders::class,
+    ];
+
+    foreach ($bootstrappers as $name => $class) {
+        echo "Attempting $name... ";
+        $app->make($class)->bootstrap($app);
+        echo "OK<br>";
     }
-    echo "<hr>";
+
+    echo "<h3>SUCCESS! System Fully Booted.</h3>";
+    echo "APP_KEY: " . (config('app.key') ? "SET (using fallback)" : "EMPTY") . "<br>";
+    echo "Storage Path: " . storage_path() . "<br>";
+    echo "Environment: " . app()->environment() . "<br>";
+
+} catch (\Throwable $e) {
+    echo "<br><b style='color:red; font-size: 20px;'>BOOTSTRAP FAILED!</b><br>";
+    echo "<b>Message:</b> " . $e->getMessage() . "<br>";
+    echo "<b>File:</b> " . $e->getFile() . " on line " . $e->getLine() . "<br>";
+    echo "<br><b>Stack Trace:</b><pre style='background:#f4f4f4; padding:10px; border:1px solid #ccc; overflow:auto;'>" . $e->getTraceAsString() . "</pre>";
 }
 
 echo "<h1>Diagnostic End</h1>";
