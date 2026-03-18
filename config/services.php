@@ -36,4 +36,8 @@ return [
         'channel_id' => env('YOUTUBE_CHANNEL_ID'),
     ],
 
+    'google_cloud' => [
+        'key' => env('GOOGLE_CLOUD_API_KEY'),
+    ],
+
 ];
