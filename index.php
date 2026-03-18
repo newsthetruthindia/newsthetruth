@@ -52,11 +52,30 @@ require __DIR__.'/vendor/autoload.php';
 if (isset($_SERVER['VERCEL_URL']) || isset($_ENV['VERCEL_URL'])) {
     if (!defined('VERCEL_FIX_APPLIED')) {
         define('VERCEL_FIX_APPLIED', true);
+        
+        // Redirect Storage
         $_ENV['APP_STORAGE'] = '/tmp/storage';
         $_SERVER['APP_STORAGE'] = '/tmp/storage';
         
+        // Redirect ALL Cache Files (Definitive Fix)
+        $_ENV['APP_SERVICES_CACHE'] = '/tmp/services.php';
+        $_SERVER['APP_SERVICES_CACHE'] = '/tmp/services.php';
+        $_ENV['APP_PACKAGES_CACHE'] = '/tmp/packages.php';
+        $_SERVER['APP_PACKAGES_CACHE'] = '/tmp/packages.php';
+        $_ENV['APP_CONFIG_CACHE'] = '/tmp/config.php';
+        $_SERVER['APP_CONFIG_CACHE'] = '/tmp/config.php';
+        $_ENV['APP_ROUTES_CACHE'] = '/tmp/routes.php';
+        $_SERVER['APP_ROUTES_CACHE'] = '/tmp/routes.php';
+        $_ENV['APP_EVENTS_CACHE'] = '/tmp/events.php';
+        $_SERVER['APP_EVENTS_CACHE'] = '/tmp/events.php';
+        
         // Create necessary storage directories
-        foreach (['/tmp/storage/framework/cache', '/tmp/storage/framework/sessions', '/tmp/storage/framework/views', '/tmp/storage/logs'] as $path) {
+        foreach ([
+            '/tmp/storage/framework/cache', 
+            '/tmp/storage/framework/sessions', 
+            '/tmp/storage/framework/views', 
+            '/tmp/storage/logs'
+        ] as $path) {
             if (!is_dir($path)) {
                 mkdir($path, 0755, true);
             }
