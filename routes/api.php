@@ -31,3 +31,6 @@ Route::get('/post/{slug}', [App\Http\Controllers\ApiController::class, 'post']);
 // Category & Settings Routes
 Route::get('/categories', [App\Http\Controllers\ApiController::class, 'categories']);
 Route::get('/settings', [App\Http\Controllers\ApiController::class, 'settings']);
+
+// Citizen Journalism API
+Route::post('/citizen-report', [App\Http\Controllers\ApiController::class, 'citizenReport']);

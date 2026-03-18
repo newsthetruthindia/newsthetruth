@@ -7,6 +7,8 @@ use App\Models\Post;
 use App\Models\Category;
 use App\Models\JustIn;
 use App\Models\SiteSetting;
+use App\Models\CitizenJournalism;
+use App\Http\Controllers\NotificationController;
 
 class ApiController extends Controller
 {
@@ -115,6 +117,61 @@ class ApiController extends Controller
         return response()->json([
             'success' => true,
             'data' => $settings
+        ]);
+    }
+
+    /**
+     * Submit a citizen journalism report.
+     */
+    public function citizenReport(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'location' => 'required|string|max:255',
+            'description' => 'required|string',
+            'email' => 'required|string|max:255',
+            'name' => 'nullable|string|max:255',
+            'attachment_file' => 'nullable|file|mimes:jpg,jpeg,png,mp4,mov,avi,mkv|max:51200',
+        ]);
+
+        $post = new \App\Models\CitizenJournalism();
+        $post->user_id = 0; // Anonymous or guest
+        $post->title = $request->title;
+        $post->place = $request->location;
+        $post->description = $request->description;
+        $post->subtitle = $request->email;
+        $post->credit = $request->name ?? 'Anonymous';
+        $post->datetime = now();
+
+        if ($request->hasFile('attachment_file')) {
+            $file = $request->file('attachment_file');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $path = 'public/uploads/citizen';
+
+            if (!file_exists(base_path($path))) {
+                mkdir(base_path($path), 0755, true);
+            }
+
+            $file->move(base_path($path), $filename);
+            $post->attachment_url = url($path . '/' . $filename);
+        }
+
+        $post->save();
+
+        // Trigger notification
+        try {
+            $notification = new NotificationController();
+            $notification->description('New API Citizen Report: ' . $post->title);
+            $notification->type('users');
+            $notification->send();
+        } catch (\Exception $e) {
+            // Silently fail notification if it errors
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Report submitted successfully. Thank you for sharing the truth.',
+            'data' => $post
         ]);
     }
 }
