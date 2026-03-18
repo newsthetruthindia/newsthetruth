@@ -52,4 +52,27 @@ $app->singleton(
 |
 */
 
+/*
+|--------------------------------------------------------------------------
+| Vercel Read-Only Filesystem Fix
+|--------------------------------------------------------------------------
+*/
+if (isset($_SERVER['VERCEL_URL'])) {
+    $app->useStoragePath('/tmp/storage');
+    
+    // Create necessary storage directories
+    foreach (['/tmp/storage/framework/cache', '/tmp/storage/framework/sessions', '/tmp/storage/framework/views', '/tmp/storage/logs'] as $path) {
+        if (!is_dir($path)) {
+            mkdir($path, 0755, true);
+        }
+    }
+
+    // Redirect Package Manifest to /tmp to avoid "bootstrap/cache directory must be writable" error
+    $app->instance(Illuminate\Foundation\PackageManifest::class, new Illuminate\Foundation\PackageManifest(
+        new Illuminate\Filesystem\Filesystem,
+        $app->basePath(),
+        '/tmp/packages.php'
+    ));
+}
+
 return $app;
