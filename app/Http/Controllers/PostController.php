@@ -13,11 +13,7 @@ use App\Models\postCategory;
 use App\Models\postTag;
 use App\Models\PostGallery;
 use Validator;
-use Google\Cloud\TextToSpeech\V1\AudioConfig;
-use Google\Cloud\TextToSpeech\V1\AudioEncoding;
-use Google\Cloud\TextToSpeech\V1\SynthesisInput;
-use Google\Cloud\TextToSpeech\V1\TextToSpeechClient;
-use Google\Cloud\TextToSpeech\V1\VoiceSelectionParams;
+use Illuminate\Support\Facades\Http;
 
 class PostController extends Controller{
     
@@ -376,37 +372,38 @@ class PostController extends Controller{
         return $post;
     }
 
-    public function convertAudio( $text='', $type='text', $slug='' ){
-        try{
-            $slug = empty($slug)?time():$slug;
-            $name = $slug.'.mp3';
+    public function convertAudio($text='', $type='text', $slug='')
+    {
+        try {
+            $slug = empty($slug) ? time() : $slug;
+            $name = $slug . '.mp3';
 
-            $textToSpeechClient = new TextToSpeechClient([
-                'credentials' => public_path('thetruthnews-4a01f5cfb0da.json'),
+            $response = Http::post('https://texttospeech.googleapis.com/v1/text:synthesize?key=' . config('services.google_cloud.key'), [
+                'input' => ['text' => $text],
+                'voice' => [
+                    'languageCode' => 'en-IN',
+                    'name' => 'en-IN-Wavenet-B'
+                ],
+                'audioConfig' => [
+                    'audioEncoding' => 'MP3'
+                ]
             ]);
-            
-            $input = new SynthesisInput();
-            $input->setText( $text );
 
-            $voice = new VoiceSelectionParams();
-            // Using Wavenet for more expressive, high quality audio in English (India)
-            $voice->setLanguageCode('en-IN');
-            $voice->setName('en-IN-Wavenet-B');
+            if (!$response->successful()) {
+                throw new \Exception('TTS API failed: ' . $response->body());
+            }
 
-            $audioConfig = new AudioConfig();
-            $audioConfig->setAudioEncoding(AudioEncoding::MP3);
-
-            $resp = $textToSpeechClient->synthesizeSpeech($input, $voice, $audioConfig);
-
+            $audioContent = base64_decode($response->json('audioContent'));
             $path = public_path('audios');
             if (!file_exists($path)) {
                 mkdir($path, 0777, true);
             }
 
-            file_put_contents($path . '/' . $name, $resp->getAudioContent());
+            file_put_contents($path . '/' . $name, $audioContent);
             return $name;
-        }catch( Exception $e ){
-            dd($e);
+        } catch (\Exception $e) {
+            \Log::error('TTS Error: ' . $e->getMessage());
+            return null;
         }
     }
 }
