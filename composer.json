@@ -8,7 +8,7 @@
         "php": "^8.2",
         "bacon/bacon-qr-code": "^2.0",
         "filament/filament": "^3.2",
-        "flowframe/laravel-trend": "^0.1",
+        "flowframe/laravel-trend": "^0.4",
         "google/apiclient": "^2.15",
         "google/cloud-text-to-speech": "^1.6",
         "guzzlehttp/guzzle": "^7.8",
