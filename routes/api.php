@@ -26,6 +26,7 @@ Route::get('/posts/top', [ApiController::class, 'topPosts']);
 Route::get('/posts/category/{slug}', [ApiController::class, 'categoryPosts']);
 Route::get('/post/{slug}', [ApiController::class, 'post']);
 Route::get('/posts/search', [ApiController::class, 'searchPosts']);
+Route::get('/posts/archive', [ApiController::class, 'archivePosts']);
 
 // Category & Settings Routes
 Route::get('/categories', [ApiController::class, 'categories']);

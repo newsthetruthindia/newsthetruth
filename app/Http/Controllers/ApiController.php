@@ -218,4 +218,28 @@ class ApiController extends Controller
             'data' => $posts
         ]);
     }
+
+    /**
+     * Get posts by a specific date.
+     */
+    public function archivePosts(Request $request)
+    {
+        $date = $request->get('date'); // Expects YYYY-MM-DD
+        if (!$date) {
+            return response()->json(['success' => false, 'message' => 'Date is required'], 400);
+        }
+
+        $limit = $request->get('limit', 20);
+        $posts = Post::whereDate('created_at', $date)
+            ->where('status', 'published')
+            ->where('visibility', 'public')
+            ->with(['thumbnails', 'categories.cat_data'])
+            ->orderBy('created_at', 'DESC')
+            ->paginate($limit);
+
+        return response()->json([
+            'success' => true,
+            'data' => $posts
+        ]);
+    }
 }
