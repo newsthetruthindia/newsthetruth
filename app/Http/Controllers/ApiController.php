@@ -188,14 +188,34 @@ class ApiController extends Controller
     }
 
     /**
-     * Get all videos.
+     * Search for posts by title or content.
      */
-    public function videos()
+    public function searchPosts(Request $request)
     {
-        $videos = \App\Models\Video::orderBy('sort_order', 'asc')->get();
+        $query = $request->get('q');
+        if (!$query) {
+            return response()->json([
+                'success' => true,
+                'data' => []
+            ]);
+        }
+
+        $limit = $request->get('limit', 20);
+        $posts = Post::where('status', 'published')
+            ->where('visibility', 'public')
+            ->where(function($q) use ($query) {
+                $q->where('title', 'LIKE', "%{$query}%")
+                  ->orWhere('description', 'LIKE', "%{$query}%")
+                  ->orWhere('excerpt', 'LIKE', "%{$query}%");
+            })
+            ->with(['thumbnails', 'categories.cat_data'])
+            ->orderBy('created_at', 'DESC')
+            ->limit($limit)
+            ->get();
+
         return response()->json([
             'success' => true,
-            'data' => $videos
+            'data' => $posts
         ]);
     }
 }
