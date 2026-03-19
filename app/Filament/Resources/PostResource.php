@@ -149,6 +149,7 @@ class PostResource extends Resource
                     FileUpload::make('new_thumbnail_upload')
                         ->label('Or Upload New Media')
                         ->image()
+                        ->disk('webapp_public')
                         ->directory('uploads/media')
                         ->imagePreviewHeight('200')
                         ->dehydrated(false)
