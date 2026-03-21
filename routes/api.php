@@ -38,3 +38,7 @@ Route::get('/videos', [ApiController::class, 'videos']);
 
 // Citizen Journalism API
 Route::post('/citizen-report', [ApiController::class, 'citizenReport']);
+
+// Sponsor Ads
+Route::get('/sponsors', [\App\Http\Controllers\Api\SponsorController::class, 'index']);
+Route::get('/sponsor/{type?}', [\App\Http\Controllers\Api\SponsorController::class, 'getRandom']);
