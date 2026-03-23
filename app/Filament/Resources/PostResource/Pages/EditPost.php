@@ -32,6 +32,9 @@ class EditPost extends EditRecord
                             ->title('Audio Generated')
                             ->success()
                             ->send();
+                        
+                        // Refresh the page to show the new audio
+                        return redirect(request()->header('Referer'));
                     } catch (\Exception $e) {
                         \Filament\Notifications\Notification::make()
                             ->title('Generation Failed')

@@ -144,6 +144,16 @@ class PostResource extends Resource
                         ->preload(),
                 ]),
 
+            Section::make('Audio Preview')
+                ->schema([
+                    Forms\Components\Placeholder::make('audio_preview')
+                        ->label('Generated Audio')
+                        ->content(fn ($record) => $record && $record->audio_clip_url 
+                            ? new \Illuminate\Support\HtmlString("<audio controls src='{$record->audio_clip_url}' class='w-full'></audio>")
+                            : 'No audio generated yet.'),
+                ])
+                ->visible(fn ($record) => $record !== null),
+
             Section::make('Categorization')
                 ->schema([
                     Select::make('filamentCategories')

@@ -382,10 +382,12 @@ class PostController extends Controller{
                 'input' => ['text' => $text],
                 'voice' => [
                     'languageCode' => 'en-IN',
-                    'name' => 'en-IN-Wavenet-B'
+                    'name' => 'en-IN-Neural2-B'
                 ],
                 'audioConfig' => [
-                    'audioEncoding' => 'MP3'
+                    'audioEncoding' => 'MP3',
+                    'pitch' => -2.0,
+                    'speakingRate' => 1.05
                 ]
             ]);
 
