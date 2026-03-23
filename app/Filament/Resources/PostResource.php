@@ -251,12 +251,21 @@ class PostResource extends Resource
                 TextColumn::make('reporter_name')
                     ->label('Reporter')
                     ->toggleable()
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
+
+                TextColumn::make('user.firstname')
+                    ->label('Posted By')
+                    ->toggleable()
+                    ->searchable()
+                    ->sortable()
+                    ->formatStateUsing(fn ($state, $record) => trim($record->user?->firstname . ' ' . $record->user?->lastname) ?: $record->user?->email),
                 
                 TextColumn::make('location')
                     ->label('Location')
                     ->toggleable()
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
             ])
             ->filters([
                 SelectFilter::make('status')
