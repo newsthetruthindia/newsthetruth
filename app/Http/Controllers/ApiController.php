@@ -242,4 +242,17 @@ class ApiController extends Controller
             'data' => $posts
         ]);
     }
+    /**
+     * Get all videos.
+     */
+    public function videos()
+    {
+        $videos = \App\Models\Video::orderBy('sort_order', 'ASC')
+            ->orderBy('created_at', 'DESC')
+            ->get();
+        return response()->json([
+            'success' => true,
+            'data' => $videos
+        ]);
+    }
 }
