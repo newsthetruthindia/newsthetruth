@@ -121,6 +121,29 @@ class PostResource extends Resource
                         ->columnSpanFull(),
                 ])->columns(2),
 
+            Section::make('Reporter Information')
+                ->schema([
+                    TextInput::make('reporter_name')
+                        ->label('Reporter Name')
+                        ->required()
+                        ->maxLength(255),
+                    
+                    TextInput::make('location')
+                        ->label('Location')
+                        ->maxLength(255),
+                ])->columns(2),
+
+            Section::make('Post Author')
+                ->schema([
+                    Select::make('user_id')
+                        ->label('Posting User')
+                        ->relationship('user', 'email')
+                        ->default(fn() => auth()->id())
+                        ->required()
+                        ->searchable()
+                        ->preload(),
+                ]),
+
             Section::make('Categorization')
                 ->schema([
                     Select::make('filamentCategories')
@@ -183,14 +206,6 @@ class PostResource extends Resource
                     
                     TextInput::make('image_credit')
                         ->label('Image Credit')
-                        ->maxLength(255),
-
-                    TextInput::make('location')
-                        ->label('Location')
-                        ->maxLength(255),
-
-                    TextInput::make('reporter_name')
-                        ->label('Reporter Name')
                         ->maxLength(255),
                 ])->columns(2),
         ]);
