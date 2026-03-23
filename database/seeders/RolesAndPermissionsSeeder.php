@@ -43,11 +43,11 @@ class RolesAndPermissionsSeeder extends Seeder
         // Create Roles and Assign Permissions
         
         // Admin: All permissions
-        $adminRole = Role::findOrCreate('admin');
+        $adminRole = Role::findOrCreate('Admin');
         $adminRole->givePermissionTo(Permission::all());
 
         // Editor: Everything except user/role management and deleting posts
-        $editorRole = Role::findOrCreate('editor');
+        $editorRole = Role::findOrCreate('Editor');
         $editorRole->givePermissionTo([
             'view_any_post', 'view_post', 'create_post', 'update_post',
             'view_any_category', 'view_category', 'create_category', 'update_category', 'delete_category',
