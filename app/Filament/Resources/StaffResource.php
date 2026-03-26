@@ -50,6 +50,58 @@ class StaffResource extends Resource
                     ->preload()
                     ->label('Roles'),
             ])->columns(2),
+
+            Section::make('Reporter Profile')
+                ->relationship('details')
+                ->schema([
+                    TextInput::make('designation')
+                        ->placeholder('e.g. Senior Investigative Reporter')
+                        ->maxLength(255),
+                    
+                    Forms\Components\Textarea::make('bio')
+                        ->rows(4)
+                        ->placeholder('Write a short bio for the reporter...')
+                        ->columnSpanFull(),
+
+                    Section::make('Social Media Links')
+                        ->schema([
+                            TextInput::make('twitter')
+                                ->label('X (Twitter) URL')
+                                ->url()
+                                ->prefix('https://'),
+                            TextInput::make('facebook')
+                                ->label('Facebook URL')
+                                ->url()
+                                ->prefix('https://'),
+                            TextInput::make('instagram')
+                                ->label('Instagram URL')
+                                ->url()
+                                ->prefix('https://'),
+                            TextInput::make('linkedin')
+                                ->label('LinkedIn URL')
+                                ->url()
+                                ->prefix('https://'),
+                        ])->columns(2),
+
+                    Section::make('Profile Image')
+                        ->schema([
+                            Select::make('attachment_id')
+                                ->label('Select Existing Media')
+                                ->relationship('user.thumbnails', 'url') // This might need adjustment based on how the relationship is used in Filament
+                                ->searchable()
+                                ->placeholder('Search by image URL...')
+                                ->columnSpanFull(),
+                            
+                            FileUpload::make('new_avatar_upload')
+                                ->label('Or Upload New Photo')
+                                ->image()
+                                ->disk('webapp_public')
+                                ->directory('uploads/avatars')
+                                ->imagePreviewHeight('250')
+                                ->dehydrated(false)
+                                ->columnSpanFull(),
+                        ])
+                ])->collapsible(),
         ]);
     }
 

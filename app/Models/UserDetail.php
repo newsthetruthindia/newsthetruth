@@ -25,6 +25,11 @@ class UserDetail extends Model
         'bio',
         'designation',
         'salary',
+        'twitter',
+        'linkedin',
+        'facebook',
+        'instagram',
+        'attachment_id',
     ];
 
     public function user(){

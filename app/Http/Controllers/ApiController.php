@@ -20,7 +20,7 @@ class ApiController extends Controller
         $limit = $request->get('limit', 10);
         $posts = Post::where('status', 'published')
             ->where('visibility', 'public')
-            ->with(['thumbnails', 'categories.cat_data'])
+            ->with(['thumbnails', 'categories.cat_data', 'user.details', 'user.thumbnails'])
             ->orderBy('created_at', 'DESC')
             ->limit($limit)
             ->get();
@@ -40,7 +40,7 @@ class ApiController extends Controller
         $posts = Post::where('top_post', 1)
             ->where('status', 'published')
             ->where('visibility', 'public')
-            ->with(['thumbnails', 'categories.cat_data'])
+            ->with(['thumbnails', 'categories.cat_data', 'user.details', 'user.thumbnails'])
             ->orderBy('created_at', 'DESC')
             ->limit($limit)
             ->get();
@@ -67,7 +67,7 @@ class ApiController extends Controller
             ->whereHas('categories.cat_data', function ($q) use ($category) {
                 $q->where('id', $category->id);
             })
-            ->with(['thumbnails', 'categories.cat_data'])
+            ->with(['thumbnails', 'categories.cat_data', 'user.details', 'user.thumbnails'])
             ->orderBy('created_at', 'DESC')
             ->paginate($limit);
 
@@ -95,7 +95,7 @@ class ApiController extends Controller
     public function post($slug)
     {
         $post = Post::where('slug', $slug)
-            ->with(['thumbnails', 'categories.cat_data', 'metas', 'user', 'tags.tag_data', 'gallery'])
+            ->with(['thumbnails', 'categories.cat_data', 'metas', 'user.details', 'user.thumbnails', 'tags.tag_data', 'gallery'])
             ->first();
 
         if (!$post) {
@@ -208,7 +208,7 @@ class ApiController extends Controller
                   ->orWhere('description', 'LIKE', "%{$query}%")
                   ->orWhere('excerpt', 'LIKE', "%{$query}%");
             })
-            ->with(['thumbnails', 'categories.cat_data'])
+            ->with(['thumbnails', 'categories.cat_data', 'user.details', 'user.thumbnails'])
             ->orderBy('created_at', 'DESC')
             ->limit($limit)
             ->get();
@@ -233,7 +233,7 @@ class ApiController extends Controller
         $posts = Post::whereDate('created_at', $date)
             ->where('status', 'published')
             ->where('visibility', 'public')
-            ->with(['thumbnails', 'categories.cat_data'])
+            ->with(['thumbnails', 'categories.cat_data', 'user.details', 'user.thumbnails'])
             ->orderBy('created_at', 'DESC')
             ->paginate($limit);
 
