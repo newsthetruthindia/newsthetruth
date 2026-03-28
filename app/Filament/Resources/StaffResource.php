@@ -97,13 +97,16 @@ class StaffResource extends Resource
                                 ->disk('webapp_public')
                                 ->directory('uploads/avatars')
                                 ->imagePreviewHeight('250')
-                                ->formatStateUsing(fn ($record) => $record?->media?->url ? ltrim($record->media->url, '/') : null)
+                                ->afterStateHydrated(fn ($component, $record) => $component->state($record?->media?->url ? [ltrim($record->media->url, '/')] : []))
                                 ->afterStateUpdated(function ($state, $set, $record) {
                                     if (!$state) return;
                                     
+                                    $path = is_array($state) ? reset($state) : $state;
+                                    if (!$path) return;
+                                    
                                     $media = Media::create([
-                                        'url' => '/' . $state,
-                                        'path' => $state,
+                                        'url' => '/' . $path,
+                                        'path' => $path,
                                         'type' => 'image',
                                     ]);
                                     
@@ -114,7 +117,7 @@ class StaffResource extends Resource
 
                             Select::make('attachment_id')
                                 ->label('Or Link to Existing Media')
-                                ->relationship('user.thumbnails', 'url')
+                                ->relationship('media', 'url')
                                 ->searchable()
                                 ->placeholder('Search by image URL...')
                                 ->columnSpanFull(),
@@ -128,7 +131,7 @@ class StaffResource extends Resource
         return $table
             ->modifyQueryUsing(fn ($query) => $query->whereIn('type', ['admin', 'employee']))
             ->columns([
-                ImageColumn::make('details.media.url')
+                ImageColumn::make('photo')
                     ->label('Photo')
                     ->disk('webapp_public')
                     ->circular()

@@ -72,7 +72,7 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
         return $this->hasMany( Team::class );
     }
 
-    public function role(){
+    public function legacyRole(){
         return $this->hasOne( UserRole::class, 'id', 'role_id' );
     }
 
