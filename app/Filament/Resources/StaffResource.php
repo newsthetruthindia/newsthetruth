@@ -104,9 +104,15 @@ class StaffResource extends Resource
                                     $path = is_array($state) ? reset($state) : $state;
                                     if (!$path) return;
                                     
+                                    $extension = pathinfo($path, PATHINFO_EXTENSION) ?: 'jpg';
+                                    $mimetype = 'image/' . ($extension === 'png' ? 'png' : ($extension === 'webp' ? 'webp' : 'jpeg'));
+                                    
                                     $media = Media::create([
                                         'url' => '/' . $path,
                                         'path' => $path,
+                                        'name' => basename($path),
+                                        'extension' => $extension,
+                                        'mimetype' => $mimetype,
                                         'type' => 'image',
                                     ]);
                                     
