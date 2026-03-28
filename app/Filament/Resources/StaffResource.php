@@ -97,7 +97,7 @@ class StaffResource extends Resource
                                 ->disk('webapp_public')
                                 ->directory('uploads/avatars')
                                 ->imagePreviewHeight('250')
-                                ->loadStateUsing(fn ($record) => $record?->media?->url ? ltrim($record->media->url, '/') : null)
+                                ->formatStateUsing(fn ($record) => $record?->media?->url ? ltrim($record->media->url, '/') : null)
                                 ->afterStateUpdated(function ($state, $set, $record) {
                                     if (!$state) return;
                                     
@@ -132,7 +132,7 @@ class StaffResource extends Resource
                     ->label('Photo')
                     ->disk('webapp_public')
                     ->circular()
-                    ->formatStateUsing(fn ($state) => ltrim($state, '/'))
+                    ->state(fn ($record) => $record->details?->media?->url ? ltrim($record->details->media->url, '/') : null)
                     ->placeholder('No Image'),
                 TextColumn::make('firstname')->searchable()->sortable(),
                 TextColumn::make('lastname')->searchable()->sortable(),
