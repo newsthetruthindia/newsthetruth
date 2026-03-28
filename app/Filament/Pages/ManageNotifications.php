@@ -5,6 +5,7 @@ namespace App\Filament\Pages;
 use App\Models\Option;
 use App\Models\User;
 use App\Notifications\BroadcastNotification;
+use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -48,33 +49,56 @@ class ManageNotifications extends Page implements HasForms
         return $form
             ->statePath('data')
             ->schema([
-                Section::make('General Settings')
-                    ->schema([
-                        Toggle::make('automatic_notifications')
-                            ->label('Automatic Article Broadcast')
-                            ->helperText('When enabled, all subscribers will receive an email as soon as an article is published.')
-                            ->live()
-                            ->afterStateUpdated(fn ($state) => $this->saveSetting('automatic_notifications', $state ? '1' : '0')),
-                    ]),
+                Tabs::make('Notification Management')
+                    ->tabs([
+                        Tabs\Tab::make('General Settings')
+                            ->icon('heroicon-m-cog-6-tooth')
+                            ->schema([
+                                Section::make('Automation Control')
+                                    ->description('Configure how the system handles automatic notifications.')
+                                    ->icon('heroicon-m-bolt')
+                                    ->schema([
+                                        Toggle::make('automatic_notifications')
+                                            ->label('Automatic Article Broadcast')
+                                            ->helperText('When enabled, all subscribers will receive an email as soon as an article is published.')
+                                            ->live()
+                                            ->afterStateUpdated(fn ($state) => $this->saveSetting('automatic_notifications', $state ? '1' : '0')),
+                                    ]),
+                            ]),
 
-                Section::make('Manual YouTube Broadcast')
-                    ->description('Send a YouTube video update to all subscribers instantly.')
-                    ->schema([
-                        TextInput::make('youtube_title')
-                            ->label('Video Title')
-                            ->placeholder('e.g. BREAKING: New Update on Kolkata Elections'),
-                        TextInput::make('youtube_url')
-                            ->label('YouTube URL')
-                            ->url()
-                            ->placeholder('https://www.youtube.com/watch?v=...'),
+                        Tabs\Tab::make('Manual Broadcast')
+                            ->icon('heroicon-m-megaphone')
+                            ->schema([
+                                Section::make('YouTube Video Alert')
+                                    ->description('Instantly notify all 368+ subscribers about a new YouTube video.')
+                                    ->icon('heroicon-m-video-camera')
+                                    ->schema([
+                                        TextInput::make('youtube_title')
+                                            ->label('Video Title')
+                                            ->prefixIcon('heroicon-m-pencil-square')
+                                            ->placeholder('e.g. BREAKING: New Update on Kolkata Elections')
+                                            ->required(),
+                                        TextInput::make('youtube_url')
+                                            ->label('YouTube URL')
+                                            ->url()
+                                            ->prefixIcon('heroicon-m-link')
+                                            ->placeholder('https://www.youtube.com/watch?v=...')
+                                            ->required(),
+                                    ])
+                                    ->footerActions([
+                                        \Filament\Forms\Components\Actions\Action::make('broadcast_youtube')
+                                            ->label('Broadcast to Subscribers')
+                                            ->icon('heroicon-m-paper-airplane')
+                                            ->color('primary')
+                                            ->requiresConfirmation()
+                                            ->modalHeading('Confirm Broadcast')
+                                            ->modalDescription('Are you sure you want to send this notification to ALL subscribers?')
+                                            ->modalSubmitActionLabel('Yes, Send Now')
+                                            ->action('sendYoutubeBroadcast'),
+                                    ]),
+                            ]),
                     ])
-                    ->footerActions([
-                        \Filament\Forms\Components\Actions\Action::make('broadcast_youtube')
-                            ->label('Broadcast to 368+ Subscribers')
-                            ->color('danger')
-                            ->requiresConfirmation()
-                            ->action('sendYoutubeBroadcast'),
-                    ]),
+                    ->persistTabInQueryString(),
             ]);
     }
 

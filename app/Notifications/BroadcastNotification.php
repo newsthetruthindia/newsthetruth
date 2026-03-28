@@ -39,11 +39,13 @@ class BroadcastNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('NTT Update: ' . $this->title)
-            ->line('A new update is available on News The Truth India.')
-            ->line($this->title)
+            ->subject('📺 New Video Alert: ' . $this->title)
+            ->greeting('Hello from News The Truth!')
+            ->line('We just published a new video that we think you\'ll find interesting.')
+            ->line('**Title:** ' . $this->title)
             ->action('Watch on YouTube', $this->url)
-            ->line('Thank you for subscribing to NTT!');
+            ->line('Stay informed with the latest updates from NTT.')
+            ->salutation('Best Regards, \n The NTT Team');
     }
 
     /**

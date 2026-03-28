@@ -35,13 +35,15 @@ class AdminPanelProvider extends PanelProvider
             ->favicon(asset('favicon.ico'))
             ->darkMode(true)
             ->colors([
-                'primary' => Color::hex('#8c0000'),
+                'primary' => Color::hex('#e63946'), // More vibrant, premium red 
+                'gray' => Color::Slate, // Professional slate grays
             ])
-            ->font('Inter')
+            ->font('Poppins')
+            ->sidebarCollapsibleOnDesktop()
             ->navigationGroups([
-                'Content',
-                'Community',
-                'Settings',
+                'Content Management',
+                'User Interactions',
+                'Settings & System',
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
