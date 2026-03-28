@@ -32,6 +32,10 @@ class UserDetail extends Model
         'attachment_id',
     ];
 
+    public function media(){
+        return $this->belongsTo(Media::class, 'attachment_id');
+    }
+
     public function user(){
         return $this->belongsTo(User::class);
     }

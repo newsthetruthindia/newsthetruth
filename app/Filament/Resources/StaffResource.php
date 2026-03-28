@@ -13,6 +13,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\BadgeColumn;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Hash;
@@ -84,24 +85,27 @@ class StaffResource extends Resource
                                 ->prefix('https://'),
                         ])->columns(2),
 
-                    Section::make('Profile Image')
+                    Section::make('Profile Picture')
+                        ->description('Upload or select the official photo for this staff member.')
+                        ->icon('heroicon-m-user-circle')
                         ->schema([
-                            Select::make('attachment_id')
-                                ->label('Select Existing Media')
-                                ->relationship('user.thumbnails', 'url') // This might need adjustment based on how the relationship is used in Filament
-                                ->searchable()
-                                ->placeholder('Search by image URL...')
-                                ->columnSpanFull(),
-                            
                             FileUpload::make('new_avatar_upload')
-                                ->label('Or Upload New Photo')
+                                ->label('Upload Status Photo')
                                 ->image()
+                                ->avatar()
                                 ->disk('webapp_public')
                                 ->directory('uploads/avatars')
                                 ->imagePreviewHeight('250')
                                 ->dehydrated(false)
                                 ->columnSpanFull(),
-                        ])
+
+                            Select::make('attachment_id')
+                                ->label('Or Link to Existing Media')
+                                ->relationship('user.thumbnails', 'url')
+                                ->searchable()
+                                ->placeholder('Search by image URL...')
+                                ->columnSpanFull(),
+                        ])->columns(2),
                 ])->collapsible(),
         ]);
     }
@@ -111,6 +115,10 @@ class StaffResource extends Resource
         return $table
             ->modifyQueryUsing(fn ($query) => $query->whereIn('type', ['admin', 'employee']))
             ->columns([
+                ImageColumn::make('details.media.url')
+                    ->label('Photo')
+                    ->circular()
+                    ->placeholder('No Image'),
                 TextColumn::make('firstname')->searchable()->sortable(),
                 TextColumn::make('lastname')->searchable()->sortable(),
                 TextColumn::make('email')->searchable()->sortable(),
