@@ -69,7 +69,7 @@ class ManageNotifications extends Page implements HasForms
                             ->placeholder('https://www.youtube.com/watch?v=...'),
                     ])
                     ->footerActions([
-                        \Filament\Actions\Action::make('broadcast_youtube')
+                        \Filament\Forms\Components\Actions\Action::make('broadcast_youtube')
                             ->label('Broadcast to 368+ Subscribers')
                             ->color('danger')
                             ->requiresConfirmation()
