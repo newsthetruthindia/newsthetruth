@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\StaffResource\Pages;
 use App\Models\User;
+use App\Models\Media;
 use Filament\Forms;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
@@ -96,6 +97,18 @@ class StaffResource extends Resource
                                 ->disk('webapp_public')
                                 ->directory('uploads/avatars')
                                 ->imagePreviewHeight('250')
+                                ->loadStateUsing(fn ($record) => $record?->media?->url ? ltrim($record->media->url, '/') : null)
+                                ->afterStateUpdated(function ($state, $set, $record) {
+                                    if (!$state) return;
+                                    
+                                    $media = Media::create([
+                                        'url' => '/' . $state,
+                                        'path' => $state,
+                                        'type' => 'image',
+                                    ]);
+                                    
+                                    $set('attachment_id', $media->id);
+                                })
                                 ->dehydrated(false)
                                 ->columnSpanFull(),
 
@@ -117,7 +130,9 @@ class StaffResource extends Resource
             ->columns([
                 ImageColumn::make('details.media.url')
                     ->label('Photo')
+                    ->disk('webapp_public')
                     ->circular()
+                    ->formatStateUsing(fn ($state) => ltrim($state, '/'))
                     ->placeholder('No Image'),
                 TextColumn::make('firstname')->searchable()->sortable(),
                 TextColumn::make('lastname')->searchable()->sortable(),
