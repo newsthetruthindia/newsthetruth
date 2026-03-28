@@ -13,6 +13,7 @@ use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
+use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\BadgeColumn;
@@ -42,6 +43,8 @@ class PostResource extends Resource
                 ->schema([
                     TextInput::make('title')
                         ->label('Headline')
+                        ->live(onBlur: true)
+                        ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', str($state)->slug()))
                         ->required()
                         ->maxLength(500)
                         ->columnSpanFull(),
@@ -323,6 +326,32 @@ class PostResource extends Resource
                     ->color('danger')
                     ->visible(fn (Post $record) => $record->status === 'published')
                     ->action(fn (Post $record) => $record->update(['status' => 'drafted'])),
+                Tables\Actions\Action::make('send_to_subscribers')
+                    ->label('Notify')
+                    ->icon('heroicon-o-paper-airplane')
+                    ->color('info')
+                    ->requiresConfirmation()
+                    ->hidden(fn (Post $record) => $record->status !== 'published')
+                    ->action(function (Post $record) {
+                        $subscribers = \App\Models\User::where('type', 'user')->get();
+                        $imageUrl = $record->thumbnailMedia ? asset('storage/' . $record->thumbnailMedia->url) : null;
+
+                        \Illuminate\Support\Facades\Notification::send(
+                            $subscribers, 
+                            new \App\Notifications\BroadcastNotification(
+                                $record->title,
+                                env('APP_URL') . '/posts/' . $record->slug,
+                                $record->excerpt,
+                                $imageUrl
+                            )
+                        );
+
+                        \Filament\Notifications\Notification::make()
+                            ->title('Broadcast Sent')
+                            ->body('Notification is being delivered to ' . $subscribers->count() . ' subscribers.')
+                            ->success()
+                            ->send();
+                    }),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])

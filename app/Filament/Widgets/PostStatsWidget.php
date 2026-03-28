@@ -29,10 +29,15 @@ class PostStatsWidget extends BaseWidget
                 ->descriptionIcon('heroicon-m-pencil')
                 ->color('warning'),
 
-            Stat::make('Staff Members', User::count())
-                ->description('Registered accounts')
+            Stat::make('Staff Members', User::whereIn('type', ['admin', 'employee'])->count())
+                ->description('Team members')
                 ->descriptionIcon('heroicon-m-users')
                 ->color('primary'),
+
+            Stat::make('Subscribers', User::where('type', 'user')->count())
+                ->description('Registered accounts')
+                ->descriptionIcon('heroicon-m-user-group')
+                ->color('info'),
 
             Stat::make('Citizen Reports', CitizenJournalism::where('posted', 0)->count())
                 ->description('Awaiting review')

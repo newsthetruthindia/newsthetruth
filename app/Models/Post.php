@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
+use App\Models\Option;
+use App\Models\User;
+
 class Post extends Model
 {
     use HasFactory;
@@ -55,5 +58,30 @@ class Post extends Model
     }
     public function gallery(){
         return $this->hasMany( PostGallery::class, 'post_id', 'id' );
+    }
+
+    protected static function booted()
+    {
+        static::saved(function ($post) {
+            // Only send if status was just changed to 'published'
+            if ($post->wasChanged('status') && $post->status === 'published') {
+                $autoNotify = Option::where('key', 'automatic_notifications')->first()?->value === '1';
+                
+                if ($autoNotify) {
+                    $subscribers = User::where('type', 'user')->get();
+                    $imageUrl = $post->thumbnailMedia ? asset('storage/' . $post->thumbnailMedia->url) : null;
+
+                    \Illuminate\Support\Facades\Notification::send(
+                        $subscribers, 
+                        new \App\Notifications\BroadcastNotification(
+                            $post->title,
+                            env('APP_URL') . '/posts/' . $post->slug,
+                            $post->excerpt,
+                            $imageUrl
+                        )
+                    );
+                }
+            }
+        });
     }
 }
