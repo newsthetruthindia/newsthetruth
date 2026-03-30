@@ -109,6 +109,44 @@ class ApiController extends Controller
     }
 
     /**
+     * Get a user's details by ID.
+     */
+    public function user($id)
+    {
+        $user = \App\Models\User::where('id', $id)
+            ->with(['details', 'thumbnails'])
+            ->first();
+
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'User not found'], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $user
+        ]);
+    }
+
+    /**
+     * Get posts by a specific user ID.
+     */
+    public function userPosts($id, Request $request)
+    {
+        $limit = $request->get('limit', 20);
+        $posts = Post::where('user_id', $id)
+            ->where('status', 'published')
+            ->where('visibility', 'public')
+            ->with(['thumbnails', 'categories.cat_data', 'user.details', 'user.thumbnails'])
+            ->orderBy('created_at', 'DESC')
+            ->paginate($limit);
+
+        return response()->json([
+            'success' => true,
+            'data' => $posts
+        ]);
+    }
+
+    /**
      * Get basic site settings.
      */
     public function settings()

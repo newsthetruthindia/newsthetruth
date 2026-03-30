@@ -22,7 +22,9 @@ Route::post('/auth/forgot-password', [ApiAuthController::class, 'forgotPassword'
 Route::post('/auth/reset-password', [ApiAuthController::class, 'resetPassword']);
 Route::middleware('auth:sanctum')->post('/auth/logout', [ApiAuthController::class, 'logout']);
 
-// Post Routes
+// Post & User Routes
+Route::get('/user/{id}', [ApiController::class, 'user']);
+Route::get('/posts/user/{id}', [ApiController::class, 'userPosts']);
 Route::get('/posts/latest', [ApiController::class, 'latestPosts']);
 Route::get('/posts/top', [ApiController::class, 'topPosts']);
 Route::get('/posts/category/{slug}', [ApiController::class, 'categoryPosts']);
