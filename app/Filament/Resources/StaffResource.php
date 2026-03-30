@@ -56,6 +56,46 @@ class StaffResource extends Resource
 
             Section::make('Reporter Profile')
                 ->relationship('details')
+                ->mutateRelationshipDataBeforeCreateUsing(function (array $data): array {
+                    if (!empty($data['new_avatar_upload'])) {
+                        $path = is_array($data['new_avatar_upload']) ? reset($data['new_avatar_upload']) : $data['new_avatar_upload'];
+                        if ($path) {
+                            $extension = pathinfo($path, PATHINFO_EXTENSION) ?: 'jpg';
+                            $mimetype = 'image/' . ($extension === 'png' ? 'png' : ($extension === 'webp' ? 'webp' : 'jpeg'));
+                            $media = \App\Models\Media::create([
+                                'url' => $path,
+                                'path' => $path,
+                                'name' => basename($path),
+                                'extension' => $extension,
+                                'mimetype' => $mimetype,
+                                'type' => 'image',
+                            ]);
+                            $data['attachment_id'] = $media->id;
+                        }
+                    }
+                    unset($data['new_avatar_upload']);
+                    return $data;
+                })
+                ->mutateRelationshipDataBeforeSaveUsing(function (array $data): array {
+                    if (!empty($data['new_avatar_upload'])) {
+                        $path = is_array($data['new_avatar_upload']) ? reset($data['new_avatar_upload']) : $data['new_avatar_upload'];
+                        if ($path) {
+                            $extension = pathinfo($path, PATHINFO_EXTENSION) ?: 'jpg';
+                            $mimetype = 'image/' . ($extension === 'png' ? 'png' : ($extension === 'webp' ? 'webp' : 'jpeg'));
+                            $media = \App\Models\Media::create([
+                                'url' => $path,
+                                'path' => $path,
+                                'name' => basename($path),
+                                'extension' => $extension,
+                                'mimetype' => $mimetype,
+                                'type' => 'image',
+                            ]);
+                            $data['attachment_id'] = $media->id;
+                        }
+                    }
+                    unset($data['new_avatar_upload']);
+                    return $data;
+                })
                 ->schema([
                     TextInput::make('designation')
                         ->placeholder('e.g. Senior Investigative Reporter')
@@ -98,26 +138,6 @@ class StaffResource extends Resource
                                 ->directory('uploads/avatars')
                                 ->imagePreviewHeight('250')
                                 ->afterStateHydrated(fn ($component, $record) => $component->state($record?->media?->url ? [ltrim($record->media->url, '/')] : []))
-                                ->afterStateUpdated(function ($state, $set, $record) {
-                                    if (!$state) return;
-                                    
-                                    $path = is_array($state) ? reset($state) : $state;
-                                    if (!$path) return;
-                                    
-                                    $extension = pathinfo($path, PATHINFO_EXTENSION) ?: 'jpg';
-                                    $mimetype = 'image/' . ($extension === 'png' ? 'png' : ($extension === 'webp' ? 'webp' : 'jpeg'));
-                                    
-                                    $media = Media::create([
-                                        'url' => '/' . $path,
-                                        'path' => $path,
-                                        'name' => basename($path),
-                                        'extension' => $extension,
-                                        'mimetype' => $mimetype,
-                                        'type' => 'image',
-                                    ]);
-                                    
-                                    $set('attachment_id', $media->id);
-                                })
                                 ->dehydrated(false)
                                 ->columnSpanFull(),
 
