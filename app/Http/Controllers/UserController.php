@@ -159,6 +159,11 @@ class UserController extends Controller{
             if(request()->hasfile('profile_picture')){
                 $user_path              = '/medias/user_docs/'.$user->id.'/';
                 $upload_path            = public_path().$user_path;
+
+                if (!file_exists($upload_path)) {
+                    mkdir($upload_path, 0755, true);
+                }
+
                 $file                   = request()->file( 'profile_picture' );
                 $filename               = $file->getClientOriginalName();
                 $file->move( $upload_path, $filename );
@@ -221,6 +226,11 @@ class UserController extends Controller{
                 $user_path              = '/medias/user_docs/'.$user->id.'/';
                 $upload_path            = public_path().$user_path;
                 //dd(public_path());
+
+                if (!file_exists($upload_path)) {
+                    mkdir($upload_path, 0755, true);
+                }
+
                 $file                   = request()->file( 'profile_picture' );
                 $filename               = $file->getClientOriginalName();
                 $file->move( $upload_path, $filename );
