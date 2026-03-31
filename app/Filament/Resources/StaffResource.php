@@ -138,7 +138,6 @@ class StaffResource extends Resource
                                 ->directory('uploads/avatars')
                                 ->imagePreviewHeight('250')
                                 ->afterStateHydrated(fn ($component, $record) => $component->state($record?->media?->url ? [ltrim($record->media->url, '/')] : []))
-                                ->dehydrated(false)
                                 ->columnSpanFull(),
 
                             Select::make('attachment_id')
