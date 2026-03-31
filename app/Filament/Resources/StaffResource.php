@@ -168,10 +168,20 @@ class StaffResource extends Resource
                 TextColumn::make('roles.name')
                     ->badge()
                     ->label('Role'),
-                TextColumn::make('email_verified_at')
-                    ->label('Verified')
-                    ->dateTime('M j, Y')
-                    ->placeholder('Unverified'),
+                TextColumn::make('posts_count')
+                    ->counts('posts')
+                    ->label('Total Articles')
+                    ->sortable(),
+                TextColumn::make('today_posts_count')
+                    ->counts('posts', fn ($query) => $query->whereDate('created_at', now()))
+                    ->label('Today')
+                    ->badge()
+                    ->color('success'),
+                TextColumn::make('weekly_posts_count')
+                    ->counts('posts', fn ($query) => $query->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()]))
+                    ->label('This Week')
+                    ->badge()
+                    ->color('info'),
                 TextColumn::make('created_at')->dateTime('M j, Y')->sortable(),
             ])
             ->actions([

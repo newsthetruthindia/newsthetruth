@@ -79,4 +79,8 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
     public function thumbnails(): HasOneThrough{
         return $this->hasOneThrough( Media::class, UserDetail::class, 'user_id','id', 'id', 'attachment_id' );
     }
+
+    public function posts(){
+        return $this->hasMany( Post::class );
+    }
 }
