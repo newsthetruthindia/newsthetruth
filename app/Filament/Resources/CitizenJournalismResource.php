@@ -32,18 +32,54 @@ class CitizenJournalismResource extends Resource
     public static function form(Form $form): Form
     {
         return $form->schema([
-            Section::make('Submission')->schema([
-                TextInput::make('title')->required()->maxLength(255)->columnSpanFull(),
-                Textarea::make('description')->rows(5)->columnSpanFull(),
-                Select::make('status')
-                    ->options([
-                        'pending' => 'Pending Review',
-                        'approved' => 'Approved',
-                        'rejected' => 'Rejected',
-                        'published' => 'Published as Story',
-                    ])
-                    ->default('pending'),
-            ])->columns(2),
+            Section::make('Submission Details')
+                ->description('Provide the core information for this citizen report.')
+                ->schema([
+                    Select::make('user_id')
+                        ->label('Submitted Name')
+                        ->relationship('user', 'firstname')
+                        ->searchable()
+                        ->preload()
+                        ->required(),
+
+                    TextInput::make('title')
+                        ->label('Subject')
+                        ->required()
+                        ->maxLength(255),
+
+                    Forms\Components\DateTimePicker::make('datetime')
+                        ->label('Incident Date & Time')
+                        ->default(now())
+                        ->required(),
+
+                    Forms\Components\FileUpload::make('attachment_url')
+                        ->label('Incident Picture(s)')
+                        ->image()
+                        ->directory('citizen-journalism')
+                        ->required()
+                        ->columnSpanFull(),
+
+                    Textarea::make('description')
+                        ->label('Report Content')
+                        ->rows(5)
+                        ->required()
+                        ->columnSpanFull(),
+
+                    TextInput::make('place')
+                        ->label('Location / Place')
+                        ->required()
+                        ->maxLength(255),
+
+                    Select::make('status')
+                        ->options([
+                            'pending' => 'Pending Review',
+                            'approved' => 'Approved',
+                            'rejected' => 'Rejected',
+                            'published' => 'Published as Story',
+                        ])
+                        ->default('pending')
+                        ->required(),
+                ])->columns(2),
         ]);
     }
 
