@@ -19,7 +19,6 @@ class ApiController extends Controller
     {
         $limit = $request->get('limit', 10);
         $posts = Post::where('status', 'published')
-            ->where('visibility', 'public')
             ->with(['thumbnails', 'categories.cat_data', 'user.details', 'user.thumbnails'])
             ->orderBy('created_at', 'DESC')
             ->limit($limit)
@@ -39,7 +38,6 @@ class ApiController extends Controller
         $limit = $request->get('limit', 6);
         $posts = Post::where('top_post', 1)
             ->where('status', 'published')
-            ->where('visibility', 'public')
             ->with(['thumbnails', 'categories.cat_data', 'user.details', 'user.thumbnails'])
             ->orderBy('created_at', 'DESC')
             ->limit($limit)
@@ -63,7 +61,6 @@ class ApiController extends Controller
 
         $limit = $request->get('limit', 20);
         $posts = Post::where('status', 'published')
-            ->where('visibility', 'public')
             ->whereHas('categories.cat_data', function ($q) use ($category) {
                 $q->where('id', $category->id);
             })
@@ -135,7 +132,6 @@ class ApiController extends Controller
         $limit = $request->get('limit', 20);
         $posts = Post::where('user_id', $id)
             ->where('status', 'published')
-            ->where('visibility', 'public')
             ->with(['thumbnails', 'categories.cat_data', 'user.details', 'user.thumbnails'])
             ->orderBy('created_at', 'DESC')
             ->paginate($limit);
@@ -240,7 +236,6 @@ class ApiController extends Controller
 
         $limit = $request->get('limit', 20);
         $posts = Post::where('status', 'published')
-            ->where('visibility', 'public')
             ->where(function($q) use ($query) {
                 $q->where('title', 'LIKE', "%{$query}%")
                   ->orWhere('description', 'LIKE', "%{$query}%")
@@ -270,7 +265,6 @@ class ApiController extends Controller
         $limit = $request->get('limit', 20);
         $posts = Post::whereDate('created_at', $date)
             ->where('status', 'published')
-            ->where('visibility', 'public')
             ->with(['thumbnails', 'categories.cat_data', 'user.details', 'user.thumbnails'])
             ->orderBy('created_at', 'DESC')
             ->paginate($limit);
