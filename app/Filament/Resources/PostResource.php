@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\PostResource\Pages;
 use App\Models\Post;
+use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
@@ -22,6 +23,8 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class PostResource extends Resource
 {
@@ -96,7 +99,6 @@ class PostResource extends Resource
                                                 if($replacements) {
                                                     $msg .= " Suggestions: " . $replacements;
                                                 }
-                                                // Extract snippet of where the error is
                                                 $context = "";
                                                 if(isset($match['context']['text']) && isset($match['context']['offset']) && isset($match['context']['length'])) {
                                                     $context = "\nContext: \"... " . substr($match['context']['text'], max(0, $match['context']['offset'] - 10), $match['context']['length'] + 20) . " ...\"";
@@ -124,60 +126,28 @@ class PostResource extends Resource
                         ->columnSpanFull(),
                 ])->columns(2),
 
-            Section::make('Reporter Information')
-                ->schema([
-                    TextInput::make('reporter_name')
-                        ->label('Reporter Name')
-                        ->required()
-                        ->maxLength(255),
-                    
-                    TextInput::make('location')
-                        ->label('Location')
-                        ->maxLength(255),
-                ])->columns(2),
-
-            Section::make('Post Author')
-                ->schema([
-                    Select::make('user_id')
-                        ->label('Posting User')
-                        ->relationship('user', 'email')
-                        ->default(fn() => auth()->id())
-                        ->required()
-                        ->searchable()
-                        ->preload(),
-                ]),
-
-            Section::make('Audio Preview')
-                ->schema([
-                    Forms\Components\Placeholder::make('audio_preview')
-                        ->label('Generated Audio')
-                        ->content(fn ($record) => $record && $record->audio_clip_url 
-                            ? new \Illuminate\Support\HtmlString("<audio controls src='{$record->audio_clip_url}' class='w-full'></audio>")
-                            : 'No audio generated yet.'),
-                ])
-                ->visible(fn ($record) => $record !== null),
-
             Section::make('Categorization')
                 ->schema([
-                    Select::make('filamentCategories')
+                    Select::make('categories')
+                        ->label('Primary Category')
                         ->relationship('filamentCategories', 'title')
                         ->multiple()
                         ->preload()
-                        ->searchable()
-                        ->label('Categories'),
+                        ->required()
+                        ->searchable(),
 
-                    Select::make('filamentTags')
-                        ->relationship('filamentTags', 'title')
-                        ->multiple()
-                        ->preload()
-                        ->searchable()
-                        ->label('Tags'),
+                    TagsInput::make('tags')
+                        ->label('Tags')
+                        ->placeholder('Add relevant tags...')
+                        ->suggestions([
+                            'Politics', 'Breaking', 'Crime', 'Entertainment', 'Sports', 'Local',
+                        ]),
                 ])->columns(2),
 
-            Section::make('Media')
+            Section::make('Media & Thumbnail')
                 ->schema([
-                    Select::make('thumbnail')
-                        ->label('Select Existing Media')
+                    Select::make('attachment_id')
+                        ->label('Select from Media Library')
                         ->relationship('thumbnailMedia', 'url')
                         ->searchable()
                         ->columnSpanFull(),
@@ -190,6 +160,57 @@ class PostResource extends Resource
                         ->imagePreviewHeight('200')
                         ->dehydrated(false)
                         ->columnSpanFull(),
+                ]),
+
+            Section::make('Reporter Information')
+                ->description('Specify the attribution for this story.')
+                ->schema([
+                    Select::make('reporter_name')
+                        ->label('Attribution Name')
+                        ->required()
+                        ->options(function () {
+                            $reporters = User::role('Reporter')->get()
+                                ->mapWithKeys(fn ($u) => [$u->name => $u->name])
+                                ->toArray();
+                            
+                            return array_merge([
+                                'NTT Desk' => 'NTT Desk (Official)',
+                                'Staff Reporter' => 'Staff Reporter (Ghost)',
+                                'Citizen Journalist' => 'Citizen Journalist (Public)',
+                            ], $reporters);
+                        })
+                        ->searchable()
+                        ->live()
+                        ->afterStateUpdated(function ($state, Forms\Set $set) {
+                            if (in_array($state, ['NTT Desk', 'Staff Reporter', 'Citizen Journalist'])) {
+                                $set('user_id', 0);
+                            } else {
+                                $user = User::role('Reporter')
+                                    ->where(DB::raw("trim(concat(firstname, ' ', coalesce(lastname, '')))"), $state)
+                                    ->first();
+                                if ($user) {
+                                    $set('user_id', $user->id);
+                                }
+                            }
+                        }),
+                    
+                    TextInput::make('location')
+                        ->label('Filing Location')
+                        ->placeholder('e.g. New Delhi, India')
+                        ->maxLength(255),
+                ])->columns(2),
+
+            Section::make('Post Author')
+                ->description('Administrative control for post ownership.')
+                ->schema([
+                    Select::make('user_id')
+                        ->label('System User ID')
+                        ->relationship('user', 'email')
+                        ->default(fn() => auth()->id())
+                        ->required()
+                        ->searchable()
+                        ->preload()
+                        ->hint('Linked to the reporter selection above.'),
                 ]),
 
             Section::make('SEO & Publishing')
@@ -265,7 +286,8 @@ class PostResource extends Resource
                     ->label('Reporter')
                     ->toggleable()
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->color(fn ($state) => in_array($state, ['NTT Desk', 'Staff Reporter', 'Citizen Journalist']) ? 'gray' : 'primary'),
 
                 TextColumn::make('user.firstname')
                     ->label('Posted By')
@@ -284,8 +306,8 @@ class PostResource extends Resource
                 SelectFilter::make('status')
                     ->options([
                         'published' => 'Published',
-                        'draft' => 'Draft',
-                        'pending' => 'Pending',
+                        'drafted' => 'Drafted',
+                        'open' => 'Open Review',
                     ]),
             ])
             ->actions([

@@ -18,9 +18,16 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
     use SoftDeletes;
 
+    protected $appends = ['is_reporter'];
+
     public function canAccessPanel(Panel $panel): bool
     {
         return $this->hasAnyRole(['Admin', 'Editor']);
+    }
+
+    public function getIsReporterAttribute(): bool
+    {
+        return $this->hasRole('Reporter');
     }
 
     public function getNameAttribute(): string

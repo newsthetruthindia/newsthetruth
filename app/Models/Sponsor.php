@@ -12,6 +12,7 @@ class Sponsor extends Model
     protected $fillable = [
         'name',
         'image_url',
+        'media_id',
         'link_url',
         'type', // 'splash', 'banner', 'sidebar'
         'is_active',
@@ -24,6 +25,11 @@ class Sponsor extends Model
         'starts_at' => 'datetime',
         'ends_at' => 'datetime',
     ];
+
+    public function media()
+    {
+        return $this->belongsTo(Media::class, 'media_id');
+    }
 
     public function scopeActive($query)
     {
