@@ -43,7 +43,8 @@ try {
         ['slug' => 'ntt-desk'],
         [
             'title' => 'NTT Desk',
-            'description' => 'Official news and bulletins directly from the NTT Editorial Desk.'
+            'description' => 'Official news and bulletins directly from the NTT Editorial Desk.',
+            'user_id' => $user->id // Required field in DB
         ]
     );
 
