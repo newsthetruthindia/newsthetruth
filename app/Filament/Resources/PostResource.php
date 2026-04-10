@@ -226,7 +226,6 @@ class PostResource extends Resource
                                             if (!$state) return;
                                             optimize_image_on_upload(public_path($state));
                                         })
-                                        ->dehydrated(false)
                                         ->columnSpanFull(),
                                     
                                     TextInput::make('image_credit')
