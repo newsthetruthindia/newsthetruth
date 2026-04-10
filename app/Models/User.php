@@ -27,7 +27,7 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 
     public function getIsReporterAttribute(): bool
     {
-        return $this->hasRole('Reporter');
+        return $this->hasRole('Reporter') || $this->hasRole('Reporter', 'web') || $this->roles()->where('name', 'Reporter')->exists();
     }
 
     public function getNameAttribute(): string

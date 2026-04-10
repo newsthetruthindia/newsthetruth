@@ -31,6 +31,8 @@ Route::get('/posts/category/{slug}', [ApiController::class, 'categoryPosts']);
 Route::get('/post/{slug}', [ApiController::class, 'post']);
 Route::get('/posts/search', [ApiController::class, 'searchPosts']);
 Route::get('/posts/archive', [ApiController::class, 'archivePosts']);
+Route::get('/archive/stats', [ApiController::class, 'archiveSummary']);
+Route::get('/reporters', [ApiController::class, 'activeReporters']);
 
 // Category & Settings Routes
 Route::get('/categories', [ApiController::class, 'categories']);

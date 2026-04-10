@@ -65,17 +65,24 @@ class EditPost extends EditRecord
             $mimetype = $mimeMap[$extension] ?? 'image/' . $extension;
 
             // Create the Media record with ALL required fields
-            $media = Media::create([
-                'type'      => 'image',
-                'path'      => $path,
-                'url'       => $path,
-                'name'      => $name,
-                'extension' => $extension,
-                'mimetype'  => $mimetype,
-                'alt'       => $data['title'] ?? 'Thumbnail',
-            ]);
+            try {
+                $media = Media::create([
+                    'type'      => 'image',
+                    'path'      => $path,
+                    'url'       => $path,
+                    'name'      => $name,
+                    'extension' => $extension,
+                    'mimetype'  => $mimetype,
+                    'alt'       => $data['title'] ?? 'Thumbnail',
+                ]);
 
-            $data['thumbnail'] = $media->id;
+                if ($media) {
+                    $data['thumbnail'] = $media->id;
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error("Media Creation Failed during Post Edit: " . $e->getMessage());
+                // We don't stop the process, but the post will have no thumbnail
+            }
         }
 
         // Clean up the temporary form field

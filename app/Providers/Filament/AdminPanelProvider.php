@@ -40,6 +40,10 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->font('Poppins')
             ->sidebarCollapsibleOnDesktop()
+            ->renderHook(
+                \Filament\View\PanelsRenderHook::BODY_END,
+                fn (): string => '<script src="https://platform.twitter.com/widgets.js" async charset="utf-8"></script>',
+            )
             ->navigationGroups([
                 'Content Management',
                 'User Interactions',

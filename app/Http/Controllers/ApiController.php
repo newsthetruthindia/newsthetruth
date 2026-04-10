@@ -287,4 +287,49 @@ class ApiController extends Controller
             'data' => $videos
         ]);
     }
+
+    public function archiveSummary()
+    {
+        $total = Post::where('status', 'published')->count();
+        $rounded = floor($total / 100) * 100;
+        
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'total_posts' => $total,
+                'rounded_count' => number_format($rounded) . '+',
+                'years_count' => '3+'
+            ]
+        ]);
+    }
+
+    public function activeReporters()
+    {
+        $reporterNames = Post::where('status', 'published')
+            ->whereNotNull('reporter_name')
+            ->whereNotIn('reporter_name', ['NTT Desk', 'Staff Reporter', 'Citizen Journalist'])
+            ->distinct()
+            ->pluck('reporter_name');
+
+        $reporters = \App\Models\User::where(function($q) use ($reporterNames) {
+                $q->whereIn(\Illuminate\Support\Facades\DB::raw("trim(concat(firstname, ' ', coalesce(lastname, '')))"), $reporterNames)
+                  ->orWhereHas('roles', fn($qr) => $qr->where('name', 'Reporter'));
+            })
+            ->with(['details', 'thumbnails'])
+            ->get();
+
+        $safeData = $reporters->map(fn($u) => [
+            'id'          => $u->id,
+            'firstname'   => $u->firstname,
+            'lastname'    => $u->lastname,
+            'is_reporter' => true,
+            'details'     => [
+                'designation' => $u->details?->designation ?? 'Reporter',
+                'bio'         => $u->details?->bio,
+            ],
+            'thumbnails'  => $u->thumbnails,
+        ]);
+
+        return response()->json(['success' => true, 'data' => $safeData]);
+    }
 }

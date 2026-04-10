@@ -10,13 +10,14 @@ class SponsorController extends Controller
 {
     public function index()
     {
-        $ads = Sponsor::active()->get();
+        $ads = Sponsor::active()->with('media')->get();
         return response()->json($ads);
     }
 
     public function getRandom($type = 'banner')
     {
         $ad = Sponsor::active()
+            ->with('media')
             ->where('type', $type)
             ->inRandomOrder()
             ->first();

@@ -37,20 +37,35 @@ class SponsorResource extends Resource
                             ->maxLength(255),
                         Select::make('type')
                             ->options([
-                                'banner' => 'Banner (Home Feed)',
-                                'sidebar' => 'Sidebar',
-                                'splash' => 'Splash Screen',
+                                'banner' => 'Banner (Home Feed) - 4:1 Ratio',
+                                'sidebar' => 'Sidebar - 1:1 Ratio',
+                                'splash' => 'Splash Screen - 2:3 Ratio',
                             ])
-                            ->required(),
+                            ->required()
+                            ->live(),
                         TextInput::make('link_url')
                             ->url()
                             ->maxLength(255),
+                        Forms\Components\FileUpload::make('new_image_upload')
+                            ->label('Upload Ad Image')
+                            ->image()
+                            ->imageEditor()
+                            ->imageCropAspectRatio(fn (Forms\Get $get) => match ($get('type')) {
+                                'banner' => '4:1',
+                                'sidebar' => '1:1',
+                                'splash' => '2:3',
+                                default => null,
+                            })
+                            ->disk('webapp_public')
+                            ->directory('uploads/media')
+                            ->imagePreviewHeight('250')
+                            ->columnSpanFull(),
                         Select::make('media_id')
                             ->relationship('media', 'name')
-                            ->label('Banner Image')
+                            ->getOptionLabelFromRecordUsing(fn ($record) => $record->name ?? "Media #{$record->id}")
+                            ->label('Or Select from Media Library')
                             ->searchable()
-                            ->preload()
-                            ->required(),
+                            ->preload(),
                     ])->columns(2),
 
                 Forms\Components\Section::make('Status & Schedule')

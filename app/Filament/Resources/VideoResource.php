@@ -30,6 +30,13 @@ class VideoResource extends Resource
                     ->helperText('The part after v= in the URL (e.g., dQw4w9WgXcQ)')
                     ->required()
                     ->maxLength(255),
+                Forms\Components\Select::make('type')
+                    ->options([
+                        'video' => 'Story Video',
+                        'live' => 'Live Broadcast',
+                    ])
+                    ->default('video')
+                    ->required(),
                 Forms\Components\Toggle::make('is_featured')
                     ->label('Featured Video')
                     ->default(false),

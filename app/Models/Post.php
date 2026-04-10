@@ -30,6 +30,8 @@ class Post extends Model
         'reporter_name',
         'published',
         'post_publish_time',
+        'meta_title',
+        'meta_description',
     ];
     public function user(){
         return $this->belongsTo( User::class );
