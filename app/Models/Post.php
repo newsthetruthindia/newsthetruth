@@ -42,7 +42,7 @@ class Post extends Model
     }
 
     public function thumbnails(){
-        return $this->hasOne( Media::class, 'id', 'thumbnail' );
+        return $this->belongsTo( Media::class, 'thumbnail', 'id' );
     }
     public function categories(){
         return $this->hasMany( postCategory::class, 'post_id', 'id' );

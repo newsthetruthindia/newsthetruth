@@ -87,13 +87,6 @@ class PostResource extends Resource
                                         ->fileAttachmentsDisk('webapp_public')
                                         ->fileAttachmentsDirectory('uploads/articles')
                                         ->fileAttachmentsVisibility('public')
-                                        ->afterStateUpdated(function ($state) {
-                                            if (!$state) return;
-                                            // RichEditor attachments can be multiple
-                                            foreach ((array)$state as $file) {
-                                                optimize_image_on_upload(public_path($file));
-                                            }
-                                        })
                                         ->live(onBlur: true)
                                         ->hintAction(
                                             Forms\Components\Actions\Action::make('grammar_check')
