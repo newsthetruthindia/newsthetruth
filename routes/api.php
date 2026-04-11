@@ -51,3 +51,6 @@ Route::get('/sponsor/{type?}', [\App\Http\Controllers\Api\SponsorController::cla
 
 // Public News Monitor (for TV)
 Route::get('/v1/monitor/{key}', [\App\Http\Controllers\Api\PublicMonitorController::class, 'show']);
+
+// Newsletter Subscriptions
+Route::post('/v1/subscribe', [\App\Http\Controllers\Api\SubscriberController::class, 'store']);

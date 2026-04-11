@@ -192,14 +192,33 @@ class ApiController extends Controller
 
         $post->save();
 
-        // Trigger notification
+        // Trigger notification and Email Alert
         try {
+            // DB Notification
             $notification = new NotificationController();
             $notification->description('New API Citizen Report: ' . $post->title);
             $notification->type('users');
             $notification->send();
+
+            // Email Alert to Admin
+            $adminEmail = env('MAIL_FROM_ADDRESS', 'newsthetruthindia@gmail.com');
+            \Illuminate\Support\Facades\Mail::send([], [], function ($message) use ($post, $adminEmail) {
+                $message->to($adminEmail)
+                    ->subject('NEW CITIZEN REPORT: ' . $post->title)
+                    ->html("
+                        <div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:40px 20px;'>
+                            <h2 style='color:#8c0000;'>New Citizen Journalism Report</h2>
+                            <p><strong>Title:</strong> {$post->title}</p>
+                            <p><strong>Location:</strong> {$post->place}</p>
+                            <p><strong>Reporter:</strong> {$post->credit} ({$post->subtitle})</p>
+                            <hr style='border:none;border-top:1px solid #eee;margin:20px 0;'>
+                            <p style='white-space:pre-wrap;'>{$post->description}</p>
+                            " . ($post->attachment_url ? "<p><a href='{$post->attachment_url}' style='background:#111;color:white;padding:10px 20px;text-decoration:none;border-radius:4px;'>View Attachment</a></p>" : "") . "
+                        </div>
+                    ");
+            });
         } catch (\Exception $e) {
-            // Silently fail notification if it errors
+            // Silently fail if mail fails (prevent crashing the API)
         }
 
         return response()->json([

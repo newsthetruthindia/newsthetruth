@@ -4,6 +4,8 @@ namespace App\Filament\Pages\Auth;
 
 use Filament\Pages\Auth\Login as BaseLogin;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Placeholder;
+use Illuminate\Support\HtmlString;
 use Filament\Forms\Form;
 use Filament\Facades\Filament;
 use Filament\Http\Responses\Auth\Contracts\LoginResponse;
@@ -29,6 +31,17 @@ class Login extends BaseLogin
                             ->numeric()
                             ->maxLength(6)
                             ->placeholder('123456'),
+                        Placeholder::make('rescue_links')
+                            ->hiddenLabel()
+                            ->content(new HtmlString('
+                                <div class="mt-2 text-xs text-gray-500 space-y-2">
+                                    <p>Locked out? 
+                                        <a href="/auth/resend-verification" class="text-primary-600 hover:underline font-bold">Resend Verification Email</a> 
+                                        | 
+                                        <a href="/auth/reset-2fa-request" class="text-gray-600 hover:underline font-bold">Reset 2FA via Email</a>
+                                    </p>
+                                </div>
+                            ')),
                     ])
                     ->statePath('data'),
             ),

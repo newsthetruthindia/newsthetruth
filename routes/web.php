@@ -13,6 +13,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+// Auth Recovery Routes
+Route::match(['get', 'post'], '/auth/resend-verification', [\App\Http\Controllers\Api\AuthRecoveryController::class, 'resendVerification']);
+Route::match(['get', 'post'], '/auth/reset-2fa-request', [\App\Http\Controllers\Api\AuthRecoveryController::class, 'reset2faRequest']);
+Route::get('/auth/reset-2fa-execute', [\App\Http\Controllers\Api\AuthRecoveryController::class, 'reset2faExecute']);
+
 
 Route::get('/', [App\Http\Controllers\PublicPageController_v1::class, 'index'])->name('v1.home');
 Route::get('clear-cache', function () {
