@@ -26,7 +26,7 @@ class Monitor extends Page
         $monitor = UserMonitor::where('user_id', auth()->id())->first();
         
         // Initialize with empty strings if not found
-        $this->youtube_urls = $monitor->youtube_urls ?? array_fill(0, 12, '');
+        $this->youtube_urls = $monitor->youtube_urls ?? array_fill(0, 9, '');
         $this->rss_feeds = $monitor->rss_feeds ?? array_fill(0, 6, '');
     }
 
@@ -44,12 +44,12 @@ class Monitor extends Page
                 ->color('gray')
                 ->form([
                     Repeater::make('youtube_urls')
-                        ->label('Live YouTube Channels (Must be 12)')
+                        ->label('Live YouTube Channels (Must be 9)')
                         ->schema([
                             TextInput::make('url')->label('YouTube URL')->url()->placeholder('https://www.youtube.com/watch?v=...'),
                         ])
-                        ->minItems(12)
-                        ->maxItems(12)
+                        ->minItems(9)
+                        ->maxItems(9)
                         ->grid(3)
                         ->addable(false)
                         ->deletable(false),
