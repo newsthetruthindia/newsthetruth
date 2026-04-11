@@ -26,7 +26,7 @@ class Monitor extends Page
         $monitor = UserMonitor::where('user_id', auth()->id())->first();
         
         // Initialize with empty strings if not found
-        $this->youtube_urls = $monitor->youtube_urls ?? array_fill(0, 9, '');
+        $this->youtube_urls = $monitor->youtube_urls ?? array_fill(0, 12, '');
         $this->rss_feeds = $monitor->rss_feeds ?? array_fill(0, 6, '');
     }
 
@@ -44,12 +44,12 @@ class Monitor extends Page
                 ->color('gray')
                 ->form([
                     Repeater::make('youtube_urls')
-                        ->label('Live YouTube Channels (Must be 9)')
+                        ->label('Live YouTube Channels (Must be 12)')
                         ->schema([
                             TextInput::make('url')->label('YouTube URL')->url()->placeholder('https://www.youtube.com/watch?v=...'),
                         ])
-                        ->minItems(9)
-                        ->maxItems(9)
+                        ->minItems(12)
+                        ->maxItems(12)
                         ->grid(3)
                         ->addable(false)
                         ->deletable(false),
@@ -91,12 +91,15 @@ class Monitor extends Page
 
     public function getRssHeadlines(): array
     {
-        $headlines = [];
-        foreach ($this->rss_feeds as $feedUrl) {
-            if (empty($feedUrl)) continue;
+        $allFeeds = [];
+        foreach ($this->rss_feeds as $index => $feedUrl) {
+            if (empty($feedUrl)) {
+                $allFeeds[$index] = [];
+                continue;
+            }
 
             $cacheKey = 'rss_monitor_' . md5($feedUrl);
-            $feedHeadlines = Cache::remember($cacheKey, now()->addMinutes(10), function () use ($feedUrl) {
+            $allFeeds[$index] = Cache::remember($cacheKey, now()->addMinutes(10), function () use ($feedUrl) {
                 try {
                     $response = Http::timeout(5)->get($feedUrl);
                     if ($response->failed()) return [];
@@ -113,18 +116,16 @@ class Monitor extends Page
                             'link' => (string)$item->link,
                             'source' => $channelTitle,
                         ];
-                        if (count($items) >= 10) break;
+                        if (count($items) >= 15) break;
                     }
                     return $items;
                 } catch (\Exception $e) {
                     return [];
                 }
             });
-
-            $headlines = array_merge($headlines, $feedHeadlines);
         }
 
-        return collect($headlines)->shuffle()->take(60)->toArray();
+        return $allFeeds;
     }
 
     public function getYoutubeId($url): ?string
