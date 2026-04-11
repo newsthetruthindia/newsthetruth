@@ -6,7 +6,8 @@
             <button onclick="window.location.href='/admin'" class="px-4 py-2 bg-neutral-900 text-neutral-400 text-[10px] font-mono uppercase tracking-widest hover:text-white border border-neutral-800 transition-colors">
                 Back to Dashboard
             </button>
-            {{ $this->configureAction }}
+            <x-filament-actions::modals />
+            <x-filament-actions::action :action="$this->getAction('configure')" color="gray" />
         </div>
 
         <!-- 4x3 High-Density Matrix -->
