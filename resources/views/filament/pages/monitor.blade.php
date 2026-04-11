@@ -29,7 +29,7 @@
                 <div class="relative bg-[#12141a] group rounded-lg overflow-hidden border border-white/5 shadow-2xl transition-all hover:border-primary-500/50" style="aspect-ratio: 16 / 9;">
                     @if ($id)
                         <iframe 
-                            src="https://www.youtube.com/embed/{{ $id }}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&enablejsapi=1" 
+                            src="https://www.youtube.com/embed/{{ $id }}?autoplay=1&mute=1&controls=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&enablejsapi=1" 
                             class="absolute inset-0 w-full h-full grayscale-[0.1] hover:grayscale-0 transition-all duration-500" 
                             frameborder="0" 
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 

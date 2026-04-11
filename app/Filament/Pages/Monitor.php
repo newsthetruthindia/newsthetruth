@@ -16,6 +16,7 @@ class Monitor extends Page
     protected static ?string $navigationIcon = 'heroicon-o-tv';
     protected static ?string $navigationGroup = 'Control Center';
     protected static ?string $navigationLabel = 'News Monitor';
+    protected static ?int $navigationSort = -1;
     protected static string $view = 'filament.pages.monitor';
 
     public ?array $youtube_urls = [];
