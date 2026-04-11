@@ -11,9 +11,24 @@ class UserMonitor extends Model
 
     protected $fillable = [
         'user_id',
+        'secret_key',
         'youtube_urls',
         'rss_feeds',
     ];
+
+    /**
+     * Boot the model.
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (empty($model->secret_key)) {
+                $model->secret_key = \Illuminate\Support\Str::random(12);
+            }
+        });
+    }
 
     protected $casts = [
         'youtube_urls' => 'array',
