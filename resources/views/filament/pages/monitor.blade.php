@@ -106,6 +106,7 @@
             gap: 0.5rem !important;
         }
         /* Filament Override for Dashboard Look */
+        header.fi-header { display: none !important; }
         .fi-main { max-width: none !important; padding: 0.25rem !important; }
         .fi-main-ctn { margin: 0 !important; max-width: none !important; }
         .fi-topbar { box-shadow: none !important; border-bottom: 1px solid rgba(255,255,255,0.05) !important; }

@@ -18,6 +18,12 @@ class Monitor extends Page
     protected static ?string $navigationLabel = 'News Monitor';
     protected static ?int $navigationSort = -1;
     protected static string $view = 'filament.pages.monitor';
+    protected static ?string $title = ''; 
+
+    public function getHeader(): ?\Illuminate\Contracts\View\View
+    {
+        return null;
+    }
 
     public ?array $youtube_urls = [];
     public ?array $rss_feeds = [];
