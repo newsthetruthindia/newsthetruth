@@ -1,123 +1,164 @@
 <x-filament-panels::page>
-    <div wire:init="loadData" class="monitor-tv-root bg-black min-h-screen text-white overflow-hidden">
+    <div wire:init="loadData" class="ntt-monitor-system" style="background: #000; min-height: 800px; padding: 10px;">
         
-        <!-- TV-Optimized Stealth Header -->
-        <div class="h-[6vh] flex items-center justify-between px-6 bg-neutral-900/50 border-b border-white/5">
-            <h2 class="text-[1.5vh] font-black uppercase italic tracking-widest flex items-center gap-4">
-                <span class="w-1 h-4 bg-primary-600"></span>
-                NTT Command <span class="opacity-40 italic">[TV-MATRIX]</span>
-            </h2>
-            <div class="flex items-center gap-4">
-                <button onclick="window.location.href='/admin'" class="px-5 py-1 bg-neutral-800 hover:bg-neutral-700 text-neutral-400 text-[1.2vh] font-bold uppercase rounded transition-colors">
-                    Dashboard
-                </button>
-                <button wire:click="mountAction('configure')" class="px-5 py-1 bg-primary-700 hover:bg-primary-600 text-white text-[1.2vh] font-bold uppercase rounded shadow-lg transition-colors">
-                    Source Config
-                </button>
-            </div>
+        <!-- UI OVERRIDE CSS (Aggressive for TVs) -->
+        <style>
+            /* Hide Sidebar & UI Elements (Aggressive) */
+            .fi-sidebar, .fi-topbar, .fi-header, .fi-breadcrumbs { 
+                display: none !important; 
+                width: 0 !important; 
+                height: 0 !important; 
+                visibility: hidden !important; 
+            }
+            .fi-main { 
+                padding: 0 !important; 
+                margin: 0 !important; 
+                max-width: none !important; 
+                background: #000 !important;
+            }
+            .fi-main-ctn { 
+                margin: 0 !important; 
+                padding: 0 !important; 
+            }
+            
+            /* Root Container */
+            .ntt-monitor-system {
+                color: white;
+                font-family: monospace;
+            }
+
+            /* 4x3 Grid (3 columns across) */
+            .video-grid {
+                display: grid !important;
+                grid-template-columns: repeat(4, 1fr) !important;
+                gap: 5px !important;
+                margin-bottom: 20px;
+            }
+
+            /* Responsive Cell with 16:9 Fallback */
+            .video-box {
+                position: relative;
+                width: 100%;
+                background: #111;
+                border: 1px solid #333;
+                padding-top: 56.25%; /* 16:9 Ratio */
+            }
+
+            .video-box iframe {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+            }
+
+            /* RSS Rows */
+            .rss-row {
+                background: #dadada;
+                margin-bottom: 2px;
+                height: 35px;
+                display: flex;
+                align-items: center;
+                overflow: hidden;
+                border-radius: 3px;
+            }
+
+            .rss-label {
+                background: #222;
+                color: white;
+                padding: 0 15px;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                font-size: 11px;
+                font-weight: bold;
+                min-width: 100px;
+                border-right: 2px solid rgba(0,0,0,0.1);
+            }
+
+            /* Marquee */
+            .rss-marquee {
+                display: inline-block;
+                white-space: nowrap;
+                padding-left: 50px;
+                animation: marquee 60s linear infinite;
+            }
+
+            @keyframes marquee {
+                from { transform: translateX(0); }
+                to { transform: translateX(-50%); }
+            }
+
+            /* Stealth Buttons */
+            .stealth-bar {
+                display: flex;
+                justify-content: flex-end;
+                gap: 10px;
+                padding: 10px;
+                opacity: 0.1;
+                transition: 0.3s;
+            }
+            .stealth-bar:hover { opacity: 1; }
+        </style>
+
+        <!-- Configuration Bar -->
+        <div class="stealth-bar">
+            <button onclick="window.location.href='/admin'" style="background:#222; color:#888; border:1px solid #444; padding:5px 15px; font-size:10px; cursor:pointer;">
+                DASHBOARD
+            </button>
+            <button wire:click="mountAction('configure')" style="background:#e63946; color:#fff; border:none; padding:5px 15px; font-size:10px; cursor:pointer;">
+                SOURCE CONFIG
+            </button>
         </div>
 
-        <!-- High-Performance Grid (Fixed Viewport Height) -->
-        <div class="monitor-grid h-[74vh] p-2 bg-black overflow-hidden">
+        <!-- 4x3 Grid -->
+        <div class="video-grid">
             @for ($i = 0; $i < 12; $i++)
                 @php
                     $urlConfig = $this->youtube_urls[$i] ?? null;
                     $url = is_array($urlConfig) ? ($urlConfig['url'] ?? null) : $urlConfig;
                     $id = $this->getYoutubeId($url);
                 @endphp
-
-                <div class="video-cell relative bg-neutral-900 border border-white/5 group shadow-inner">
-                    <!-- Aspect Ratio Wrapper (For Old TV Browsers) -->
-                    <div class="aspect-ratio-fallback" style="padding-top: 56.25%; position: relative;">
-                        @if ($id)
-                            <iframe 
-                                src="https://www.youtube.com/embed/{{ $id }}?autoplay=1&mute=1&controls=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&enablejsapi=1" 
-                                class="absolute inset-0 w-full h-full" 
-                                frameborder="0" 
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                allowfullscreen>
-                            </iframe>
-                            <!-- HUD for TV -->
-                            <div class="absolute top-2 left-2 flex items-center gap-2 px-2 py-0.5 bg-black/80 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                                <span class="w-1.5 h-1.5 bg-red-600 rounded-full animate-pulse"></span>
-                                <span class="text-[0.8vh] font-mono font-bold tracking-widest uppercase">CAM_{{ sprintf('%02d', $i + 1) }}</span>
-                            </div>
-                        @else
-                            <div class="absolute inset-0 flex items-center justify-center opacity-20">
-                                 <span class="text-[1vh] font-mono tracking-[0.5em] uppercase">No Signal</span>
-                            </div>
-                        @endif
-                    </div>
+                <div class="video-box">
+                    @if ($id)
+                        <iframe 
+                            src="https://www.youtube.com/embed/{{ $id }}?autoplay=1&mute=1&controls=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&enablejsapi=1" 
+                            frameborder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen>
+                        </iframe>
+                    @else
+                        <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#333; font-size:10px; text-transform:uppercase;">
+                            No Signal
+                        </div>
+                    @endif
                 </div>
             @endfor
         </div>
 
-        <!-- 6-Line RSS Matrix for TV -->
-        <div class="h-[20vh] space-y-[0.2vh] px-1 bg-black">
+        <!-- 6 RSS Lines -->
+        <div class="rss-strip-matrix">
             @php $feedsHeadlines = $this->getRssHeadlines(); @endphp
             @for ($f = 0; $f < 6; $f++)
                 @php $headlines = $feedsHeadlines[$f] ?? []; @endphp
-                <div class="h-[3.1vh] bg-[#dadada] flex items-center overflow-hidden rounded-sm">
-                    <div class="flex-shrink-0 h-full bg-[#222] flex items-center px-4 min-w-[120px] border-r border-black/20">
-                        <span class="text-[0.9vh] font-black text-white uppercase tracking-tighter">FEED 0{{ $f + 1 }}</span>
-                    </div>
-                    <div class="flex-grow overflow-hidden whitespace-nowrap bg-white/40 h-full flex items-center">
-                        <div class="inline-block animate-tv-rss-{{ $f }} flex items-center">
+                <div class="rss-row">
+                    <div class="rss-label">RSS FEED {{ $f + 1 }}</div>
+                    <div style="flex-grow:1; overflow:hidden;">
+                        <div class="rss-marquee" style="animation-duration: {{ 60 + ($f * 10) }}s;">
                             @if(count($headlines) > 0)
                                 @foreach (array_merge($headlines, $headlines) as $h)
-                                     <span class="text-[1.2vh] font-bold text-neutral-800 mx-10 flex items-center gap-3">
-                                        <span class="w-1 h-3 bg-neutral-400 rounded-full"></span>
-                                        {{ $h['title'] }}
+                                     <span style="color:#000; font-weight:bold; font-size:13px; margin-right:60px;">
+                                        ● {{ $h['title'] }}
                                      </span>
                                 @endforeach
                             @else
-                                <span class="text-[0.8vh] font-mono text-neutral-500 italic px-4 uppercase tracking-[0.3em]">Syncing Feed 0{{ $f + 1 }}...</span>
+                                <span style="color:#666; font-size:11px; font-style:italic;">Initializing feed synchronization for port {{ $f + 1 }} ...</span>
                             @endif
                         </div>
                     </div>
                 </div>
-
-                <style>
-                    @keyframes tv-rss-{{ $f }} {
-                        0% { transform: translateX(0); }
-                        100% { transform: translateX(-50%); }
-                    }
-                    .animate-tv-rss-{{ $f }} {
-                        animation: tv-rss-{{ $f }} {{ 50 + ($f * 6) }}s linear infinite;
-                    }
-                </style>
             @endfor
         </div>
-
-        <style>
-            /* 🖥️ TV FULL-SCREEN OVERRIDES */
-            .fi-main { max-width: none !important; padding: 0 !important; margin: 0 !important; }
-            .fi-main-ctn { max-width: none !important; margin: 0 !important; padding: 0 !important; }
-            .fi-sidebar, .fi-topbar, header.fi-header, .fi-breadcrumbs { display: none !important; }
-            section.fi-section { padding: 0 !important; margin: 0 !important; border: 0 !important; box-shadow: none !important; background: transparent !important; }
-            
-            /* Hidden scrollbars for clean TV feed */
-            html, body { overflow: hidden !important; background: black !important; }
-            ::-webkit-scrollbar { width: 0px; height: 0px; }
-
-            /* Grid Logic */
-            .monitor-grid {
-                display: grid !important;
-                grid-template-columns: repeat(4, 1fr) !important;
-                grid-template-rows: repeat(3, 1fr) !important;
-                gap: 2px !important;
-            }
-            .video-cell {
-                height: 100% !important;
-                width: 100% !important;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-            .aspect-ratio-fallback {
-                width: 100% !important;
-            }
-        </style>
 
     </div>
 </x-filament-panels::page>
