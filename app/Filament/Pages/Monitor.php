@@ -30,6 +30,11 @@ class Monitor extends Page
         $this->rss_feeds = $monitor->rss_feeds ?? array_fill(0, 6, '');
     }
 
+    public function loadData()
+    {
+        // Triggers a component refresh once the page is initialized
+    }
+
     protected function getHeaderActions(): array
     {
         return [
