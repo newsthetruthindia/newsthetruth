@@ -18,7 +18,7 @@
         </div>
 
         <!-- 4x3 High-Performance Video Matrix -->
-        <div class="grid grid-cols-4 gap-2 mb-6">
+        <div class="monitor-video-matrix mb-6">
             @for ($i = 0; $i < 12; $i++)
                 @php
                     $urlConfig = $this->youtube_urls[$i] ?? null;
@@ -100,8 +100,14 @@
 
     @push('styles')
     <style>
+        .monitor-video-matrix {
+            display: grid !important;
+            grid-template-columns: repeat(4, 1fr) !important;
+            gap: 0.5rem !important;
+        }
         /* Filament Override for Dashboard Look */
-        .fi-main { max-width: none !important; padding: 0.5rem !important; }
+        .fi-main { max-width: none !important; padding: 0.25rem !important; }
+        .fi-main-ctn { margin: 0 !important; max-width: none !important; }
         .fi-topbar { box-shadow: none !important; border-bottom: 1px solid rgba(255,255,255,0.05) !important; }
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
