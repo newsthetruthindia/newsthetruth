@@ -1,24 +1,24 @@
 <x-filament-panels::page>
-    <div wire:init="loadData" class="monitor-dashboard bg-[#0a0c10] min-h-screen p-4 rounded-xl shadow-2xl overflow-hidden border border-white/5">
+    <div wire:init="loadData" class="monitor-tv-root bg-black min-h-screen text-white overflow-hidden">
         
-        <!-- Header Controls -->
-        <div class="flex items-center justify-between mb-4 px-2">
-            <h2 class="text-xl font-black text-white tracking-tight uppercase italic flex items-center gap-3">
-                <span class="w-2 h-6 bg-primary-600 rounded-full"></span>
-                News Monitor <span class="text-xs font-mono text-primary-500 font-bold opacity-50 tracking-widest">[COMMAND CENTER]</span>
+        <!-- TV-Optimized Stealth Header -->
+        <div class="h-[6vh] flex items-center justify-between px-6 bg-neutral-900/50 border-b border-white/5">
+            <h2 class="text-[1.5vh] font-black uppercase italic tracking-widest flex items-center gap-4">
+                <span class="w-1 h-4 bg-primary-600"></span>
+                NTT Command <span class="opacity-40 italic">[TV-MATRIX]</span>
             </h2>
-            <div class="flex items-center gap-3">
-                <button onclick="window.location.href='/admin'" class="px-4 py-1.5 bg-gray-800/50 hover:bg-gray-700 text-gray-300 text-[10px] font-bold uppercase tracking-widest rounded-md transition-all border border-white/5">
+            <div class="flex items-center gap-4">
+                <button onclick="window.location.href='/admin'" class="px-5 py-1 bg-neutral-800 hover:bg-neutral-700 text-neutral-400 text-[1.2vh] font-bold uppercase rounded transition-colors">
                     Dashboard
                 </button>
-                <button wire:click="mountAction('configure')" class="px-4 py-1.5 bg-primary-600 hover:bg-primary-500 text-white text-[10px] font-bold uppercase tracking-widest rounded-md transition-all shadow-lg shadow-primary-900/20">
+                <button wire:click="mountAction('configure')" class="px-5 py-1 bg-primary-700 hover:bg-primary-600 text-white text-[1.2vh] font-bold uppercase rounded shadow-lg transition-colors">
                     Source Config
                 </button>
             </div>
         </div>
 
-        <!-- 4x3 High-Performance Video Matrix -->
-        <div class="monitor-video-matrix mb-6">
+        <!-- High-Performance Grid (Fixed Viewport Height) -->
+        <div class="monitor-grid h-[74vh] p-2 bg-black overflow-hidden">
             @for ($i = 0; $i < 12; $i++)
                 @php
                     $urlConfig = $this->youtube_urls[$i] ?? null;
@@ -26,92 +26,98 @@
                     $id = $this->getYoutubeId($url);
                 @endphp
 
-                <div class="relative bg-[#12141a] group rounded-lg overflow-hidden border border-white/5 shadow-2xl transition-all hover:border-primary-500/50" style="aspect-ratio: 16 / 9;">
-                    @if ($id)
-                        <iframe 
-                            src="https://www.youtube.com/embed/{{ $id }}?autoplay=1&mute=1&controls=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&enablejsapi=1" 
-                            class="absolute inset-0 w-full h-full grayscale-[0.1] hover:grayscale-0 transition-all duration-500" 
-                            frameborder="0" 
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                            allowfullscreen>
-                        </iframe>
-                        <!-- Mini HUD -->
-                        <div class="absolute top-2 left-2 flex items-center gap-1.5 px-2 py-0.5 bg-black/60 backdrop-blur-md rounded text-[9px] font-mono text-white/50 tracking-tighter opacity-0 group-hover:opacity-100 transition-opacity">
-                            <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
-                            CH_{{ sprintf('%02d', $i + 1) }}
-                        </div>
-                    @else
-                        <!-- Standby Screen -->
-                        <div class="absolute inset-0 flex flex-col items-center justify-center opacity-30">
-                            <svg class="w-8 h-8 text-gray-600 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.414a4 4 0 00-5.656-5.656l-6.415 6.414a6 6 0 108.486 8.486L20.5 13" />
-                            </svg>
-                            <span class="text-[8px] font-mono text-gray-700 uppercase tracking-widest leading-none">Signal Lost</span>
-                        </div>
-                    @endif
+                <div class="video-cell relative bg-neutral-900 border border-white/5 group shadow-inner">
+                    <!-- Aspect Ratio Wrapper (For Old TV Browsers) -->
+                    <div class="aspect-ratio-fallback" style="padding-top: 56.25%; position: relative;">
+                        @if ($id)
+                            <iframe 
+                                src="https://www.youtube.com/embed/{{ $id }}?autoplay=1&mute=1&controls=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&enablejsapi=1" 
+                                class="absolute inset-0 w-full h-full" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen>
+                            </iframe>
+                            <!-- HUD for TV -->
+                            <div class="absolute top-2 left-2 flex items-center gap-2 px-2 py-0.5 bg-black/80 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                                <span class="w-1.5 h-1.5 bg-red-600 rounded-full animate-pulse"></span>
+                                <span class="text-[0.8vh] font-mono font-bold tracking-widest uppercase">CAM_{{ sprintf('%02d', $i + 1) }}</span>
+                            </div>
+                        @else
+                            <div class="absolute inset-0 flex items-center justify-center opacity-20">
+                                 <span class="text-[1vh] font-mono tracking-[0.5em] uppercase">No Signal</span>
+                            </div>
+                        @endif
+                    </div>
                 </div>
             @endfor
         </div>
 
-        <!-- 6-Line Independent RSS Ticker Matrix -->
-        <div class="space-y-1.5">
+        <!-- 6-Line RSS Matrix for TV -->
+        <div class="h-[20vh] space-y-[0.2vh] px-1 bg-black">
             @php $feedsHeadlines = $this->getRssHeadlines(); @endphp
             @for ($f = 0; $f < 6; $f++)
                 @php $headlines = $feedsHeadlines[$f] ?? []; @endphp
-                <div class="h-9 bg-[#dadada] flex items-center overflow-hidden rounded-md shadow-inner border-b border-black/10">
-                    <!-- Feed Label (Left Sticky) -->
-                    <div class="flex-shrink-0 h-full bg-[#333] flex items-center px-4 border-r border-black/20 mr-4 shadow-xl">
-                        <span class="text-[10px] font-black text-white uppercase tracking-tighter w-20">RSS FEED {{ $f + 1 }}</span>
+                <div class="h-[3.1vh] bg-[#dadada] flex items-center overflow-hidden rounded-sm">
+                    <div class="flex-shrink-0 h-full bg-[#222] flex items-center px-4 min-w-[120px] border-r border-black/20">
+                        <span class="text-[0.9vh] font-black text-white uppercase tracking-tighter">FEED 0{{ $f + 1 }}</span>
                     </div>
-                    
-                    <!-- Scrolling Headlines -->
                     <div class="flex-grow overflow-hidden whitespace-nowrap bg-white/40 h-full flex items-center">
-                        <div class="inline-block animate-rss-row-{{ $f }} flex items-center">
+                        <div class="inline-block animate-tv-rss-{{ $f }} flex items-center">
                             @if(count($headlines) > 0)
                                 @foreach (array_merge($headlines, $headlines) as $h)
-                                     <a href="{{ $h['link'] }}" target="_blank" class="text-[12px] font-bold text-gray-800 mx-8 flex items-center gap-3 hover:text-primary-600 transition-colors">
-                                        <span class="w-1 h-3 bg-gray-400 rounded-full"></span>
+                                     <span class="text-[1.2vh] font-bold text-neutral-800 mx-10 flex items-center gap-3">
+                                        <span class="w-1 h-3 bg-neutral-400 rounded-full"></span>
                                         {{ $h['title'] }}
-                                     </a>
+                                     </span>
                                 @endforeach
                             @else
-                                <span class="text-[10px] font-mono text-gray-400 italic px-4 uppercase tracking-widest">Awaiting live synchronization signal for feed {{ $f + 1 }}...</span>
+                                <span class="text-[0.8vh] font-mono text-neutral-500 italic px-4 uppercase tracking-[0.3em]">Syncing Feed 0{{ $f + 1 }}...</span>
                             @endif
                         </div>
                     </div>
                 </div>
 
                 <style>
-                    @keyframes rss-scroll-{{ $f }} {
+                    @keyframes tv-rss-{{ $f }} {
                         0% { transform: translateX(0); }
                         100% { transform: translateX(-50%); }
                     }
-                    .animate-rss-row-{{ $f }} {
-                        animation: rss-scroll-{{ $f }} {{ 40 + ($f * 5) }}s linear infinite;
-                    }
-                    .animate-rss-row-{{ $f }}:hover {
-                        animation-play-state: paused;
+                    .animate-tv-rss-{{ $f }} {
+                        animation: tv-rss-{{ $f }} {{ 50 + ($f * 6) }}s linear infinite;
                     }
                 </style>
             @endfor
         </div>
 
-    </div>
+        <style>
+            /* 🖥️ TV FULL-SCREEN OVERRIDES */
+            .fi-main { max-width: none !important; padding: 0 !important; margin: 0 !important; }
+            .fi-main-ctn { max-width: none !important; margin: 0 !important; padding: 0 !important; }
+            .fi-sidebar, .fi-topbar, header.fi-header, .fi-breadcrumbs { display: none !important; }
+            section.fi-section { padding: 0 !important; margin: 0 !important; border: 0 !important; box-shadow: none !important; background: transparent !important; }
+            
+            /* Hidden scrollbars for clean TV feed */
+            html, body { overflow: hidden !important; background: black !important; }
+            ::-webkit-scrollbar { width: 0px; height: 0px; }
 
-    @push('styles')
-    <style>
-        .monitor-video-matrix {
-            display: grid !important;
-            grid-template-columns: repeat(4, 1fr) !important;
-            gap: 0.5rem !important;
-        }
-        /* Filament Override for Dashboard Look */
-        header.fi-header { display: none !important; }
-        .fi-main { max-width: none !important; padding: 0.25rem !important; }
-        .fi-main-ctn { margin: 0 !important; max-width: none !important; }
-        .fi-topbar { box-shadow: none !important; border-bottom: 1px solid rgba(255,255,255,0.05) !important; }
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
-    </style>
-    @endpush
+            /* Grid Logic */
+            .monitor-grid {
+                display: grid !important;
+                grid-template-columns: repeat(4, 1fr) !important;
+                grid-template-rows: repeat(3, 1fr) !important;
+                gap: 2px !important;
+            }
+            .video-cell {
+                height: 100% !important;
+                width: 100% !important;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .aspect-ratio-fallback {
+                width: 100% !important;
+            }
+        </style>
+
+    </div>
 </x-filament-panels::page>
