@@ -11,10 +11,13 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Forms\Get;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\Notification as FacadesNotification;
+use Filament\Forms\Components\Placeholder;
+use Illuminate\Support\HtmlString;
 
 class ManageNotifications extends Page implements HasForms
 {
@@ -82,8 +85,42 @@ class ManageNotifications extends Page implements HasForms
                                             ->label('YouTube URL')
                                             ->url()
                                             ->prefixIcon('heroicon-m-link')
+                                            ->live(onBlur: true)
                                             ->placeholder('https://www.youtube.com/watch?v=...')
                                             ->required(),
+
+                                        Placeholder::make('youtube_preview')
+                                            ->label('Video Preview')
+                                            ->visible(fn (Get $get) => filled($get('youtube_url')))
+                                            ->content(function (Get $get) {
+                                                $url = $get('youtube_url');
+                                                $id = $this->getYoutubeId($url);
+
+                                                if (!$id) {
+                                                    return new HtmlString('<div class="p-4 border border-dashed border-gray-300 rounded-lg text-center text-gray-400 text-sm">Please enter a valid YouTube URL to see the preview.</div>');
+                                                }
+
+                                                $thumbnailUrl = "https://img.youtube.com/vi/{$id}/maxresdefault.jpg";
+
+                                                return new HtmlString("
+                                                    <div class='mt-2 space-y-3'>
+                                                        <div class='relative rounded-xl overflow-hidden border border-gray-200 shadow-sm aspect-video bg-gray-100'>
+                                                            <img src='{$thumbnailUrl}' class='w-full h-full object-cover' />
+                                                            <div class='absolute inset-0 flex items-center justify-center bg-black/10 group'>
+                                                                <svg class='w-12 h-12 text-white drop-shadow-lg opacity-80 group-hover:opacity-100 transition-opacity' fill='currentColor' viewBox='0 0 24 24'>
+                                                                    <path d='M8 5v14l11-7z'/>
+                                                                </svg>
+                                                            </div>
+                                                        </div>
+                                                        <div class='flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-green-600 bg-green-50 px-3 py-1 rounded-full w-fit border border-green-100'>
+                                                            <svg class='w-3 h-3' fill='none' viewBox='0 0 24 24' stroke-width='3' stroke='currentColor'>
+                                                                <path stroke-linecap='round' stroke-linejoin='round' d='M4.5 12.75l6 6 9-13.5' />
+                                                            </svg>
+                                                            Video Verified
+                                                        </div>
+                                                    </div>
+                                                ");
+                                            }),
                                     ])
                                     ->footerActions([
                                         \Filament\Forms\Components\Actions\Action::make('broadcast_youtube')
@@ -139,7 +176,24 @@ class ManageNotifications extends Page implements HasForms
         $this->form->fill([
             'automatic_notifications' => Option::where('key', 'automatic_notifications')->first()?->value === '1',
             'youtube_title' => null,
-            'youtube_url' => null,
         ]);
+    }
+
+    protected function getYoutubeId($url): ?string
+    {
+        if (!$url) return null;
+
+        $patterns = [
+            '/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i',
+            '/^([^"&?\/\s]{11})$/i', // Direct ID
+        ];
+
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $url, $matches)) {
+                return $matches[1];
+            }
+        }
+
+        return null;
     }
 }

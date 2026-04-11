@@ -307,7 +307,7 @@ class ApiController extends Controller
     {
         $reporterNames = Post::where('status', 'published')
             ->whereNotNull('reporter_name')
-            ->whereNotIn('reporter_name', ['NTT Desk', 'Staff Reporter', 'Citizen Journalist'])
+            ->whereNotIn('reporter_name', ['Staff Reporter', 'Citizen Journalist'])
             ->distinct()
             ->pluck('reporter_name');
 
