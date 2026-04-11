@@ -26,7 +26,7 @@
                     $id = $this->getYoutubeId($url);
                 @endphp
 
-                <div class="relative aspect-video bg-[#12141a] group rounded-lg overflow-hidden border border-white/5 shadow-2xl transition-all hover:border-primary-500/50">
+                <div class="relative bg-[#12141a] group rounded-lg overflow-hidden border border-white/5 shadow-2xl transition-all hover:border-primary-500/50" style="aspect-ratio: 16 / 9;">
                     @if ($id)
                         <iframe 
                             src="https://www.youtube.com/embed/{{ $id }}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&enablejsapi=1" 
