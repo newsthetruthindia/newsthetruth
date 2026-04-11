@@ -14,7 +14,7 @@
                 <div class="relative aspect-video rounded-xl overflow-hidden bg-gray-200 dark:bg-gray-900 border border-gray-300 dark:border-white/5 shadow-xl group transition-all hover:scale-[1.03] hover:z-10 hover:shadow-2xl hover:shadow-primary-500/10">
                     @if ($id)
                         <iframe 
-                            src="https://www.youtube.com/embed/{{ $id }}?autoplay=0&mute=1&controls=1&modestbranding=1&rel=0&showinfo=0" 
+                            src="https://www.youtube.com/embed/{{ $id }}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3" 
                             class="absolute inset-0 w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" 
                             frameborder="0" 
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
