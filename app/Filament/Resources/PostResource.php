@@ -38,6 +38,20 @@ class PostResource extends Resource
     public static function form(Form $form): Form
     {
         return $form->schema([
+            Section::make('🚨 Reporter System Notice')
+                ->schema([
+                    Forms\Components\Placeholder::make('system_warning')
+                        ->hiddenLabel()
+                        ->content(new \Illuminate\Support\HtmlString('
+                            <div style="padding: 12px; background-color: rgba(220, 38, 38, 0.1); border-left: 4px solid #dc2626; color: #ef4444; border-radius: 6px; font-size: 14px;">
+                                <strong>⚠️ AVOID 500 ERRORS:</strong><br><br>
+                                &bull; <b>Subtitle & Excerpt</b>: The database limit has been increased, but avoid pasting massive blocks of text.<br>
+                                &bull; <b>Pasting Formatting</b>: If you copy from Word or another website, use <i>"Paste as Plain Text"</i> (Ctrl+Shift+V or Cmd+Shift+V).<br>
+                                &bull; <b>Attribution</b>: The "Posted By" field tracks your login for security. Use "Attribution Name" to set the public author.<br>
+                            </div>
+                        ')),
+                ])->columnSpanFull(),
+
             Section::make('Story Details')
                 ->description('Write and publish your story.')
                 ->schema([
@@ -141,20 +155,7 @@ class PostResource extends Resource
                                 'Citizen Journalist' => 'Citizen Journalist (Public)',
                             ], $reporters);
                         })
-                        ->searchable()
-                        ->live()
-                        ->afterStateUpdated(function ($state, Forms\Set $set) {
-                            if (in_array($state, ['NTT Desk', 'Staff Reporter', 'Citizen Journalist'])) {
-                                $set('user_id', 0);
-                            } else {
-                                $user = \App\Models\User::role('Reporter')
-                                    ->where(\Illuminate\Support\Facades\DB::raw("trim(concat(firstname, ' ', coalesce(lastname, '')))"), $state)
-                                    ->first();
-                                if ($user) {
-                                    $set('user_id', $user->id);
-                                }
-                            }
-                        }),
+                        ->searchable(),
                     
                     TextInput::make('location')
                         ->label('Filing Location')
@@ -162,18 +163,8 @@ class PostResource extends Resource
                         ->maxLength(255),
                 ])->columns(2),
 
-            Section::make('Post Author')
-                ->description('Administrative control for post ownership.')
-                ->schema([
-                    Select::make('user_id')
-                        ->label('Posting User')
-                        ->relationship('user', 'email')
-                        ->default(fn() => auth()->id())
-                        ->required()
-                        ->searchable()
-                        ->preload()
-                        ->hint('Linked to the reporter selection above.'),
-                ]),
+            Forms\Components\Hidden::make('user_id')
+                ->default(fn() => auth()->id()),
 
             Section::make('Audio Preview')
                 ->schema([
@@ -206,8 +197,11 @@ class PostResource extends Resource
                 ->schema([
                     Select::make('thumbnail')
                         ->label('Select Existing Media')
-                        ->relationship('thumbnailMedia', 'url')
+                        ->relationship('thumbnailMedia', 'url', fn ($query) => $query->latest())
                         ->searchable()
+                        ->preload()
+                        ->allowHtml()
+                        ->getOptionLabelFromRecordUsing(fn ($record) => "<div style='display:flex; align-items:center; gap:8px;'><img src='".asset($record->url)."' style='height:35px; width:50px; object-fit:cover; border-radius:4px;'> <span>" . basename($record->url) . "</span></div>")
                         ->columnSpanFull(),
 
                     FileUpload::make('new_thumbnail_upload')
@@ -216,7 +210,6 @@ class PostResource extends Resource
                         ->disk('webapp_public')
                         ->directory('uploads/media')
                         ->imagePreviewHeight('200')
-                        ->dehydrated(false)
                         ->columnSpanFull(),
                 ]),
 
@@ -255,58 +248,66 @@ class PostResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->contentGrid([
+                'md' => 2,
+                'xl' => 3,
+            ])
             ->columns([
-                ImageColumn::make('thumbnails.url')
-                    ->label('Image')
-                    ->disk('webapp_public')
-                    ->circular(false)
-                    ->size(60),
+                Tables\Columns\Layout\Stack::make([
+                    ImageColumn::make('thumbnailMedia.url')
+                        ->disk('webapp_public')
+                        ->height('200px')
+                        ->width('100%')
+                        ->extraAttributes([
+                            'class' => 'object-cover rounded-t-xl w-full',
+                        ]),
 
-                TextColumn::make('title')
-                    ->label('Headline')
-                    ->searchable()
-                    ->limit(60)
-                    ->sortable()
-                    ->weight('bold'),
+                    Tables\Columns\Layout\Stack::make([
+                        TextColumn::make('title')
+                            ->weight('bold')
+                            ->size('lg')
+                            ->lineClamp(3)
+                            ->extraAttributes(['class' => 'mb-2 leading-snug'])
+                            ->searchable(),
 
-                TextColumn::make('filamentCategories.title')
-                    ->label('Category')
-                    ->badge()
-                    ->color('warning')
-                    ->separator(','),
+                        Tables\Columns\Layout\Split::make([
+                            TextColumn::make('filamentCategories.title')
+                                ->badge()
+                                ->color('warning')
+                                ->extraAttributes(['class' => 'flex-wrap']),
 
-                TextColumn::make('status')
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'published' => 'success',
-                        'drafted' => 'gray',
-                        'open' => 'warning',
-                        default => 'gray',
-                    }),
+                            TextColumn::make('status')
+                                ->badge()
+                                ->grow(false)
+                                ->color(fn (string $state): string => match ($state) {
+                                    'published' => 'success',
+                                    'drafted' => 'gray',
+                                    'open' => 'warning',
+                                    default => 'gray',
+                                }),
+                        ])->extraAttributes(['class' => 'mb-4']),
 
-                TextColumn::make('created_at')
-                    ->label('Published')
-                    ->dateTime('M j, Y')
-                    ->sortable(),
+                        Tables\Columns\Layout\Stack::make([
+                            TextColumn::make('reporter_name')
+                                ->size('sm')
+                                ->weight('medium')
+                                ->color('white')
+                                ->icon('heroicon-m-user')
+                                ->iconColor('primary')
+                                ->searchable(),
 
-                TextColumn::make('reporter_name')
-                    ->label('Reporter')
-                    ->toggleable()
-                    ->searchable()
-                    ->sortable(),
-
-                TextColumn::make('user.firstname')
-                    ->label('Posted By')
-                    ->toggleable()
-                    ->searchable()
-                    ->sortable()
-                    ->formatStateUsing(fn ($state, $record) => trim($record->user?->firstname . ' ' . $record->user?->lastname) ?: $record->user?->email),
-                
-                TextColumn::make('location')
-                    ->label('Location')
-                    ->toggleable()
-                    ->searchable()
-                    ->sortable(),
+                            TextColumn::make('created_at')
+                                ->label('Published')
+                                ->dateTime('M j, Y')
+                                ->size('xs')
+                                ->color('gray')
+                                ->icon('heroicon-m-calendar')
+                                ->iconColor('gray'),
+                        ])->space(1),
+                    ])->extraAttributes(['class' => 'p-4 flex flex-col flex-1 justify-between'])->space(2),
+                ])->extraAttributes([
+                    'class' => 'bg-gray-900/50 rounded-xl border border-white/5 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col h-full',
+                ]),
             ])
             ->filters([
                 SelectFilter::make('status')
@@ -317,71 +318,76 @@ class PostResource extends Resource
                     ]),
             ])
             ->actions([
-                Tables\Actions\Action::make('generate_audio')
-                    ->label('Audio')
-                    ->icon('heroicon-o-speaker-wave')
-                    ->action(function (\App\Models\Post $record) {
-                        try {
-                            $controller = app(\App\Http\Controllers\PostController::class);
-                            $req = new \Illuminate\Http\Request([
-                                'text' => strip_tags($record->description),
-                                'type' => 'text',
-                                'post_id' => $record->id,
-                            ]);
-                            $controller->updatePostAudio($req);
+                Tables\Actions\EditAction::make()
+                    ->button()
+                    ->size('sm'),
+                    
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\Action::make('generate_audio')
+                        ->label('Audio')
+                        ->icon('heroicon-o-speaker-wave')
+                        ->action(function (\App\Models\Post $record) {
+                            try {
+                                $controller = app(\App\Http\Controllers\PostController::class);
+                                $req = new \Illuminate\Http\Request([
+                                    'text' => strip_tags($record->description),
+                                    'type' => 'text',
+                                    'post_id' => $record->id,
+                                ]);
+                                $controller->updatePostAudio($req);
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Audio Generated')
+                                    ->success()
+                                    ->send();
+                            } catch (\Exception $e) {
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Generation Failed')
+                                    ->body($e->getMessage())
+                                    ->danger()
+                                    ->send();
+                            }
+                        })
+                        ->requiresConfirmation(),
+                    Tables\Actions\Action::make('publish')
+                        ->label('Publish')
+                        ->icon('heroicon-o-check-circle')
+                        ->color('success')
+                        ->visible(fn (Post $record) => $record->status !== 'published')
+                        ->action(fn (Post $record) => $record->update(['status' => 'published'])),
+                    Tables\Actions\Action::make('hide')
+                        ->label('Hide')
+                        ->icon('heroicon-o-eye-slash')
+                        ->color('danger')
+                        ->visible(fn (Post $record) => $record->status === 'published')
+                        ->action(fn (Post $record) => $record->update(['status' => 'drafted'])),
+                    Tables\Actions\Action::make('send_to_subscribers')
+                        ->label('Notify')
+                        ->icon('heroicon-o-paper-airplane')
+                        ->color('info')
+                        ->requiresConfirmation()
+                        ->hidden(fn (Post $record) => $record->status !== 'published')
+                        ->action(function (Post $record) {
+                            $subscribers = \App\Models\User::where('type', 'user')->get();
+                            $imageUrl = $record->thumbnailMedia ? asset('storage/' . $record->thumbnailMedia->url) : null;
+
+                            \Illuminate\Support\Facades\Notification::send(
+                                $subscribers, 
+                                new \App\Notifications\BroadcastNotification(
+                                    $record->title,
+                                    env('APP_URL') . '/posts/' . $record->slug,
+                                    $record->excerpt,
+                                    $imageUrl
+                                )
+                            );
+
                             \Filament\Notifications\Notification::make()
-                                ->title('Audio Generated')
+                                ->title('Broadcast Sent')
+                                ->body('Notification is being delivered to ' . $subscribers->count() . ' subscribers.')
                                 ->success()
                                 ->send();
-                        } catch (\Exception $e) {
-                            \Filament\Notifications\Notification::make()
-                                ->title('Generation Failed')
-                                ->body($e->getMessage())
-                                ->danger()
-                                ->send();
-                        }
-                    })
-                    ->requiresConfirmation(),
-                Tables\Actions\Action::make('publish')
-                    ->label('Publish')
-                    ->icon('heroicon-o-check-circle')
-                    ->color('success')
-                    ->visible(fn (Post $record) => $record->status !== 'published')
-                    ->action(fn (Post $record) => $record->update(['status' => 'published'])),
-                Tables\Actions\Action::make('hide')
-                    ->label('Hide')
-                    ->icon('heroicon-o-eye-slash')
-                    ->color('danger')
-                    ->visible(fn (Post $record) => $record->status === 'published')
-                    ->action(fn (Post $record) => $record->update(['status' => 'drafted'])),
-                Tables\Actions\Action::make('send_to_subscribers')
-                    ->label('Notify')
-                    ->icon('heroicon-o-paper-airplane')
-                    ->color('info')
-                    ->requiresConfirmation()
-                    ->hidden(fn (Post $record) => $record->status !== 'published')
-                    ->action(function (Post $record) {
-                        $subscribers = \App\Models\User::where('type', 'user')->get();
-                        $imageUrl = $record->thumbnailMedia ? asset('storage/' . $record->thumbnailMedia->url) : null;
-
-                        \Illuminate\Support\Facades\Notification::send(
-                            $subscribers, 
-                            new \App\Notifications\BroadcastNotification(
-                                $record->title,
-                                env('APP_URL') . '/posts/' . $record->slug,
-                                $record->excerpt,
-                                $imageUrl
-                            )
-                        );
-
-                        \Filament\Notifications\Notification::make()
-                            ->title('Broadcast Sent')
-                            ->body('Notification is being delivered to ' . $subscribers->count() . ' subscribers.')
-                            ->success()
-                            ->send();
-                    }),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                        }),
+                    Tables\Actions\DeleteAction::make(),
+                ])->button()->label('More Options')->size('sm'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

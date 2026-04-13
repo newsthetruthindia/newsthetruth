@@ -5,11 +5,17 @@ namespace App\Filament\Resources\PostResource\Pages;
 use App\Filament\Resources\PostResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
+
 use App\Models\Media;
 
 class EditPost extends EditRecord
 {
     protected static string $resource = PostResource::class;
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 
     protected function getHeaderActions(): array
     {
@@ -31,7 +37,8 @@ class EditPost extends EditRecord
                             ->title('Audio Generated')
                             ->success()
                             ->send();
-
+                        
+                        // Refresh the page to show the new audio
                         return redirect(request()->header('Referer'));
                     } catch (\Exception $e) {
                         \Filament\Notifications\Notification::make()
@@ -48,46 +55,32 @@ class EditPost extends EditRecord
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        // Handle custom thumbnail upload if present
         if (!empty($data['new_thumbnail_upload'])) {
             $path = $data['new_thumbnail_upload'];
             $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
             $name = basename($path);
-
-            // Map extension to mimetype
-            $mimeMap = [
+            
+            $mimetypes = [
                 'jpg' => 'image/jpeg',
                 'jpeg' => 'image/jpeg',
                 'png' => 'image/png',
-                'webp' => 'image/webp',
                 'gif' => 'image/gif',
+                'webp' => 'image/webp',
             ];
-            $mimetype = $mimeMap[$extension] ?? 'image/' . $extension;
+            $mimetype = $mimetypes[$extension] ?? 'image/jpeg';
 
-            // Create the Media record with ALL required fields
-            try {
-                $media = Media::create([
-                    'type'      => 'image',
-                    'path'      => $path,
-                    'url'       => $path,
-                    'name'      => $name,
-                    'extension' => $extension,
-                    'mimetype'  => $mimetype,
-                    'alt'       => $data['title'] ?? 'Thumbnail',
-                ]);
-
-                if ($media) {
-                    $data['thumbnail'] = $media->id;
-                }
-            } catch (\Exception $e) {
-                \Illuminate\Support\Facades\Log::error("Media Creation Failed during Post Edit: " . $e->getMessage());
-                // We don't stop the process, but the post will have no thumbnail
-            }
+            $media = Media::create([
+                'url' => $path,
+                'path' => $path,
+                'name' => $name,
+                'extension' => $extension,
+                'mimetype' => $mimetype,
+                'alt' => $data['title'] ?? 'Thumbnail',
+                'type' => 'image',
+            ]);
+            $data['thumbnail'] = $media->id;
         }
-
-        // Clean up the temporary form field
         unset($data['new_thumbnail_upload']);
-
         return $data;
     }
 }
