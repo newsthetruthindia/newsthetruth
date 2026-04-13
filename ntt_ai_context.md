@@ -20,6 +20,7 @@
 - **PHP 8.2**: `gd` extension active.
 - **SSH Key**: `C:\Users\HPi9\.ssh\id_ed25519_ntt`
 - **VPS Host**: `backend.newsthetruth.com` (117.252.16.132)
+- **OFFICIAL BACKUP**: A full snapshot is stored on the VPS at `/root/backups/NTT_BACKUP_2026.tar.gz` (Created April 13, 2026).
 
 ## 🚀 Deployment Workflow
 1. **Frontend**: Pushing to `main` branch of `newsthetruthindia/NTT-FINAL-` triggers Vercel.
