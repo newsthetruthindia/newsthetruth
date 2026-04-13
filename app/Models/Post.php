@@ -15,7 +15,6 @@ class Post extends Model
     use HasFactory;
     use SoftDeletes;
     protected $fillable = [
-        'user_id',
         'title',
         'slug',
         'subtitle',
@@ -28,6 +27,7 @@ class Post extends Model
         'image_credit',
         'location',
         'reporter_name',
+        'user_id',
         'published',
         'post_publish_time',
         'meta_title',
@@ -42,7 +42,7 @@ class Post extends Model
     }
 
     public function thumbnails(){
-        return $this->belongsTo( Media::class, 'thumbnail', 'id' );
+        return $this->hasOne( Media::class, 'id', 'thumbnail' );
     }
     public function categories(){
         return $this->hasMany( postCategory::class, 'post_id', 'id' );
