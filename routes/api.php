@@ -20,7 +20,9 @@ Route::post('/auth/register', [ApiAuthController::class, 'register']);
 Route::post('/auth/login', [ApiAuthController::class, 'login']);
 Route::post('/auth/forgot-password', [ApiAuthController::class, 'forgotPassword']);
 Route::post('/auth/reset-password', [ApiAuthController::class, 'resetPassword']);
+Route::post('/auth/verify-email', [ApiAuthController::class, 'verifyEmail']);
 Route::middleware('auth:sanctum')->post('/auth/logout', [ApiAuthController::class, 'logout']);
+Route::middleware('auth:sanctum')->post('/auth/resend-verification', [ApiAuthController::class, 'resendVerification']);
 
 // Post & User Routes
 Route::get('/user/{id}', [ApiController::class, 'user']);
