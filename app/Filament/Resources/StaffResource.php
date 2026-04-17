@@ -167,12 +167,12 @@ class StaffResource extends Resource
                 Tables\Columns\Layout\Stack::make([
                     ImageColumn::make('photo')
                         ->label('Photo')
-                        ->disk('webapp_public')
                         ->circular()
-                        ->height(80)
-                        ->width(80)
-                        ->state(fn ($record) => $record->details?->media?->url ? ltrim($record->details->media->url, '/') : null)
-                        ->extraAttributes(['class' => 'mb-4 mt-2 justify-center'])
+                        ->height(90)
+                        ->width(90)
+                        ->state(fn ($record) => $record->details?->media?->url ? asset(ltrim($record->details->media->url, '/')) : null)
+                        ->extraImgAttributes(['class' => 'object-cover shadow-lg border-2 border-primary-500/50'])
+                        ->extraAttributes(['class' => 'mb-4 mt-2 flex justify-center w-full'])
                         ->placeholder('No Image'),
 
                     Tables\Columns\Layout\Stack::make([
