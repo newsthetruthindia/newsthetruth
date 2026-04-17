@@ -236,7 +236,7 @@ class PostResource extends Resource
                         ->searchable()
                         ->preload()
                         ->allowHtml()
-                        ->getOptionLabelFromRecordUsing(fn ($record) => "<div style='display:flex; align-items:center; gap:8px;'><img src='".asset('storage/' . $record->url)."' style='height:35px; width:50px; object-fit:cover; border-radius:4px;'> <span>" . basename($record->url) . "</span></div>")
+                        ->getOptionLabelFromRecordUsing(fn ($record) => "<div style='display:flex; align-items:center; gap:8px;'><img src='".asset($record->url)."' style='height:35px; width:50px; object-fit:cover; border-radius:4px;'> <span>" . basename($record->url) . "</span></div>")
                         ->columnSpanFull(),
 
                     FileUpload::make('new_thumbnail_upload')
