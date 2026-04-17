@@ -31,7 +31,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
         $path = ltrim($media->url, '/');
         
         // Use the standardized storage proxy for consistency
-        return asset($path);
+        return asset('storage/' . ltrim($path, '/'));
     }
 
     public function canAccessPanel(Panel $panel): bool

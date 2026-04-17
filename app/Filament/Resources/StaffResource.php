@@ -170,7 +170,7 @@ class StaffResource extends Resource
                         ->circular()
                         ->height(90)
                         ->width(90)
-                        ->state(fn ($record) => $record->details?->media?->url ? asset(ltrim($record->details->media->url, '/')) : null)
+                        ->state(fn ($record) => $record->details?->media?->url ? asset('storage/' . ltrim($record->details->media->url, '/')) : null)
                         ->extraImgAttributes(['class' => 'object-cover shadow-lg border-2 border-primary-500/50'])
                         ->extraAttributes(['class' => 'mb-4 mt-2 flex justify-center w-full'])
                         ->placeholder('No Image'),
