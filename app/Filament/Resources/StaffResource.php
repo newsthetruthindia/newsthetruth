@@ -169,6 +169,12 @@ class StaffResource extends Resource
                 TextColumn::make('firstname')->searchable()->sortable(),
                 TextColumn::make('lastname')->searchable()->sortable(),
                 TextColumn::make('email')->searchable()->sortable(),
+                TextColumn::make('email_verified_at')
+                    ->label('Status')
+                    ->getStateUsing(fn ($record) => $record->email_verified_at ? 'Verified' : 'Pending')
+                    ->badge()
+                    ->color(fn ($state) => $state === 'Verified' ? 'success' : 'warning')
+                    ->sortable(),
                 TextColumn::make('roles.name')
                     ->badge()
                     ->label('Role'),
@@ -251,7 +257,6 @@ class StaffResource extends Resource
                     ->modalHeading('Send 2FA Setup Email')
                     ->modalDescription(fn (User $record) => "Send 2FA authentication setup instructions to {$record->email}?")
                     ->modalSubmitActionLabel('Send Now')
-                    ->visible(fn (User $record) => $record->email_verified_at !== null)
                     ->action(function (User $record) {
                         $loginUrl = env('FRONTEND_URL', 'https://newsthetruth.com') . '/login';
                         $adminUrl = 'https://backend.newsthetruth.com/admin';
