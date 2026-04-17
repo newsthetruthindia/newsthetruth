@@ -221,6 +221,7 @@ class StaffResource extends Resource
             ->actions([
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
                     Tables\Actions\Action::make('sendVerification')
                         ->label('Verify Mail')
                         ->icon('heroicon-o-envelope')
@@ -235,7 +236,20 @@ class StaffResource extends Resource
                             $verifyUrl = env('FRONTEND_URL', 'https://newsthetruth.com') . '/verify-email?token=' . $token . '&email=' . urlencode($record->email);
                             try {
                                 Mail::send([], [], function ($message) use ($record, $verifyUrl) {
-                                    $message->to($record->email)->subject('Verify Your NTT Email')->html("... Verification HTML ..."); // Re-using existing logic
+                                    $message->to($record->email)->subject('Verify Your NTT Email')->html("
+                                        <div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:40px 20px;'>
+                                            <h1 style='font-size:28px;font-weight:900;color:#111827;margin-bottom:8px;'>News The Truth</h1>
+                                            <hr style='border:none;border-top:3px solid #8c0000;margin:16px 0 32px;width:60px;'>
+                                            <h2 style='font-size:20px;color:#111827;margin-bottom:16px;'>Email Verification</h2>
+                                            <p style='color:#4b5563;font-size:15px;line-height:1.6;margin-bottom:24px;'>
+                                                Hi {$record->firstname}, the NTT admin team has requested you to verify your email address. Click below:
+                                            </p>
+                                            <a href='{$verifyUrl}' style='display:inline-block;background:#8c0000;color:white;padding:14px 32px;text-decoration:none;border-radius:8px;font-weight:bold;font-size:14px;'>Verify My Email</a>
+                                            <p style='color:#9ca3af;font-size:12px;margin-top:32px;line-height:1.5;'>
+                                                This link expires in 24 hours.
+                                            </p>
+                                        </div>
+                                    ");
                                 });
                                 Notification::make()->title('Verification email sent')->success()->send();
                             } catch (\Exception $e) {
@@ -248,62 +262,36 @@ class StaffResource extends Resource
                         ->color('success')
                         ->requiresConfirmation()
                         ->action(function (User $record) {
-                            // ... existing sendAuth logic ...
-                        }),
-                    Tables\Actions\DeleteAction::make(),
-                ])->button()->label('Manage Member')->size('sm'),
-            ])
-                    ->modalHeading('Send 2FA Setup Email')
-                    ->modalDescription(fn (User $record) => "Send 2FA authentication setup instructions to {$record->email}?")
-                    ->modalSubmitActionLabel('Send Now')
-                    ->action(function (User $record) {
-                        $loginUrl = env('FRONTEND_URL', 'https://newsthetruth.com') . '/login';
-                        $adminUrl = 'https://backend.newsthetruth.com/admin';
-
-                        try {
-                            Mail::send([], [], function ($message) use ($record, $loginUrl, $adminUrl) {
-                                $message->to($record->email)
-                                    ->subject('Set Up Two-Factor Authentication — NTT')
-                                    ->html("
+                            $loginUrl = env('FRONTEND_URL', 'https://newsthetruth.com') . '/login';
+                            $adminUrl = 'https://backend.newsthetruth.com/admin';
+                            try {
+                                Mail::send([], [], function ($message) use ($record, $loginUrl, $adminUrl) {
+                                    $message->to($record->email)->subject('Action Required: Setup NTT Staff Authentication')->html("
                                         <div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:40px 20px;'>
                                             <h1 style='font-size:28px;font-weight:900;color:#111827;margin-bottom:8px;'>News The Truth</h1>
                                             <hr style='border:none;border-top:3px solid #8c0000;margin:16px 0 32px;width:60px;'>
-                                            <h2 style='font-size:20px;color:#111827;margin-bottom:16px;'>Two-Factor Authentication Setup</h2>
-                                            <p style='color:#4b5563;font-size:15px;line-height:1.6;margin-bottom:16px;'>
-                                                Hi {$record->firstname}, your NTT account has been verified. You are now required to set up Two-Factor Authentication (2FA) for enhanced security.
+                                            <h2 style='font-size:20px;color:#111827;margin-bottom:16px;'>Staff 2FA Authentication Setup</h2>
+                                            <p style='color:#4b5563;font-size:15px;line-height:1.6;margin-bottom:24px;'>
+                                                Hi {$record->firstname}, your NTT Staff account requires 2FA authentication for access. Please follow these steps:
                                             </p>
-                                            <h3 style='font-size:16px;color:#111827;margin-bottom:12px;'>Setup Steps:</h3>
-                                            <ol style='color:#4b5563;font-size:14px;line-height:2;margin-bottom:24px;padding-left:20px;'>
-                                                <li>Download <strong>Google Authenticator</strong> or <strong>Authy</strong> app on your phone</li>
-                                                <li>Log in to the <a href='{$adminUrl}' style='color:#8c0000;font-weight:bold;'>NTT Admin Panel</a></li>
-                                                <li>Go to <strong>Two-Factor Auth</strong> in the Settings menu</li>
+                                            <ol style='color:#4b5563;font-size:15px;line-height:1.8;margin-bottom:24px;'>
+                                                <li>Login to the <a href='{$loginUrl}'>NTT News Portal</a></li>
+                                                <li>Go to your Profile Settings</li>
+                                                <li>Enable Two-Factor Authentication</li>
                                                 <li>Scan the QR code with your authenticator app</li>
                                                 <li>Enter the 6-digit code to confirm setup</li>
                                             </ol>
                                             <a href='{$adminUrl}' style='display:inline-block;background:#8c0000;color:white;padding:14px 32px;text-decoration:none;border-radius:8px;font-weight:bold;font-size:14px;'>Go to Admin Panel</a>
-                                            <p style='color:#9ca3af;font-size:12px;margin-top:32px;line-height:1.5;'>
-                                                If you have any issues, contact the NTT admin team.
-                                            </p>
+                                            <p style='color:#9ca3af;font-size:12px;margin-top:32px;line-height:1.5;'>If you have any issues, contact the NTT admin team.</p>
                                         </div>
                                     ");
-                            });
-
-                            Notification::make()
-                                ->title('2FA setup email sent')
-                                ->body("Instructions sent to {$record->email}")
-                                ->success()
-                                ->send();
-                        } catch (\Exception $e) {
-                            Notification::make()
-                                ->title('Failed to send auth email')
-                                ->body($e->getMessage())
-                                ->danger()
-                                ->send();
-                        }
-                    }),
-
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                                });
+                                Notification::make()->title('2FA setup email sent')->success()->send();
+                            } catch (\Exception $e) {
+                                Notification::make()->title('Failed to send auth email')->danger()->send();
+                            }
+                        }),
+                ])->button()->label('Manage Member')->size('sm'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
