@@ -13,7 +13,7 @@ use Spatie\Permission\Traits\HasRoles;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 
-class User extends Authenticatable implements FilamentUser, MustVerifyEmail
+class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerifyEmail
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
     use SoftDeletes;
@@ -46,11 +46,6 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
     public function getIsReporterAttribute(): bool
     {
         return $this->hasRole('Reporter') || $this->hasRole('Reporter', 'web') || $this->roles()->where('name', 'Reporter')->exists();
-    }
-
-    public function getNameAttribute(): string
-    {
-        return trim(($this->firstname ?? '') . ' ' . ($this->lastname ?? ''));
     }
 
     /**
