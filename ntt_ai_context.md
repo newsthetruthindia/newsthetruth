@@ -39,6 +39,9 @@
 
 ## 🏆 Project Milestones
 
+### April 15, 2026: Authentication Security & Onboarding Overhaul
+Restored the broken "forgot password" system by migrating to Gmail SMTP (`smtp.gmail.com`, port 465, SSL). Upgraded `ApiAuthController` to a secure implementation utilizing hashed reset tokens and user enumeration protection. Launched a new administrative onboarding flow in the Filament Staff Resource: added "Verify Mail" (resends verification links) and "Send Auth" (onboards users to 2FA) buttons. Implemented a dedicated `/verify-email` frontend route to handle secure verification links.
+
 ### April 13, 2026: Subtitle & Attribution Stability Fixes. Corrected permission protocol (`nginx` -> `apache`) and fixed article attribution glitch by patching `Post` model and adding sync logic to `PostResource`. Resolved fatal 500 exceptions in Filament Grids caused by invalid `Stack::padding()` chaining. Restored broken Media Upload flow by exposing `dehydrated` lifecycle paths, enforcing `webapp_public` disk mapping, and satisfying strict SQL schema constraints (providing full Media field set: type, path, url, name, extension, mimetype) to prevent 1364 SQL errors.
 
 ### April 11, 2026: News Command Center & Infrastructure Hardening
@@ -56,4 +59,4 @@
 - **NTT Rebranding**: Site transitioned from 'News The Truth' to 'NTT'. Updated headers, metadata, and JSON-LD.
 - **Storage Proxy**: Hardened the proxy with a robust VPS-to-Legacy fallback system.
 
-*Last Updated: April 11, 2026 14:10 IST*
+*Last Updated: April 15, 2026 15:45 IST*

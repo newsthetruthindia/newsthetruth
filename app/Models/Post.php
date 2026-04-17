@@ -32,6 +32,9 @@ class Post extends Model
         'post_publish_time',
         'meta_title',
         'meta_description',
+        'audio_clip_url',
+        'video_url',
+        'x_embed_url',
     ];
     public function user(){
         return $this->belongsTo( User::class );
@@ -65,6 +68,21 @@ class Post extends Model
 
     protected static function booted()
     {
+        static::saving(function ($post) {
+            // Automatically resolve user_id from reporter_name if mismatch found
+            if (!empty($post->reporter_name)) {
+                $name = trim($post->reporter_name);
+                // Look for an official reporter with this name
+                $matchedUser = User::role('Reporter')
+                    ->whereRaw("TRIM(CONCAT(firstname, ' ', lastname)) = ?", [$name])
+                    ->first();
+                
+                if ($matchedUser) {
+                    $post->user_id = $matchedUser->id;
+                }
+            }
+        });
+
         static::saved(function ($post) {
             // Only send if status was just changed to 'published'
             if ($post->wasChanged('status') && $post->status === 'published') {

@@ -177,20 +177,55 @@ class PostResource extends Resource
                 ->visible(fn ($record) => $record !== null),
 
             Section::make('Categorization')
+                ->icon('heroicon-m-tag')
                 ->schema([
                     Select::make('filamentCategories')
                         ->relationship('filamentCategories', 'title')
                         ->multiple()
                         ->preload()
                         ->searchable()
-                        ->label('Categories'),
+                        ->label('Categories')
+                        ->createOptionForm([
+                            Forms\Components\TextInput::make('title')
+                                ->required()
+                                ->live(onBlur: true)
+                                ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', str($state)->slug())),
+                            Forms\Components\TextInput::make('slug')
+                                ->required()
+                                ->unique('categories', 'slug', ignoreRecord: true),
+                        ])
+                        ->createOptionAction(fn (Forms\Components\Actions\Action $action) => $action->modalHeading('Create Category')->modalButton('Create')),
 
                     Select::make('filamentTags')
                         ->relationship('filamentTags', 'title')
                         ->multiple()
                         ->preload()
                         ->searchable()
-                        ->label('Tags'),
+                        ->label('Tags')
+                        ->createOptionForm([
+                            Forms\Components\TextInput::make('title')
+                                ->required()
+                                ->live(onBlur: true)
+                                ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', str($state)->slug())),
+                            Forms\Components\TextInput::make('slug')
+                                ->required()
+                                ->unique('tags', 'slug', ignoreRecord: true),
+                        ])
+                        ->createOptionAction(fn (Forms\Components\Actions\Action $action) => $action->modalHeading('Create Tag')->modalButton('Create')),
+                ])->columns(2),
+
+            Section::make('Social Media & Video')
+                ->icon('heroicon-m-share')
+                ->schema([
+                    TextInput::make('video_url')
+                        ->label('YouTube URL')
+                        ->placeholder('https://www.youtube.com/watch?v=...')
+                        ->url(),
+
+                    TextInput::make('x_embed_url')
+                        ->label('X (Twitter) URL')
+                        ->placeholder('https://x.com/user/status/...')
+                        ->url(),
                 ])->columns(2),
 
             Section::make('Media')
@@ -201,7 +236,7 @@ class PostResource extends Resource
                         ->searchable()
                         ->preload()
                         ->allowHtml()
-                        ->getOptionLabelFromRecordUsing(fn ($record) => "<div style='display:flex; align-items:center; gap:8px;'><img src='".asset($record->url)."' style='height:35px; width:50px; object-fit:cover; border-radius:4px;'> <span>" . basename($record->url) . "</span></div>")
+                        ->getOptionLabelFromRecordUsing(fn ($record) => "<div style='display:flex; align-items:center; gap:8px;'><img src='".asset('storage/' . $record->url)."' style='height:35px; width:50px; object-fit:cover; border-radius:4px;'> <span>" . basename($record->url) . "</span></div>")
                         ->columnSpanFull(),
 
                     FileUpload::make('new_thumbnail_upload')
@@ -256,10 +291,10 @@ class PostResource extends Resource
                 Tables\Columns\Layout\Stack::make([
                     ImageColumn::make('thumbnailMedia.url')
                         ->disk('webapp_public')
-                        ->height('200px')
+                        ->height(200)
                         ->width('100%')
-                        ->extraAttributes([
-                            'class' => 'object-cover rounded-t-xl w-full',
+                        ->extraImgAttributes([
+                            'class' => 'object-cover w-full h-[200px] rounded-t-xl',
                         ]),
 
                     Tables\Columns\Layout\Stack::make([

@@ -20,9 +20,27 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 
     protected $appends = ['is_reporter'];
 
+    public function getFilamentAvatarUrl(): ?string
+    {
+        $media = $this->details?->media;
+        if (!$media || !$media->url) {
+            return null;
+        }
+
+        $path = ltrim($media->url, '/');
+        
+        // Use the standardized storage proxy for consistency
+        return asset('storage/' . $path);
+    }
+
     public function canAccessPanel(Panel $panel): bool
     {
         return $this->hasAnyRole(['Admin', 'Editor']);
+    }
+
+    public function getNameAttribute(): string
+    {
+        return trim(($this->firstname ?? '') . ' ' . ($this->lastname ?? ''));
     }
 
     public function getIsReporterAttribute(): bool
