@@ -372,7 +372,7 @@
             @endphp
 
             @if(count($all_related) > 0 || count($all_trending) > 0)
-            <div class="ntt-discovery-hub pt-5 mt-5 border-top" data-deploy-v="newsroom-2.1">
+            <div class="ntt-discovery-hub pt-5 mt-5 border-top" data-deploy-v="newsroom-2.2">
                 {{-- SECTION 1: RELATED STORIES --}}
                 @if(count($all_related) > 0)
                 <div class="mb-5">
