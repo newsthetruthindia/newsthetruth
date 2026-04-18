@@ -359,61 +359,116 @@
                     </div>
                 </div>
             </div>
-            <!-- 16-STORY SMART DISCOVERY GRID -->
+            {{-- ═══════════════════════════════════════════════════════════ --}}
+            {{-- 16-STORY SMART DISCOVERY GRID                               --}}
+            {{-- ═══════════════════════════════════════════════════════════ --}}
             @php
-                $all_related = $similars->take(6);
-                $all_trending = $the_latest->take(6);
-                $all_highlights = $the_latest->slice(6, 4);
-                // Fallback if collections are small
-                if($all_highlights->count() < 4) $all_highlights = $the_latest->take(4);
+                $similars_arr  = is_array($similars)    ? $similars    : (method_exists($similars, 'all')    ? $similars->all()    : []);
+                $latest_arr    = is_array($the_latest)  ? $the_latest  : (method_exists($the_latest, 'all') ? $the_latest->all()  : []);
+                $all_related   = array_slice($similars_arr, 0, 6);
+                $all_trending  = array_slice($latest_arr, 0, 6);
+                $all_highlights = array_slice($latest_arr, 6, 4);
+                if (count($all_highlights) < 4) $all_highlights = array_slice($latest_arr, 0, 4);
             @endphp
 
-            <div class="ntt-discovery-grid pt-5 mt-5 border-top border-light">
-                <!-- SECTION 1: RELATED -->
+            @if(count($all_related) > 0 || count($all_trending) > 0)
+            <div class="ntt-discovery-hub pt-5 mt-5 border-top">
+
+                {{-- SECTION 1: RELATED STORIES --}}
+                @if(count($all_related) > 0)
                 <div class="mb-5">
-                    <div class="d-flex align-items-center justify-content-between mb-4">
-                        <h2 class="h4 fw-black text-uppercase tracking-wider italic mb-0">Related Stories</h2>
-                        <div class="flex-grow-1 mx-4 h-px bg-light"></div>
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <div>
+                            <div class="text-uppercase fw-black" style="font-size:10px;letter-spacing:.3em;color:var(--ntt-primary);">Based on this story</div>
+                            <h2 class="fw-black text-uppercase mb-0" style="font-size:clamp(1.5rem,3vw,2rem);letter-spacing:-.02em;font-style:italic;">Related Stories</h2>
+                        </div>
+                        <div class="flex-grow-1 border-bottom opacity-25 ms-3"></div>
+                        <span class="badge bg-primary rounded-pill" style="font-size:9px;">{{ count($all_related) }}</span>
                     </div>
-                    <div class="row gy-4">
-                        @foreach($all_related as $post)
-                            <div class="col-sm-6 col-lg-4 col-xl-2">
-                                @include('public-pages.components.tiny_card', ['post' => $post])
-                            </div>
+                    <div class="row g-3">
+                        @foreach($all_related as $p)
+                        <div class="col-6 col-md-4 col-xl-2">
+                            <a href="{{ route('public.page', ['x' => $p->slug]) }}" class="text-decoration-none d-block h-100">
+                                <div class="card h-100 border-0 shadow-sm overflow-hidden" style="border-radius:12px;transition:transform .3s,box-shadow .3s;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 30px rgba(0,0,0,.12)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+                                    <div style="aspect-ratio:16/10;overflow:hidden;">
+                                        <img src="{{ !empty($p->thumbnails) ? url($p->thumbnails->url) : asset('public/v1/img/blog/blog_5_2_4.jpg') }}" alt="{{ $p->title }}" class="w-100 h-100 object-fit-cover" style="transition:transform .5s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform=''">
+                                    </div>
+                                    <div class="card-body p-2">
+                                        <p class="card-text fw-bold text-dark mb-1" style="font-size:.78rem;line-height:1.3;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">{{ \Illuminate\Support\Str::limit($p->title, 55) }}</p>
+                                        <span class="text-muted" style="font-size:.65rem;">{{ \Carbon\Carbon::parse($p->created_at)->format('d M') }}</span>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
                         @endforeach
                     </div>
                 </div>
+                @endif
 
-                <!-- SECTION 2: TRENDING -->
+                {{-- SECTION 2: VIRAL TRENDING --}}
+                @if(count($all_trending) > 0)
                 <div class="mb-5">
-                    <div class="d-flex align-items-center justify-content-between mb-4">
-                        <h2 class="h4 fw-black text-uppercase tracking-wider italic mb-0 text-primary">Viral Trending</h2>
-                        <div class="flex-grow-1 mx-4 h-px bg-primary opacity-10"></div>
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <div>
+                            <div class="text-uppercase fw-black" style="font-size:10px;letter-spacing:.3em;color:var(--ntt-primary);">What people are reading</div>
+                            <h2 class="fw-black text-uppercase mb-0" style="font-size:clamp(1.5rem,3vw,2rem);letter-spacing:-.02em;font-style:italic;color:var(--ntt-primary);">Viral Trending</h2>
+                        </div>
+                        <div class="flex-grow-1 border-bottom opacity-25 ms-3"></div>
+                        <span class="badge bg-primary rounded-pill" style="font-size:9px;">{{ count($all_trending) }}</span>
                     </div>
-                    <div class="row gy-4">
-                        @foreach($all_trending as $post)
-                            <div class="col-sm-6 col-lg-4 col-xl-2">
-                                @include('public-pages.components.tiny_card', ['post' => $post])
-                            </div>
+                    <div class="row g-3">
+                        @foreach($all_trending as $p)
+                        <div class="col-6 col-md-4 col-xl-2">
+                            <a href="{{ route('public.page', ['x' => $p->slug]) }}" class="text-decoration-none d-block h-100">
+                                <div class="card h-100 border-0 shadow-sm overflow-hidden" style="border-radius:12px;transition:transform .3s,box-shadow .3s;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 30px rgba(0,0,0,.12)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+                                    <div style="aspect-ratio:16/10;overflow:hidden;position:relative;">
+                                        <img src="{{ !empty($p->thumbnails) ? url($p->thumbnails->url) : asset('public/v1/img/blog/blog_5_2_4.jpg') }}" alt="{{ $p->title }}" class="w-100 h-100 object-fit-cover">
+                                        <div style="position:absolute;top:6px;left:6px;background:var(--ntt-primary);color:#fff;font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.2em;padding:2px 8px;border-radius:20px;">🔥 Trending</div>
+                                    </div>
+                                    <div class="card-body p-2">
+                                        <p class="card-text fw-bold text-dark mb-1" style="font-size:.78rem;line-height:1.3;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">{{ \Illuminate\Support\Str::limit($p->title, 55) }}</p>
+                                        <span class="text-muted" style="font-size:.65rem;">{{ \Carbon\Carbon::parse($p->created_at)->format('d M') }}</span>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
                         @endforeach
                     </div>
                 </div>
+                @endif
 
-                <!-- SECTION 3: HIGHLIGHTS -->
+                {{-- SECTION 3: EDITOR HIGHLIGHTS --}}
+                @if(count($all_highlights) > 0)
                 <div>
-                    <div class="d-flex align-items-center justify-content-between mb-4">
-                        <h2 class="h4 fw-black text-uppercase tracking-wider italic mb-0">Editor Highlights</h2>
-                        <div class="flex-grow-1 mx-4 h-px bg-light"></div>
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <div>
+                            <div class="text-uppercase fw-black" style="font-size:10px;letter-spacing:.3em;color:var(--ntt-primary);">Selected by NTT Desk</div>
+                            <h2 class="fw-black text-uppercase mb-0" style="font-size:clamp(1.5rem,3vw,2rem);letter-spacing:-.02em;font-style:italic;">Editor Highlights</h2>
+                        </div>
+                        <div class="flex-grow-1 border-bottom opacity-25 ms-3"></div>
                     </div>
-                    <div class="row gy-4">
-                        @foreach($all_highlights as $post)
-                            <div class="col-sm-6 col-lg-3">
-                                @include('public-pages.components.tiny_card', ['post' => $post])
-                            </div>
+                    <div class="row g-3">
+                        @foreach($all_highlights as $p)
+                        <div class="col-6 col-md-3">
+                            <a href="{{ route('public.page', ['x' => $p->slug]) }}" class="text-decoration-none d-block h-100">
+                                <div class="card h-100 border-0 shadow-sm overflow-hidden" style="border-radius:12px;transition:transform .3s,box-shadow .3s;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 30px rgba(0,0,0,.12)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+                                    <div style="aspect-ratio:16/10;overflow:hidden;">
+                                        <img src="{{ !empty($p->thumbnails) ? url($p->thumbnails->url) : asset('public/v1/img/blog/blog_5_2_4.jpg') }}" alt="{{ $p->title }}" class="w-100 h-100 object-fit-cover">
+                                    </div>
+                                    <div class="card-body p-2">
+                                        <p class="card-text fw-bold text-dark mb-1" style="font-size:.78rem;line-height:1.3;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">{{ \Illuminate\Support\Str::limit($p->title, 55) }}</p>
+                                        <span class="text-muted" style="font-size:.65rem;">{{ \Carbon\Carbon::parse($p->created_at)->format('d M') }}</span>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
                         @endforeach
                     </div>
                 </div>
+                @endif
+
             </div>
+            @endif
 
         </div>
     </section>
