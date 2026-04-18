@@ -360,7 +360,7 @@
                 </div>
             </div>
             {{-- ═══════════════════════════════════════════════════════════ --}}
-            {{-- 16-STORY SMART DISCOVERY GRID                               --}}
+            {{-- 16-STORY SMART DISCOVERY GRID (ATOMIC)                      --}}
             {{-- ═══════════════════════════════════════════════════════════ --}}
             @php
                 $similars_arr  = is_array($similars)    ? $similars    : (method_exists($similars, 'all')    ? $similars->all()    : []);
@@ -372,8 +372,7 @@
             @endphp
 
             @if(count($all_related) > 0 || count($all_trending) > 0)
-            <div class="ntt-discovery-hub pt-5 mt-5 border-top">
-
+            <div class="ntt-discovery-hub pt-5 mt-5 border-top" data-deploy-v="newsroom-2.1">
                 {{-- SECTION 1: RELATED STORIES --}}
                 @if(count($all_related) > 0)
                 <div class="mb-5">
@@ -383,7 +382,6 @@
                             <h2 class="fw-black text-uppercase mb-0" style="font-size:clamp(1.5rem,3vw,2rem);letter-spacing:-.02em;font-style:italic;">Related Stories</h2>
                         </div>
                         <div class="flex-grow-1 border-bottom opacity-25 ms-3"></div>
-                        <span class="badge bg-primary rounded-pill" style="font-size:9px;">{{ count($all_related) }}</span>
                     </div>
                     <div class="row g-3">
                         @foreach($all_related as $p)
@@ -391,7 +389,7 @@
                             <a href="{{ route('public.page', ['x' => $p->slug]) }}" class="text-decoration-none d-block h-100">
                                 <div class="card h-100 border-0 shadow-sm overflow-hidden" style="border-radius:12px;transition:transform .3s,box-shadow .3s;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 30px rgba(0,0,0,.12)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
                                     <div style="aspect-ratio:16/10;overflow:hidden;">
-                                        <img src="{{ !empty($p->thumbnails) ? url($p->thumbnails->url) : asset('public/v1/img/blog/blog_5_2_4.jpg') }}" alt="{{ $p->title }}" class="w-100 h-100 object-fit-cover" style="transition:transform .5s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform=''">
+                                        <img src="{{ !empty($p->thumbnails) ? url($p->thumbnails->url) : asset('public/v1/img/blog/blog_5_2_4.jpg') }}" alt="{{ $p->title }}" class="w-100 h-100 object-fit-cover">
                                     </div>
                                     <div class="card-body p-2">
                                         <p class="card-text fw-bold text-dark mb-1" style="font-size:.78rem;line-height:1.3;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">{{ \Illuminate\Support\Str::limit($p->title, 55) }}</p>
@@ -414,7 +412,6 @@
                             <h2 class="fw-black text-uppercase mb-0" style="font-size:clamp(1.5rem,3vw,2rem);letter-spacing:-.02em;font-style:italic;color:var(--ntt-primary);">Viral Trending</h2>
                         </div>
                         <div class="flex-grow-1 border-bottom opacity-25 ms-3"></div>
-                        <span class="badge bg-primary rounded-pill" style="font-size:9px;">{{ count($all_trending) }}</span>
                     </div>
                     <div class="row g-3">
                         @foreach($all_trending as $p)
@@ -436,37 +433,6 @@
                     </div>
                 </div>
                 @endif
-
-                {{-- SECTION 3: EDITOR HIGHLIGHTS --}}
-                @if(count($all_highlights) > 0)
-                <div>
-                    <div class="d-flex align-items-center gap-3 mb-4">
-                        <div>
-                            <div class="text-uppercase fw-black" style="font-size:10px;letter-spacing:.3em;color:var(--ntt-primary);">Selected by NTT Desk</div>
-                            <h2 class="fw-black text-uppercase mb-0" style="font-size:clamp(1.5rem,3vw,2rem);letter-spacing:-.02em;font-style:italic;">Editor Highlights</h2>
-                        </div>
-                        <div class="flex-grow-1 border-bottom opacity-25 ms-3"></div>
-                    </div>
-                    <div class="row g-3">
-                        @foreach($all_highlights as $p)
-                        <div class="col-6 col-md-3">
-                            <a href="{{ route('public.page', ['x' => $p->slug]) }}" class="text-decoration-none d-block h-100">
-                                <div class="card h-100 border-0 shadow-sm overflow-hidden" style="border-radius:12px;transition:transform .3s,box-shadow .3s;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 30px rgba(0,0,0,.12)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
-                                    <div style="aspect-ratio:16/10;overflow:hidden;">
-                                        <img src="{{ !empty($p->thumbnails) ? url($p->thumbnails->url) : asset('public/v1/img/blog/blog_5_2_4.jpg') }}" alt="{{ $p->title }}" class="w-100 h-100 object-fit-cover">
-                                    </div>
-                                    <div class="card-body p-2">
-                                        <p class="card-text fw-bold text-dark mb-1" style="font-size:.78rem;line-height:1.3;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">{{ \Illuminate\Support\Str::limit($p->title, 55) }}</p>
-                                        <span class="text-muted" style="font-size:.65rem;">{{ \Carbon\Carbon::parse($p->created_at)->format('d M') }}</span>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-                        @endforeach
-                    </div>
-                </div>
-                @endif
-
             </div>
             @endif
 
