@@ -185,12 +185,12 @@ class PublicPageController_v1 extends Controller
         //dd($data['seo_data']);
         $just_ins = JustIn::limit(6)->offset(0)->orderBy('updated_at', 'DESC')->get();
         $top_post = Post::where('top_post', 1)->where('status', 'published')->where('visibility', 'public')->where('ignore_top_scheduling', '1')->orWhere([['top_post_to_time', '>', date('H:i:s')], ['top_post_form_time', '<', date('H:i:s')], ['post_publish_time', '<', date('Y-m-d H:i:s')]])->limit(5)->offset(0)->orderBy('updated_at', 'DESC')->get();
-        $the_latest = Post::where('status', 'published')->where('visibility', 'public')->limit(6)->offset(0)->orderBy('updated_at', 'DESC')->get();
+        $the_latest = Post::where('status', 'published')->where('visibility', 'public')->limit(16)->offset(0)->orderBy('updated_at', 'DESC')->get();
         $similars = Post::where('status', 'published')->where('visibility', 'public')->whereHas('categories', function ($query) use ($cats) {
             $query->whereHas('cat_data', function ($q) use ($cats) {
                 $q->whereIn('id', $cats);
             });
-        })->limit(6)->offset(0)->orderBy('updated_at', 'DESC')->get();
+        })->limit(8)->offset(0)->orderBy('updated_at', 'DESC')->get();
         $body_classes = 'singular post-single page-template-default post no-sidebar';
         $data = [
             'the_post' => $x,
