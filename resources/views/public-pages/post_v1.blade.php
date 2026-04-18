@@ -359,55 +359,61 @@
                     </div>
                 </div>
             </div>
-            @if(!empty($similars) && count($similars) > 0)
-            <div class="related-post-wrapper pt-5 mt-5 border-top border-light">
-                <div class="row align-items-center mb-4">
-                    <div class="col">
-                        <h2 class="sec-title show-line fw-bold text-uppercase tracking-wider h4 mb-0">Related Stories</h2>
+            <!-- 16-STORY SMART DISCOVERY GRID -->
+            @php
+                $all_related = $similars->take(6);
+                $all_trending = $the_latest->take(6);
+                $all_highlights = $the_latest->slice(6, 4);
+                // Fallback if collections are small
+                if($all_highlights->count() < 4) $all_highlights = $the_latest->take(4);
+            @endphp
+
+            <div class="ntt-discovery-grid pt-5 mt-5 border-top border-light">
+                <!-- SECTION 1: RELATED -->
+                <div class="mb-5">
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+                        <h2 class="h4 fw-black text-uppercase tracking-wider italic mb-0">Related Stories</h2>
+                        <div class="flex-grow-1 mx-4 h-px bg-light"></div>
+                    </div>
+                    <div class="row gy-4">
+                        @foreach($all_related as $post)
+                            <div class="col-sm-6 col-lg-4 col-xl-2">
+                                @include('public-pages.components.tiny_card', ['post' => $post])
+                            </div>
+                        @endforeach
                     </div>
                 </div>
 
-                <div class="row gy-4">
-                    @foreach($similars as $latest)
-                    <div class="col-sm-6 col-lg-3">
-                        <div class="premium-card h-100 p-0 border-0 bg-white">
-                            <div class="blog-img mb-0" style="aspect-ratio: 16/10;">
-                                <a href="{{ route('public.page', ['x' => $latest->slug]) }}">
-                                    @if($latest->thumbnails)
-                                    <img
-                                        src="{{ url($latest->thumbnails->url) }}"
-                                        srcset="{{ get_image_srcset($latest->thumbnails->id) }}"
-                                        alt="{{ $latest->title }}"
-                                        class="w-100 h-100 object-fit-cover transition-all duration-500 hover:scale-110" />
-                                    @else
-                                    <img
-                                        src="{{ asset('public/v1/img/blog/blog_5_2_4.jpg') }}"
-                                        alt="{{ $latest->title }}"
-                                        class="w-100 h-100 object-fit-cover" />
-                                    @endif
-                                </a>
-                            </div>
-
-                            <div class="blog-content p-3">
-                                <h3 class="h6 fw-bold lh-base mb-2">
-                                    <a class="text-dark text-decoration-none hover-line" href="{{ route('public.page', ['x' => $latest->slug]) }}">
-                                        {{ \Illuminate\Support\Str::limit($latest->title, 55) }}
-                                    </a>
-                                </h3>
-
-                                <div class="blog-meta mt-auto">
-                                    <div class="text-muted x-small d-flex align-items-center">
-                                        <i class="fal fa-calendar-days me-2"></i>
-                                        {{ \Carbon\Carbon::parse($latest->post_publish_time)->format('d M, Y') }}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                <!-- SECTION 2: TRENDING -->
+                <div class="mb-5">
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+                        <h2 class="h4 fw-black text-uppercase tracking-wider italic mb-0 text-primary">Viral Trending</h2>
+                        <div class="flex-grow-1 mx-4 h-px bg-primary opacity-10"></div>
                     </div>
-                    @endforeach
+                    <div class="row gy-4">
+                        @foreach($all_trending as $post)
+                            <div class="col-sm-6 col-lg-4 col-xl-2">
+                                @include('public-pages.components.tiny_card', ['post' => $post])
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+
+                <!-- SECTION 3: HIGHLIGHTS -->
+                <div>
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+                        <h2 class="h4 fw-black text-uppercase tracking-wider italic mb-0">Editor Highlights</h2>
+                        <div class="flex-grow-1 mx-4 h-px bg-light"></div>
+                    </div>
+                    <div class="row gy-4">
+                        @foreach($all_highlights as $post)
+                            <div class="col-sm-6 col-lg-3">
+                                @include('public-pages.components.tiny_card', ['post' => $post])
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
             </div>
-            @endif
 
         </div>
     </section>
