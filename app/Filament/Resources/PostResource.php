@@ -294,12 +294,12 @@ class PostResource extends Resource
                                     ->searchable()
                                     ->preload()
                                     ->allowHtml()
-                                    ->getOptionLabelFromRecordUsing(fn ($record) => "<div style='display:flex; align-items:center; gap:8px;'><img src='".asset('storage/' . $record->url)."' style='height:35px; width:50px; object-fit:cover; border-radius:4px;'> <span>" . basename($record->url) . "</span></div>"),
+                                    ->getOptionLabelFromRecordUsing(fn ($record) => "<div style='display:flex; align-items:center; gap:8px;'><img src='".asset($record->url)."' style='height:35px; width:50px; object-fit:cover; border-radius:4px;'> <span>" . basename($record->url) . "</span></div>"),
 
                                 FileUpload::make('new_thumbnail_upload')
                                     ->label('Or Upload New')
                                     ->image()
-                                    ->disk('public')
+                                    ->disk('webapp_public')
                                     ->directory('uploads/media')
                                     ->imagePreviewHeight('200'),
                                 
@@ -337,7 +337,7 @@ class PostResource extends Resource
             ->columns([
                 Tables\Columns\Layout\Stack::make([
                     ImageColumn::make('thumbnailMedia.url')
-                        ->disk('public')
+                        ->disk('webapp_public')
                         ->height(200)
                         ->width('100%')
                         ->extraImgAttributes([
@@ -450,7 +450,7 @@ class PostResource extends Resource
                         ->hidden(fn (Post $record) => $record->status !== 'published')
                         ->action(function (Post $record) {
                             $subscribers = \App\Models\User::where('type', 'user')->get();
-                            $imageUrl = $record->thumbnailMedia ? asset('storage/' . $record->thumbnailMedia->url) : null;
+                            $imageUrl = $record->thumbnailMedia ? asset($record->thumbnailMedia->url) : null;
 
                             \Illuminate\Support\Facades\Notification::send(
                                 $subscribers, 
@@ -508,7 +508,7 @@ class PostResource extends Resource
                         }
                 
                         if (in_array('instagram', $data['platforms'])) {
-                            $imageUrl = $record->thumbnailMedia ? asset('storage/' . $record->thumbnailMedia->url) : null;
+                            $imageUrl = $record->thumbnailMedia ? asset($record->thumbnailMedia->url) : null;
                             if ($imageUrl) {
                                $ig = $service->publishToInstagram($data['custom_message'] . "\n\nRead more at our website: " . $link, $imageUrl);
                                if ($ig) {
