@@ -468,73 +468,77 @@ class PostResource extends Resource
                                 ->success()
                                 ->send();
                         }),
-                    Tables\Actions\Action::make('share_social')
-                        ->label('Share to Socials')
-                        ->icon('heroicon-o-share')
-                        ->color('primary')
-                        ->form([
-                            \Filament\Forms\Components\CheckboxList::make('platforms')
-                                ->label('Select Platforms to Publish To')
-                                ->options([
-                                    'facebook' => 'Facebook Page',
-                                    'instagram' => 'Instagram Professional Account'
-                                ])
-                                ->default(['facebook', 'instagram']),
-                            \Filament\Forms\Components\Textarea::make('custom_message')
-                                ->label('Custom Social Media Caption')
-                                ->placeholder('Write an engaging caption for your followers...')
-                                ->rows(3)
-                                ->required(),
-                        ])
-                        ->action(function (\App\Models\Post $record, array $data) {
-                            $service = new \App\Services\SocialPublishingService();
-                            $link = rtrim(env('FRONTEND_URL', 'https://newsthetruth.com'), '/') . '/news/' . $record->slug;
-                            $success = true;
-                            $platformsPosted = [];
-                    
-                            if (in_array('facebook', $data['platforms'])) {
-                                $fb = $service->publishToFacebook($data['custom_message'], $link);
-                                if ($fb) {
-                                    $platformsPosted[] = 'Facebook';
-                                } else {
-                                    $success = false;
-                                }
-                            }
-                    
-                            if (in_array('instagram', $data['platforms'])) {
-                                $imageUrl = $record->thumbnailMedia ? asset('storage/' . $record->thumbnailMedia->url) : null;
-                                if ($imageUrl) {
-                                   $ig = $service->publishToInstagram($data['custom_message'] . "\n\nRead more at our website: " . $link, $imageUrl);
-                                   if ($ig) {
-                                       $platformsPosted[] = 'Instagram';
-                                   } else {
-                                       $success = false;
-                                   }
-                                } else {
-                                   \Filament\Notifications\Notification::make()->title('Instagram requires a thumbnail image.')->danger()->send();
-                                   $success = false;
-                                }
-                            }
-                    
-                            if ($success && count($platformsPosted) > 0) {
-                                \Filament\Notifications\Notification::make()
-                                    ->title('Published successfully to ' . implode(' & ', $platformsPosted))
-                                    ->success()
-                                    ->send();
-                            } else if (count($platformsPosted) > 0) {
-                                 \Filament\Notifications\Notification::make()
-                                    ->title('Published with some errors. Verification needed.')
-                                    ->warning()
-                                    ->send();
-                            } else {
-                                \Filament\Notifications\Notification::make()
-                                    ->title('Publishing Failed. Check your API Keys in Settings.')
-                                    ->danger()
-                                    ->send();
-                            }
-                        }),
+
                     Tables\Actions\DeleteAction::make(),
                 ])->button()->label('More Options')->size('sm'),
+                
+                Tables\Actions\Action::make('share_social')
+                    ->label('Social Share')
+                    ->icon('heroicon-o-share')
+                    ->color('primary')
+                    ->button()
+                    ->size('sm')
+                    ->form([
+                        \Filament\Forms\Components\CheckboxList::make('platforms')
+                            ->label('Select Platforms to Publish To')
+                            ->options([
+                                'facebook' => 'Facebook Page',
+                                'instagram' => 'Instagram Professional Account'
+                            ])
+                            ->default(['facebook', 'instagram']),
+                        \Filament\Forms\Components\Textarea::make('custom_message')
+                            ->label('Custom Social Media Caption')
+                            ->placeholder('Write an engaging caption for your followers...')
+                            ->rows(3)
+                            ->required(),
+                    ])
+                    ->action(function (\App\Models\Post $record, array $data) {
+                        $service = new \App\Services\SocialPublishingService();
+                        $link = rtrim(env('FRONTEND_URL', 'https://newsthetruth.com'), '/') . '/news/' . $record->slug;
+                        $success = true;
+                        $platformsPosted = [];
+                
+                        if (in_array('facebook', $data['platforms'])) {
+                            $fb = $service->publishToFacebook($data['custom_message'], $link);
+                            if ($fb) {
+                                $platformsPosted[] = 'Facebook';
+                            } else {
+                                $success = false;
+                            }
+                        }
+                
+                        if (in_array('instagram', $data['platforms'])) {
+                            $imageUrl = $record->thumbnailMedia ? asset('storage/' . $record->thumbnailMedia->url) : null;
+                            if ($imageUrl) {
+                               $ig = $service->publishToInstagram($data['custom_message'] . "\n\nRead more at our website: " . $link, $imageUrl);
+                               if ($ig) {
+                                   $platformsPosted[] = 'Instagram';
+                               } else {
+                                   $success = false;
+                               }
+                            } else {
+                               \Filament\Notifications\Notification::make()->title('Instagram requires a thumbnail image.')->danger()->send();
+                               $success = false;
+                            }
+                        }
+                
+                        if ($success && count($platformsPosted) > 0) {
+                            \Filament\Notifications\Notification::make()
+                                ->title('Published successfully to ' . implode(' & ', $platformsPosted))
+                                ->success()
+                                ->send();
+                        } else if (count($platformsPosted) > 0) {
+                             \Filament\Notifications\Notification::make()
+                                ->title('Published with some errors. Verification needed.')
+                                ->warning()
+                                ->send();
+                        } else {
+                            \Filament\Notifications\Notification::make()
+                                ->title('Publishing Failed. Check your API Keys in Settings.')
+                                ->danger()
+                                ->send();
+                        }
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
