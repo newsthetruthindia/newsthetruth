@@ -510,7 +510,7 @@ class PostResource extends Resource
                         if (in_array('instagram', $data['platforms'])) {
                             $imageUrl = $record->thumbnailMedia ? asset($record->thumbnailMedia->url) : null;
                             if ($imageUrl) {
-                               $ig = $service->publishToInstagram($data['custom_message'] . "\n\nRead more at our website: " . $link, $imageUrl);
+                               $ig = $service->publishToInstagram($data['custom_message'] . "\n\n👉 Read the full story at the link in our bio!", $imageUrl);
                                if ($ig) {
                                    $platformsPosted[] = 'Instagram';
                                } else {
