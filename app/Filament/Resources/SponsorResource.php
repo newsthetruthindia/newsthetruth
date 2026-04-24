@@ -90,6 +90,10 @@ class SponsorResource extends Resource
                     ->getStateUsing(fn ($record) => ltrim($record->media?->url ?? $record->image_url ?? '', '/'))
                     ->disk(fn ($state) => str_starts_with($state ?? '', 'http') ? null : 'webapp_public')
                     ->size(50),
+                TextColumn::make('debug_url')
+                    ->label('Debug URL')
+                    ->getStateUsing(fn ($record) => ltrim($record->media?->url ?? $record->image_url ?? '', '/'))
+                    ->limit(30),
                 TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
