@@ -85,7 +85,7 @@
         </section>
     @endif
 
-    @if(!empty($others['BENGAL']) && count($others['BENGAL']) > 0)
+    @if(isset($others['BENGAL']) && count($others['BENGAL']) > 0)
         <div class="space">
             <div class="container">
 
@@ -151,7 +151,7 @@
 
                     <div class="col-xl-9">
                         <!-- Start : The Latest -->
-                        @if(!empty($others['INDIA']) && count($others['INDIA']) > 0)
+                        @if(isset($others['INDIA']) && count($others['INDIA']) > 0)
                             <div class="row align-items-center mb-4 mt-5">
                                 <div class="col">
                                     <h2 class="sec-title show-line fw-bold text-uppercase tracking-wider h3 mb-0">The India</h2>
@@ -188,7 +188,7 @@
                         <!-- End : The Latest -->
 
                         <!-- Start : THE Exclusive Truth -->
-                        @if(!empty($others['THE EXCLUSIVE TRUTH']))
+                        @if(isset($others['THE EXCLUSIVE TRUTH']) && count($others['THE EXCLUSIVE TRUTH']) > 0)
                                                 <?php
                             $the_exclusive = $others['THE EXCLUSIVE TRUTH'][0];
                                             ?>
@@ -233,7 +233,7 @@
 
 
                         <!-- Start : THE Untold Truth -->
-                        @if(!empty($others['THE UNTOLD TRUTH']))
+                        @if(isset($others['THE UNTOLD TRUTH']) && count($others['THE UNTOLD TRUTH']) > 0)
                                                 <?php
                             $the_untold = $others['THE UNTOLD TRUTH'][0];
                                             ?>
@@ -338,12 +338,12 @@
                     <div class="col-xl-3 mt-35 mt-xl-0 mb-10 sidebar-wrap sidebar-wrap-cus">
                         <div class="sidebar-area">
                             <div class="nav tab-menu indicator-active bg-light p-2 rounded-3 mb-4" role="tablist">
-                                @if(!empty($others['POLITICS']) && count($others['POLITICS']) > 0)
+                                @if(isset($others['POLITICS']) && count($others['POLITICS']) > 0)
                                     <button class="tab-btn active border-0 bg-transparent fw-bold text-uppercase small tracking-wider py-2 px-3 transition-all" id="nav3-one-tab" data-bs-toggle="tab"
                                         data-bs-target="#nav3-one" type="button" role="tab" aria-controls="nav3-one"
                                         aria-selected="true">Politics</button>
                                 @endif
-                                @if(!empty($others['WORLD']) && count($others['WORLD']) > 0)
+                                @if(isset($others['WORLD']) && count($others['WORLD']) > 0)
                                     <button class="tab-btn border-0 bg-transparent fw-bold text-uppercase small tracking-wider py-2 px-3 transition-all" id="nav3-two-tab" data-bs-toggle="tab"
                                         data-bs-target="#nav3-two" type="button" role="tab" aria-controls="nav3-two"
                                         aria-selected="false">World</button>
