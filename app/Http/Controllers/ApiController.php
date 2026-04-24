@@ -54,7 +54,12 @@ class ApiController extends Controller
      */
     public function categoryPosts($slug, Request $request)
     {
-        $category = Category::where('slug', $slug)->first();
+        // Case-insensitive search: try both original and uppercase
+        $category = Category::where('slug', $slug)
+            ->orWhere('slug', strtolower($slug))
+            ->orWhere('slug', strtoupper($slug))
+            ->first();
+            
         if (!$category) {
             return response()->json(['success' => false, 'message' => 'Category not found'], 404);
         }
