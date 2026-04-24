@@ -168,5 +168,5 @@ Route::group(["prefix" => "admin", 'middleware' => ['auth', '2fa', 'admin']], fu
 //     ->where('x', '^(?!v1).*');
 Route::get('/search', [App\Http\Controllers\PublicPageController_v1::class, 'search'])->name('v1.search');
 Route::get('/{x}', [App\Http\Controllers\PublicPageController_v1::class, 'handleRoute'])
-    ->where('x', '^(?!admin|v1).*')
+    ->where('x', '^(?!admin|v1|api).*')
     ->name('public.page');
