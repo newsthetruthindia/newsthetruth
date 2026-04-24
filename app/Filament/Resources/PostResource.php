@@ -532,8 +532,10 @@ class PostResource extends Resource
                         }
                 
                         if (in_array('instagram', $data['platforms'])) {
-                            $imageUrl = $record->thumbnailMedia ? asset($record->thumbnailMedia->url) : null;
-                            if ($imageUrl) {
+                            $rawUrl = $record->thumbnailMedia ? $record->thumbnailMedia->url : null;
+                            if ($rawUrl) {
+                               // Build a fully qualified URL that Instagram's servers can fetch
+                               $imageUrl = rtrim(config('app.url', 'https://backend.newsthetruth.com'), '/') . '/storage/' . ltrim($rawUrl, '/');
                                $ig = $service->publishToInstagram($data['custom_message'] . "\n\n👉 Read the full story at the link in our bio!", $imageUrl);
                                if ($ig) {
                                    $platformsPosted[] = 'Instagram';
