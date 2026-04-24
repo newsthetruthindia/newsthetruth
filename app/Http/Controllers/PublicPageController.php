@@ -88,15 +88,14 @@ class PublicPageController extends Controller
                     $q->whereIn('id', $categories);
                 });
             })
-            ->with(['categories' => function ($query) use ($categories) {
-                $query->whereHas('cat_data', function ($q) use ($categories) {
-                    $q->whereIn('id', $categories);
-                });
+            ->with(['categories.cat_data' => function ($query) use ($categories) {
+                $query->whereIn('id', $categories);
             }])
             ->orderBy('updated_at', 'DESC')
             ->get()
             ->groupBy(function ($post) {
-                return $post->categories->first()->cat_data->title; // Assuming 'cat_data' has 'name'
+                $cat = $post->categories->first();
+                return $cat && $cat->cat_data ? strtoupper($cat->cat_data->slug) : 'OTHER';
             })->map(function ($groupedPosts) {
                 return $groupedPosts->take(5); // Get the first 5 posts for each category
             });
