@@ -79,13 +79,30 @@ class AuthRecoveryController extends Controller
 
             Mail::send([], [], function ($message) use ($user, $resetUrl) {
                 $message->to($user->email)
+                    ->from(config('mail.from.address'), config('mail.from.name'))
                     ->subject('SECURE: 2FA Reset Link for NTT Admin')
                     ->html("
-                        <div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:40px 20px; border:4px solid #8c0000;'>
-                            <h2 style='color:#8c0000;'>2FA Reset Request</h2>
-                            <p>We received a request to disable Two-Factor Authentication for your account.</p>
-                            <p><strong>Security Warning:</strong> Only click the button below if you requested this. This link will expire in 1 hour.</p>
-                            <a href='{$resetUrl}' style='display:inline-block;background:#8c0000;color:white;padding:14px 32px;text-decoration:none;border-radius:8px;font-weight:bold;'>DISABLE 2FA NOW</a>
+                        <div style='font-family:\"Helvetica Neue\",Helvetica,Arial,sans-serif;max-width:600px;margin:0 auto;padding:40px 20px;background-color:#ffffff;border:4px solid #8c0000;border-radius:16px;'>
+                            <div style='text-align:center;margin-bottom:32px;'>
+                                <h1 style='font-size:32px;font-weight:900;color:#8c0000;margin:0;letter-spacing:-1px;'>NEWS THE TRUTH</h1>
+                                <p style='font-size:10px;font-weight:bold;color:#111827;text-transform:uppercase;letter-spacing:2px;margin-top:4px;'>Administrative Security</p>
+                            </div>
+                            <div style='padding:0 20px;'>
+                                <h2 style='font-size:22px;color:#111827;margin-bottom:16px;font-weight:bold;'>2FA Recovery Request</h2>
+                                <p style='color:#111827;font-size:16px;line-height:1.6;margin-bottom:24px;'>
+                                    We received a request to disable Two-Factor Authentication for your administrative account.
+                                </p>
+                                <div style='background-color:#fff5f5;border-left:4px solid #8c0000;padding:16px;margin-bottom:32px;'>
+                                    <p style='color:#8c0000;font-size:14px;font-weight:bold;margin:0;'>SECURITY WARNING:</p>
+                                    <p style='color:#8c0000;font-size:14px;margin:8px 0 0;'>Only click the button below if you requested this. This link will expire in 60 minutes.</p>
+                                </div>
+                                <div style='text-align:center;margin-bottom:32px;'>
+                                    <a href='{$resetUrl}' style='display:inline-block;background:#8c0000;color:#ffffff;padding:16px 40px;text-decoration:none;border-radius:12px;font-weight:bold;font-size:16px;box-shadow:0 10px 15px -3px rgba(140, 0, 0, 0.2);'>DISABLE 2FA NOW</a>
+                                </div>
+                                <p style='color:#9ca3af;font-size:12px;margin-top:32px;line-height:1.5;text-align:center;'>
+                                    If you did not request this recovery link, please contact the system administrator immediately.
+                                </p>
+                            </div>
                         </div>
                     ");
             });

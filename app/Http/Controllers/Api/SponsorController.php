@@ -16,12 +16,18 @@ class SponsorController extends Controller
 
     public function getRandom($type = 'banner')
     {
-        $ad = Sponsor::active()
-            ->with('media')
+        $ads = Sponsor::active()
             ->where('type', $type)
+            ->with('media')
             ->inRandomOrder()
-            ->first();
+            ->get();
 
-        return response()->json($ad);
+        // Return all active ads of this type (frontend can rotate/display them)
+        // For backward compat: if only one ad, return it directly
+        if ($ads->count() === 1) {
+            return response()->json($ads->first());
+        }
+
+        return response()->json($ads);
     }
 }

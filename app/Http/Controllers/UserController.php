@@ -320,44 +320,18 @@ class UserController extends Controller{
                 $user->google2fa_secret
             );
 
-            // EMAIL CONTENT
-            $to = $user->email;
-            $subject = 'Google Authenticator Setup';
+            $details = [
+                'qr_image' => $QR_Image,
+                'secret' => $user->google2fa_secret,
+                'user_name' => $user->name,
+            ];
 
-            $message = "
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset='utf-8'>
-                <meta name='viewport' content='width=device-width, initial-scale=1'>
-                <title>Google Authenticator</title>
-            </head>
-            <body>
-                <p>Hello {$user->name},</p>
-
-                <p>Scan the QR code below using <strong>Google Authenticator</strong>:</p>
-
-                <p>
-                    <img src='{$QR_Image}' alt='Google Authenticator QR Code'>
-                </p>
-
-                <p><strong>Manual Setup Key:</strong></p>
-                <p style='font-size:18px; color:#d32f2f;'>{$user->google2fa_secret}</p>
-
-                <p>If you did not request this, please ignore this email.</p>
-            </body>
-            </html>
-            ";
-
-            // HEADERS
-            $headers  = "MIME-Version: 1.0\r\n";
-            $headers .= "Content-type:text/html;charset=UTF-8\r\n";
-            $headers .= "From: News The Truth <info@newsthetruth.com>\r\n";
-            $headers .= "Reply-To: info@newsthetruth.com\r\n";
-            $headers .= "X-Mailer: PHP/" . phpversion();
-
-            if (!mail($to, $subject, $message, $headers)) {
-                return back()->withErrors(['msg' => 'Email delivery failed']);
+            try {
+                // Using Mailable for professional SMTP delivery via Gmail
+                Mail::to($to)->send(new googleAuthenticator($details));
+            } catch (\Exception $e) {
+                \Log::error('2FA Setup email failed: ' . $e->getMessage());
+                return back()->withErrors(['msg' => 'Email delivery failed. Check system logs.']);
             }
         }
 
@@ -432,47 +406,13 @@ class UserController extends Controller{
         $details = [
             'otp' => $id->v_code
         ];
-        $otp = $details['otp']; // your OTP value
-        $to = $id->email;
-        $subject = 'Account verification Mail';
-        $message = "
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset='utf-8'>
-            <meta name='viewport' content='width=device-width, initial-scale=1'>
-            <title>Email Verification</title>
-        </head>
-        <body>
-            <p>Your one-time password for email verification is:</p>
-            <h2 style='color:#1a73e8;'>{$otp}</h2>
-            <p>Please use this OTP to verify your account.</p>
-        </body>
-        </html>
-        ";
-
-        $headers  = "MIME-Version: 1.0\r\n";
-        $headers .= "Content-type: text/html; charset=UTF-8\r\n";
-        $headers .= "From: News The Truth <info@newsthetruth.com>\r\n";
-        $headers .= "Reply-To: info@newsthetruth.com\r\n";
-        $headers .= "X-Mailer: PHP/" . phpversion();
-
-        if (mail($to, $subject, $message, $headers)) {
-            echo 'Email sent successfully.';
-        } else {
-            echo 'Email delivery failed.';
+        try {
+             // Using AccountVerificationMail class which is already imported
+             Mail::to($id->email)->send(new AccountVerificationMail($details));
+        }catch( \Exception $e){
+            \Log::error('Account verification email failed: ' . $e->getMessage());
+            return \Redirect::back()->withErrors(['msg' => 'Email delivery failed.']);
         }
-        // try{
-        //     //  Mail::to($id->email)->send(new AccountVerificationMail($details));
-        //      Mail::to('dineshbarman06@gmail.com')->send(new AccountVerificationMail($details));
-        // }catch( Exception $e){
-        //     if (isset($ex->errorInfo[2])) {
-        //         $msg = $ex->errorInfo[2];
-        //     } else {
-        //         $msg = $ex->getMessage();
-        //     }
-        //     return \Redirect::back()->withErrors(['msg' => $msg]);
-        // }
         return \Redirect::route('user-list');
     }
     //public function saveUserProfile( Request $req ){}

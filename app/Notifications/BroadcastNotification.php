@@ -13,14 +13,18 @@ class BroadcastNotification extends Notification implements ShouldQueue
 
     public $title;
     public $url;
+    public $excerpt;
+    public $imageUrl;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct($title, $url)
+    public function __construct($title, $url, $excerpt = null, $imageUrl = null)
     {
         $this->title = $title;
         $this->url = $url;
+        $this->excerpt = $excerpt;
+        $this->imageUrl = $imageUrl;
     }
 
     /**
@@ -38,14 +42,21 @@ class BroadcastNotification extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): MailMessage
     {
-        return (new MailMessage)
-            ->subject('📺 New Video Alert: ' . $this->title)
+        $mail = (new MailMessage)
+            ->subject('📺 New Story Alert: ' . $this->title)
             ->greeting('Hello from News The Truth!')
-            ->line('We just published a new video that we think you\'ll find interesting.')
-            ->line('**Title:** ' . $this->title)
-            ->action('Watch on YouTube', $this->url)
+            ->line('We just published a new story that we think you\'ll find interesting.')
+            ->line('**Title:** ' . $this->title);
+
+        if ($this->excerpt) {
+            $mail->line('**Summary:** ' . $this->excerpt);
+        }
+
+        $mail->action('Read Full Story', $this->url)
             ->line('Stay informed with the latest updates from NTT.')
             ->salutation('Best Regards, \n The NTT Team');
+
+        return $mail;
     }
 
     /**

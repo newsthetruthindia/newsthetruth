@@ -308,6 +308,30 @@ class PostResource extends Resource
                                     ->maxLength(255),
                             ]),
 
+                        Section::make('Article Gallery')
+                            ->icon('heroicon-m-photo')
+                            ->collapsible()
+                            ->schema([
+                                Forms\Components\Select::make('galleryMedias')
+                                    ->label('Gallery Images')
+                                    ->multiple()
+                                    ->relationship('galleryMedias', 'url')
+                                    ->getOptionLabelFromRecordUsing(fn ($record) => "<div style='display:flex; align-items:center; gap:8px;'><img src='".asset($record->url)."' style='height:35px; width:50px; object-fit:cover; border-radius:4px;'> <span>" . basename($record->url) . "</span></div>")
+                                    ->allowHtml()
+                                    ->preload()
+                                    ->searchable()
+                                    ->hint('Select existing images for the gallery.'),
+
+                                Forms\Components\Select::make('gallery_position')
+                                    ->label('Gallery Placement')
+                                    ->options([
+                                        'after' => 'After Article Content',
+                                        'middle' => 'Middle of Article (After 3rd Paragraph)',
+                                    ])
+                                    ->default('after')
+                                    ->required(),
+                            ]),
+
                         Section::make('SEO Metadata')
                             ->icon('heroicon-m-magnifying-glass')
                             ->collapsible()

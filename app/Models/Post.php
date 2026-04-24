@@ -35,6 +35,7 @@ class Post extends Model
         'audio_clip_url',
         'video_url',
         'x_embed_url',
+        'gallery_position',
     ];
     public function user(){
         return $this->belongsTo( User::class );
@@ -65,6 +66,9 @@ class Post extends Model
     public function gallery(){
         return $this->hasMany( PostGallery::class, 'post_id', 'id' );
     }
+    public function galleryMedias(){
+        return $this->belongsToMany(Media::class, 'post_galleries', 'post_id', 'media_id')->withTimestamps();
+    }
 
     protected static function booted()
     {
@@ -72,35 +76,69 @@ class Post extends Model
             // Automatically resolve user_id from reporter_name if mismatch found
             if (!empty($post->reporter_name)) {
                 $name = trim($post->reporter_name);
-                // Look for an official reporter with this name
-                $matchedUser = User::role('Reporter')
-                    ->whereRaw("TRIM(CONCAT(firstname, ' ', lastname)) = ?", [$name])
-                    ->first();
-                
-                if ($matchedUser) {
-                    $post->user_id = $matchedUser->id;
+                try {
+                    // Look for an official reporter with this name
+                    // Using COALESCE to handle null firstname/lastname and preventing crash if role missing
+                    $matchedUser = User::role('Reporter')
+                        ->whereRaw("TRIM(CONCAT(COALESCE(firstname, ''), ' ', COALESCE(lastname, ''))) = ?", [$name])
+                        ->first();
+                    
+                    if ($matchedUser) {
+                        $post->user_id = $matchedUser->id;
+                    }
+                } catch (\Exception $e) {
+                    // Fail gracefully if role doesn't exist or SQL error occurs
+                    \Illuminate\Support\Facades\Log::warning("Reporter resolution failed: " . $e->getMessage());
                 }
             }
         });
 
         static::saved(function ($post) {
-            // Only send if status was just changed to 'published'
-            if ($post->wasChanged('status') && $post->status === 'published') {
-                $autoNotify = Option::where('key', 'automatic_notifications')->first()?->value === '1';
-                
-                if ($autoNotify) {
-                    $subscribers = User::where('type', 'user')->get();
-                    $imageUrl = $post->thumbnailMedia ? asset('storage/' . $post->thumbnailMedia->url) : null;
+            // Send notification if status was just changed to 'published' or if it was newly created as published
+            if (($post->wasRecentlyCreated || $post->wasChanged('status')) && $post->status === 'published') {
+                try {
+                    $imageUrl = $post->thumbnailMedia ? asset('storage/' . ltrim($post->thumbnailMedia->url, '/')) : null;
+                    
+                    // 1. BROADCAST NOTIFICATIONS
+                    $broadcastOption = Option::where('key', 'automatic_notifications')->first();
+                    if ($broadcastOption && $broadcastOption->value === '1') {
+                        $subscribers = User::where('type', 'user')->get();
+                        if ($subscribers->isNotEmpty()) {
+                            \Illuminate\Support\Facades\Notification::send(
+                                $subscribers, 
+                                new \App\Notifications\BroadcastNotification(
+                                    $post->title,
+                                    env('FRONTEND_URL', 'https://newsthetruth.com') . '/news/' . $post->slug,
+                                    $post->excerpt,
+                                    $imageUrl
+                                )
+                            );
+                        }
+                    }
 
-                    \Illuminate\Support\Facades\Notification::send(
-                        $subscribers, 
-                        new \App\Notifications\BroadcastNotification(
-                            $post->title,
-                            env('APP_URL') . '/posts/' . $post->slug,
-                            $post->excerpt,
-                            $imageUrl
-                        )
-                    );
+                    // 2. SOCIAL AUTO-PUBLISHING
+                    $socialOption = Option::where('key', 'automatic_social_publish')->first();
+                    if ($socialOption && $socialOption->value === '1' && !$post->is_social_published) {
+                        $service = new \App\Services\SocialPublishingService();
+                        $link = rtrim(env('FRONTEND_URL', 'https://newsthetruth.com'), '/') . '/news/' . $post->slug;
+                        
+                        // Publish to Facebook
+                        $service->publishToFacebook($post->title . "\n\n" . $post->excerpt, $link);
+                        
+                        // Publish to Instagram (requires image)
+                        if ($imageUrl) {
+                            $service->publishToInstagram($post->title . "\n\n" . $post->excerpt . "\n\n👉 Read more at link in bio!", $imageUrl);
+                        }
+
+                        // Mark as published to avoid double posting on subsequent saves
+                        // Use silent update to avoid triggering 'saved' hook recursively
+                        $post->timestamps = false;
+                        $post->updateQuietly(['is_social_published' => true]);
+                        $post->timestamps = true;
+                    }
+
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::error("Post saved hooks failed: " . $e->getMessage());
                 }
             }
         });

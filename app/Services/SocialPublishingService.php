@@ -26,6 +26,8 @@ class SocialPublishingService
         }
 
         try {
+            Log::info("SocialPublishingService: Attempting to publish to Facebook Page {$pageId}");
+            
             $response = Http::post("https://graph.facebook.com/v19.0/{$pageId}/feed", [
                 'message'      => $message,
                 'link'         => $link,
@@ -33,13 +35,14 @@ class SocialPublishingService
             ]);
 
             if ($response->successful()) {
+                Log::info("SocialPublishingService: Successfully published to Facebook.");
                 return $response->json();
             } else {
-                Log::error('Facebook API Error: ' . $response->body());
+                Log::error('SocialPublishingService: Facebook API Error. Status: ' . $response->status() . ' Body: ' . $response->body());
                 return false;
             }
         } catch (\Exception $e) {
-            Log::error('Facebook Publisher Exception: ' . $e->getMessage());
+            Log::error('SocialPublishingService: Facebook Publisher Exception: ' . $e->getMessage());
             return false;
         }
     }
@@ -59,6 +62,8 @@ class SocialPublishingService
         }
 
         try {
+            Log::info("SocialPublishingService: Attempting to publish to Instagram Account {$igAccountId}");
+
             // Step 1: Create Media Container
             $containerResponse = Http::post("https://graph.facebook.com/v19.0/{$igAccountId}/media", [
                 'image_url'    => $imageUrl,
@@ -67,7 +72,7 @@ class SocialPublishingService
             ]);
 
             if (!$containerResponse->successful()) {
-                Log::error('Instagram API Error (Container Creation): ' . $containerResponse->body());
+                Log::error('SocialPublishingService: Instagram API Error (Container). Status: ' . $containerResponse->status() . ' Body: ' . $containerResponse->body());
                 return false;
             }
 
@@ -80,13 +85,14 @@ class SocialPublishingService
             ]);
 
             if ($publishResponse->successful()) {
+                Log::info("SocialPublishingService: Successfully published to Instagram.");
                 return $publishResponse->json();
             } else {
-                Log::error('Instagram API Error (Publishing): ' . $publishResponse->body());
+                Log::error('SocialPublishingService: Instagram API Error (Publish). Status: ' . $publishResponse->status() . ' Body: ' . $publishResponse->body());
                 return false;
             }
         } catch (\Exception $e) {
-            Log::error('Instagram Publisher Exception: ' . $e->getMessage());
+            Log::error('SocialPublishingService: Instagram Publisher Exception: ' . $e->getMessage());
             return false;
         }
     }

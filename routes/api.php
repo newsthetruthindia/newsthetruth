@@ -18,6 +18,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // Auth Routes
 Route::post('/auth/register', [ApiAuthController::class, 'register']);
 Route::post('/auth/login', [ApiAuthController::class, 'login']);
+Route::post('/auth/google', [ApiAuthController::class, 'googleLogin']);
 Route::post('/auth/forgot-password', [ApiAuthController::class, 'forgotPassword']);
 Route::post('/auth/reset-password', [ApiAuthController::class, 'resetPassword']);
 Route::post('/auth/verify-email', [ApiAuthController::class, 'verifyEmail']);
@@ -56,3 +57,6 @@ Route::get('/v1/monitor/{key}', [\App\Http\Controllers\Api\PublicMonitorControll
 
 // Newsletter Subscriptions
 Route::post('/v1/subscribe', [\App\Http\Controllers\Api\SubscriberController::class, 'store']);
+
+// RSS Feed for Google News
+Route::get('/feed/news', [\App\Http\Controllers\Api\NewsFeedController::class, 'rss']);
