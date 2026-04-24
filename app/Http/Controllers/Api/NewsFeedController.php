@@ -15,13 +15,14 @@ class NewsFeedController extends Controller
     {
         $posts = Post::where('status', 'published')
             ->where('visibility', 'public')
+            ->with(['thumbnailMedia', 'user']) // Eager load
             ->latest()
             ->limit(50)
             ->get();
 
         $siteUrl = env('FRONTEND_URL', 'https://newsthetruth.com');
         $siteTitle = 'News The Truth';
-        $siteDescription = 'Authentic storytelling and citizen journalism. Questions will be asked.';
+        $siteDescription = 'Authentic storytelling and citizen journalism from NTT Newsroom.';
 
         $xml = new \SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:media="http://search.yahoo.com/mrss/"></rss>');
         
@@ -40,13 +41,19 @@ class NewsFeedController extends Controller
             $item->addChild('pubDate', $post->created_at->toRfc2822String());
             $item->addChild('guid', $siteUrl . '/news/' . $post->slug)->addAttribute('isPermaLink', 'true');
             
+            // Add author
+            $dcNamespace = 'http://purl.org/dc/elements/1.1/';
+            $item->addChild('dc:creator', htmlspecialchars($post->reporter_name ?? $post->user?->name ?? 'NTT Desk'), $dcNamespace);
+
             // Add full content for Google News
             $contentNamespace = 'http://purl.org/rss/1.0/modules/content/';
             $item->addChild('content:encoded', htmlspecialchars($post->description), $contentNamespace);
 
             // Add Thumbnail if available
-            if ($post->thumbnails && $post->thumbnails->url) {
-                $imageUrl = asset('storage/' . ltrim($post->thumbnails->url, '/'));
+            if ($post->thumbnailMedia && $post->thumbnailMedia->url) {
+                // Use the same logic as social publishing for consistent, accessible URLs
+                $imageUrl = rtrim(config('app.url', 'https://backend.newsthetruth.com'), '/') . '/storage/' . ltrim($post->thumbnailMedia->url, '/');
+                
                 $enclosure = $item->addChild('enclosure');
                 $enclosure->addAttribute('url', $imageUrl);
                 $enclosure->addAttribute('type', 'image/jpeg');
