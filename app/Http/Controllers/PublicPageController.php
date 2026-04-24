@@ -95,7 +95,7 @@ class PublicPageController extends Controller
             ->get()
             ->groupBy(function ($post) {
                 $cat = $post->categories->first();
-                return $cat && $cat->cat_data ? strtoupper($cat->cat_data->slug) : 'OTHER';
+                return $cat && $cat->cat_data ? $cat->cat_data->title : 'OTHER';
             })->map(function ($groupedPosts) {
                 return $groupedPosts->take(5); // Get the first 5 posts for each category
             });
