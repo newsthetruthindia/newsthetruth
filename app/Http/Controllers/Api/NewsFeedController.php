@@ -35,30 +35,37 @@ class NewsFeedController extends Controller
 
         foreach ($posts as $post) {
             $item = $channel->addChild('item');
-            $item->addChild('title', htmlspecialchars($post->title));
+            
+            // Use CDATA for title to handle special characters safely
+            $titleNode = $item->addChild('title');
+            $titleNode[0] = $post->title;
+            
             $item->addChild('link', $siteUrl . '/news/' . $post->slug);
-            $item->addChild('description', htmlspecialchars($post->excerpt ?? strip_tags($post->description)));
+            
+            // Use CDATA for description
+            $descNode = $item->addChild('description');
+            $descNode[0] = $post->excerpt ?? strip_tags($post->description);
+            
             $item->addChild('pubDate', $post->created_at->toRfc2822String());
             $item->addChild('guid', $siteUrl . '/news/' . $post->slug)->addAttribute('isPermaLink', 'true');
             
             // Add author
             $dcNamespace = 'http://purl.org/dc/elements/1.1/';
-            $item->addChild('dc:creator', htmlspecialchars($post->reporter_name ?? $post->user?->name ?? 'NTT Desk'), $dcNamespace);
+            $item->addChild('dc:creator', $post->reporter_name ?? $post->user?->name ?? 'NTT Desk', $dcNamespace);
 
-            // Add full content for Google News
+            // Add full content for Google News using CDATA
             $contentNamespace = 'http://purl.org/rss/1.0/modules/content/';
-            $item->addChild('content:encoded', htmlspecialchars($post->description), $contentNamespace);
+            $contentNode = $item->addChild('content:encoded', '', $contentNamespace);
+            $contentNode[0] = $post->description;
 
             // Add Thumbnail if available
             if ($post->thumbnailMedia && $post->thumbnailMedia->url) {
-                // Use the same logic as social publishing for consistent, accessible URLs
                 $imageUrl = rtrim(config('app.url', 'https://backend.newsthetruth.com'), '/') . '/storage/' . ltrim($post->thumbnailMedia->url, '/');
                 
                 $enclosure = $item->addChild('enclosure');
                 $enclosure->addAttribute('url', $imageUrl);
                 $enclosure->addAttribute('type', 'image/jpeg');
                 
-                // Also add media:content for better compatibility
                 $mediaNamespace = 'http://search.yahoo.com/mrss/';
                 $mediaContent = $item->addChild('media:content', '', $mediaNamespace);
                 $mediaContent->addAttribute('url', $imageUrl);
