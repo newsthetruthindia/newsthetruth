@@ -71,7 +71,8 @@ class ApiController extends Controller
             })
             ->with(['thumbnails', 'categories.cat_data', 'user.details', 'user.thumbnails'])
             ->orderBy('created_at', 'DESC')
-            ->paginate($limit);
+            ->limit($limit)
+            ->get();
 
         return response()->json([
             'success' => true,
@@ -139,7 +140,8 @@ class ApiController extends Controller
             ->where('status', 'published')
             ->with(['thumbnails', 'categories.cat_data', 'user.details', 'user.thumbnails'])
             ->orderBy('created_at', 'DESC')
-            ->paginate($limit);
+            ->limit($limit)
+            ->get();
 
         return response()->json([
             'success' => true,
@@ -291,7 +293,8 @@ class ApiController extends Controller
             ->where('status', 'published')
             ->with(['thumbnails', 'categories.cat_data', 'user.details', 'user.thumbnails'])
             ->orderBy('created_at', 'DESC')
-            ->paginate($limit);
+            ->limit($limit)
+            ->get();
 
         return response()->json([
             'success' => true,
