@@ -41,15 +41,16 @@ class StaffResource extends Resource
     {
         return $form->schema([
             Section::make('User Information')->schema([
-                TextInput::make('firstname')->required()->maxLength(255),
-                TextInput::make('lastname')->required()->maxLength(255),
-                TextInput::make('email')->email()->required()->unique(User::class, 'email', ignoreRecord: true),
+                TextInput::make('firstname')->required()->maxLength(255)->trim(),
+                TextInput::make('lastname')->required()->maxLength(255)->trim(),
+                TextInput::make('email')->email()->required()->unique(User::class, 'email', ignoreRecord: true)->trim(),
                 TextInput::make('password')
                     ->password()
-                    ->dehydrateStateUsing(fn ($state) => Hash::make($state))
+                    ->dehydrateStateUsing(fn ($state) => Hash::make(trim($state)))
                     ->dehydrated(fn ($state) => filled($state))
                     ->required(fn (string $context): bool => $context === 'create')
-                    ->label(fn (string $context): string => $context === 'create' ? 'Password' : 'New Password (leave blank to keep)'),
+                    ->label(fn (string $context): string => $context === 'create' ? 'Password' : 'New Password (leave blank to keep)')
+                    ->helperText('Staff members are automatically verified when created by an admin.'),
 
                 Select::make('roles')
                     ->relationship('roles', 'name')
