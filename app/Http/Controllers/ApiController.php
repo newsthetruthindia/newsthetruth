@@ -359,4 +359,33 @@ class ApiController extends Controller
 
         return response()->json(['success' => true, 'data' => $safeData]);
     }
+
+    /**
+     * Track post views and shares.
+     */
+    public function track(Request $request)
+    {
+        $request->validate([
+            'post_id' => 'required|exists:posts,id',
+            'type'    => 'required|in:view,share'
+        ]);
+
+        $postId = $request->post_id;
+        $type   = $request->type;
+
+        if ($type === 'view') {
+            // Increment view count in post_views table for today
+            $today = now()->format('Y-m-d');
+            
+            \Illuminate\Support\Facades\DB::table('post_views')->updateOrInsert(
+                ['post_id' => $postId, 'created_at' => $today],
+                ['viewer_count' => \Illuminate\Support\Facades\DB::raw('viewer_count + 1'), 'updated_at' => now()]
+            );
+        } else {
+            // Increment share count in posts table
+            Post::where('id', $postId)->increment('shares');
+        }
+
+        return response()->json(['success' => true]);
+    }
 }
