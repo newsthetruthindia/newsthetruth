@@ -16,6 +16,8 @@ use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\Notification as FacadesNotification;
+use App\Models\BroadcastLog;
+use App\Jobs\BroadcastYoutubeJob;
 use Filament\Forms\Components\Placeholder;
 use Illuminate\Support\HtmlString;
 
@@ -134,6 +136,55 @@ class ManageNotifications extends Page implements HasForms
                                             ->action('sendYoutubeBroadcast'),
                                     ]),
                             ]),
+                        
+                        Tabs\Tab::make('Broadcast History')
+                            ->icon('heroicon-m-clock')
+                            ->schema([
+                                Placeholder::make('history')
+                                    ->label('')
+                                    ->content(function () {
+                                        $logs = BroadcastLog::latest()->take(10)->get();
+                                        if ($logs->isEmpty()) {
+                                            return 'No broadcasts found.';
+                                        }
+                                        
+                                        $rows = $logs->map(function ($log) {
+                                            $statusColor = match($log->status) {
+                                                'completed' => 'text-green-600',
+                                                'failed' => 'text-red-600',
+                                                'processing' => 'text-blue-600',
+                                                default => 'text-yellow-600',
+                                            };
+                                            $date = $log->created_at->setTimezone('Asia/Kolkata')->format('M d, H:i');
+                                            return "
+                                                <tr class='border-b border-gray-100'>
+                                                    <td class='py-3 text-gray-600'>{$date}</td>
+                                                    <td class='py-3 font-medium'>{$log->title}</td>
+                                                    <td class='py-3 text-gray-500'>{$log->recipient_count}</td>
+                                                    <td class='py-3 font-bold {$statusColor}'>".ucfirst($log->status)."</td>
+                                                </tr>
+                                            ";
+                                        })->implode('');
+
+                                        return new HtmlString("
+                                            <div class='overflow-x-auto'>
+                                                <table class='w-full text-left text-sm'>
+                                                    <thead>
+                                                        <tr class='border-b border-gray-200 text-gray-400 uppercase text-[10px] tracking-wider'>
+                                                            <th class='pb-2 font-semibold'>Date</th>
+                                                            <th class='pb-2 font-semibold'>Title</th>
+                                                            <th class='pb-2 font-semibold'>Recipients</th>
+                                                            <th class='pb-2 font-semibold'>Status</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody class='divide-y divide-gray-50'>
+                                                        {$rows}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        ");
+                                    }),
+                            ]),
                     ])
                     ->persistTabInQueryString(),
             ]);
@@ -163,13 +214,20 @@ class ManageNotifications extends Page implements HasForms
             return;
         }
 
-        $subscribers = User::where('type', 'user')->get();
-        
-        FacadesNotification::send($subscribers, new BroadcastNotification($title, $url));
+        $count = User::where('type', 'user')->count();
+
+        $log = BroadcastLog::create([
+            'title' => $title,
+            'url' => $url,
+            'recipient_count' => $count,
+            'status' => 'pending',
+        ]);
+
+        BroadcastYoutubeJob::dispatch($title, $url, $log->id);
 
         Notification::make()
-            ->title('Broadcast Sent')
-            ->body('Notification is being delivered to ' . $subscribers->count() . ' subscribers.')
+            ->title('Broadcast Queued')
+            ->body('Notification is being delivered to ' . $count . ' subscribers in the background.')
             ->success()
             ->send();
 

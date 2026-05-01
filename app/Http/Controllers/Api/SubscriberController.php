@@ -15,7 +15,7 @@ class SubscriberController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
+            'name' => 'nullable|string|max:255',
             'email' => 'required|email|max:255|unique:subscribers,email',
         ], [
             'email.unique' => 'This email is already subscribed to our truth alerts.'

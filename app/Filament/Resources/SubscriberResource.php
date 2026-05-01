@@ -13,6 +13,10 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\TernaryFilter;
+use Filament\Tables\Actions\Action;
+use Filament\Notifications\Notification;
 
 class SubscriberResource extends Resource
 {
@@ -53,8 +57,57 @@ class SubscriberResource extends Resource
                 TextColumn::make('firstname')->searchable()->sortable(),
                 TextColumn::make('lastname')->searchable()->sortable(),
                 TextColumn::make('email')->searchable()->sortable(),
-                TextColumn::make('phone')->searchable(),
-                TextColumn::make('created_at')->dateTime('M j, Y')->sortable(),
+                Tables\Columns\IconColumn::make('email_verified_at')
+                    ->label('Verified')
+                    ->boolean()
+                    ->sortable(),
+                TextColumn::make('created_at')
+                    ->label('Joined')
+                    ->dateTime('M j, Y')
+                    ->sortable(),
+            ])
+            ->filters([
+                TernaryFilter::make('email_verified_at')
+                    ->label('Email Verification')
+                    ->nullable()
+                    ->placeholder('All Users')
+                    ->trueLabel('Verified Only')
+                    ->falseLabel('Unverified Only'),
+                Filter::make('inactive_7_days')
+                    ->label('Unverified > 7 Days')
+                    ->query(fn (Builder $query) => $query->whereNull('email_verified_at')->where('created_at', '<', now()->subDays(7))),
+                Filter::make('possible_fake')
+                    ->label('Possible Fake Accounts')
+                    ->query(fn (Builder $query) => $query->where(function ($q) {
+                        $q->where('email', 'like', '%test%')
+                          ->orWhere('email', 'like', '%asdf%')
+                          ->orWhere('email', 'like', '%tempmail%')
+                          ->orWhere('email', 'like', '%teleworm%')
+                          ->orWhere('email', 'like', '%sharklasers%')
+                          ->orWhere('firstname', 'regexp', '^[a-zA-Z]{1,2}$') // Too short names
+                          ->orWhereNull('lastname');
+                    })),
+            ])
+            ->headerActions([
+                Action::make('cleanup_unverified')
+                    ->label('Prune Unverified')
+                    ->icon('heroicon-m-trash')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->modalHeading('Delete Inactive Users')
+                    ->modalDescription('This will delete all users who have NOT verified their email and joined more than 7 days ago.')
+                    ->action(function () {
+                        $count = User::where('type', 'user')
+                            ->whereNull('email_verified_at')
+                            ->where('created_at', '<', now()->subDays(7))
+                            ->delete();
+                        
+                        Notification::make()
+                            ->title('Cleanup Complete')
+                            ->body("Removed {$count} inactive users.")
+                            ->success()
+                            ->send();
+                    }),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

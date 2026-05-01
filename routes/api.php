@@ -61,3 +61,8 @@ Route::post('/v1/subscribe', [\App\Http\Controllers\Api\SubscriberController::cl
 
 // RSS Feed for Google News
 Route::get('/feed/news', [\App\Http\Controllers\Api\NewsFeedController::class, 'rss']);
+
+// Interactive Polls
+Route::get('/poll/active', [\App\Http\Controllers\Api\PollController::class, 'active']);
+Route::post('/poll/vote',  [\App\Http\Controllers\Api\PollController::class, 'vote']);
+
