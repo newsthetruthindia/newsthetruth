@@ -21,6 +21,7 @@ class ManualSocialPoster extends Page
     protected static ?string $navigationLabel = 'Manual Social Poster';
     protected static ?int $navigationSort = 11;
     protected static ?string $title = 'Manual Social Media Posting';
+    protected static string $view = 'filament.pages.manual-social-poster';
 
     public ?string $url = '';
     public ?string $caption = '';
