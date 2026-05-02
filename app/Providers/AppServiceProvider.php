@@ -28,5 +28,7 @@ class AppServiceProvider extends ServiceProvider
         }
         
         \Illuminate\Support\Facades\Gate::policy(\Spatie\Permission\Models\Role::class, \App\Policies\RolePolicy::class);
+
+        \App\Models\Post::observe(\App\Observers\PostObserver::class);
     }
 }

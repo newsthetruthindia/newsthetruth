@@ -51,4 +51,9 @@ return [
         'rest_api_key' => env('ONESIGNAL_REST_API_KEY'),
     ],
 
+    'nextjs' => [
+        'site_url' => env('NEXT_PUBLIC_SITE_URL', 'https://newsthetruth.com'),
+        'revalidation_token' => env('REVALIDATION_TOKEN'),
+    ],
+
 ];
