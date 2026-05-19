@@ -235,12 +235,29 @@ class ApiController extends Controller
         ]);
     }
 
-    /**
-     * Get all tags.
-     */
     public function tags()
     {
-        $tags = \App\Models\Tag::all();
+        // Get the latest 50 published posts
+        $latestPostIds = \App\Models\Post::where('status', 'published')
+            ->orderBy('created_at', 'desc')
+            ->limit(50)
+            ->pluck('id');
+
+        // Find the most frequently used tags in these latest posts
+        $tagIds = \Illuminate\Support\Facades\DB::table('post_tags')
+            ->whereIn('post_id', $latestPostIds)
+            ->select('tag_id', \Illuminate\Support\Facades\DB::raw('COUNT(*) as count'))
+            ->groupBy('tag_id')
+            ->orderByDesc('count')
+            ->limit(15)
+            ->pluck('tag_id');
+
+        // Fetch tag models and maintain the frequency order
+        $tags = \App\Models\Tag::whereIn('id', $tagIds)->get()
+            ->sortBy(function($tag) use ($tagIds) {
+                return array_search($tag->id, $tagIds->toArray());
+            })->values();
+
         return response()->json([
             'success' => true,
             'data' => $tags
