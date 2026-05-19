@@ -56,4 +56,12 @@ return [
         'revalidation_token' => env('REVALIDATION_TOKEN'),
     ],
 
+    'bing' => [
+        'api_key' => env('BING_API_KEY'),
+    ],
+
+    'indexnow' => [
+        'key' => env('INDEXNOW_KEY', 'ntt_news_indexnow_key'),
+    ],
+
 ];

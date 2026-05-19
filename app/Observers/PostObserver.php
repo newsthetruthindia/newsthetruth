@@ -54,11 +54,21 @@ class PostObserver
 
         // 3. Revalidate the Article itself
         if ($post->slug) {
+            $articleUrl = "{$siteUrl}/news/{$post->slug}";
             $this->triggerRevalidate($siteUrl, "/news/{$post->slug}", $token);
+
+            // SYNDICATION: Push to Bing / IndexNow
+            try {
+                $bingService = new \App\Services\BingSyndicationService();
+                $bingService->submitUrl($articleUrl);
+            } catch (\Exception $e) {
+                Log::error("Bing Syndication Error: " . $e->getMessage());
+            }
         }
         
         // 4. Revalidate Sitemaps
         $this->triggerRevalidate($siteUrl, "/sitemap-news.xml", $token);
+        $this->triggerRevalidate($siteUrl, "/feed/syndication.xml", $token);
     }
 
     protected function triggerRevalidate($siteUrl, $path, $token)

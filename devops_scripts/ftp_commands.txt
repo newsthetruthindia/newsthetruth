@@ -1,0 +1,7 @@
+open newsthetruth.com
+newstew1
+G7r@9T!mQ*
+cd public_html
+binary
+put "d:\NTT_WEBSITE\backups\migrate_range.php" migrate_range.php
+quit

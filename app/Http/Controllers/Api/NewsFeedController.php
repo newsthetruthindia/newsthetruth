@@ -9,15 +9,15 @@ use Illuminate\Http\Response;
 class NewsFeedController extends Controller
 {
     /**
-     * Generate an RSS feed specifically for Google News.
+     * Generate an RSS feed specifically for Google News, MSN, and Yahoo.
      */
     public function rss()
     {
         $posts = Post::where('status', 'published')
             ->where('visibility', 'public')
-            ->with(['thumbnailMedia', 'user']) // Eager load
+            ->with(['thumbnailMedia', 'user', 'filamentCategories']) // Eager load categories
             ->latest()
-            ->limit(50)
+            ->limit(100) // Increased limit for better syndication coverage
             ->get();
 
         $siteUrl = env('FRONTEND_URL', 'https://newsthetruth.com');
@@ -49,6 +49,11 @@ class NewsFeedController extends Controller
             $item->addChild('pubDate', $post->created_at->toRfc2822String());
             $item->addChild('guid', $siteUrl . '/news/' . $post->slug)->addAttribute('isPermaLink', 'true');
             
+            // Add Categories
+            foreach ($post->filamentCategories as $category) {
+                $item->addChild('category', htmlspecialchars($category->name));
+            }
+
             // Add author
             $dcNamespace = 'http://purl.org/dc/elements/1.1/';
             $item->addChild('dc:creator', $post->reporter_name ?? $post->user?->name ?? 'NTT Desk', $dcNamespace);

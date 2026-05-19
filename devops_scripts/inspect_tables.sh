@@ -1,0 +1,1 @@
+cd /var/www/ntt && php -r 'require "vendor/autoload.php"; $app = require_once "bootstrap/app.php"; $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class); $kernel->bootstrap(); echo "SPONSORS:\n"; print_r(DB::select("SHOW CREATE TABLE sponsors")[0]->{"Create Table"}); echo "\n\nMEDIAS:\n"; print_r(DB::select("SHOW CREATE TABLE medias")[0]->{"Create Table"});'

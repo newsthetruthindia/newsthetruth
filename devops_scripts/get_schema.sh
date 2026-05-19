@@ -1,0 +1,1 @@
+cd /var/www/ntt && php -r 'require "vendor/autoload.php"; $app = require_once "bootstrap/app.php"; $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class); $kernel->bootstrap(); echo json_encode(Schema::getColumnListing("sponsors"));'

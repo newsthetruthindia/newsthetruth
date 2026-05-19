@@ -1,0 +1,907 @@
+--- POSTS TABLE COLUMNS ---
+Array
+(
+    [Field] => id
+    [Type] => bigint(20) unsigned
+    [Null] => NO
+    [Key] => PRI
+    [Default] => 
+    [Extra] => auto_increment
+)
+Array
+(
+    [Field] => user_id
+    [Type] => bigint(20)
+    [Null] => NO
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => published_by
+    [Type] => bigint(20)
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => reviewed_by
+    [Type] => bigint(20)
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => category_id
+    [Type] => bigint(20)
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => title
+    [Type] => varchar(255)
+    [Null] => NO
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => slug
+    [Type] => varchar(255)
+    [Null] => NO
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => subtitle
+    [Type] => varchar(255)
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => description
+    [Type] => longtext
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => excerpt
+    [Type] => text
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => audio_clip_url
+    [Type] => varchar(255)
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => thumbnail
+    [Type] => bigint(20)
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => published
+    [Type] => tinyint(1)
+    [Null] => YES
+    [Key] => 
+    [Default] => 0
+    [Extra] => 
+)
+Array
+(
+    [Field] => post_of_the_day
+    [Type] => tinyint(1)
+    [Null] => YES
+    [Key] => 
+    [Default] => 0
+    [Extra] => 
+)
+Array
+(
+    [Field] => top_post
+    [Type] => tinyint(1)
+    [Null] => YES
+    [Key] => 
+    [Default] => 0
+    [Extra] => 
+)
+Array
+(
+    [Field] => top_post_to_time
+    [Type] => time
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => post_publish_time
+    [Type] => timestamp
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => primary_menu_order
+    [Type] => int(11)
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => secondary_menu_order
+    [Type] => int(11)
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => footer_menu_order
+    [Type] => int(11)
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => post_order
+    [Type] => int(11)
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => gallery_id
+    [Type] => bigint(20)
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => top_post_form_time
+    [Type] => time
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => ignore_top_scheduling
+    [Type] => tinyint(1)
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => video_url
+    [Type] => varchar(255)
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => status
+    [Type] => enum('drafted','published','open')
+    [Null] => YES
+    [Key] => MUL
+    [Default] => published
+    [Extra] => 
+)
+Array
+(
+    [Field] => visibility
+    [Type] => enum('private','public')
+    [Null] => YES
+    [Key] => 
+    [Default] => public
+    [Extra] => 
+)
+Array
+(
+    [Field] => deleted_at
+    [Type] => timestamp
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => created_at
+    [Type] => timestamp
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => updated_at
+    [Type] => timestamp
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+
+--- USERS TABLE COLUMNS ---
+Array
+(
+    [Field] => id
+    [Type] => bigint(20) unsigned
+    [Null] => NO
+    [Key] => PRI
+    [Default] => 
+    [Extra] => auto_increment
+)
+Array
+(
+    [Field] => firstname
+    [Type] => varchar(255)
+    [Null] => NO
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => lastname
+    [Type] => varchar(255)
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => username
+    [Type] => varchar(100)
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => phone
+    [Type] => varchar(20)
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => country_code
+    [Type] => varchar(5)
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => pass_otp
+    [Type] => int(10)
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => pass_otp_time
+    [Type] => datetime
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => type
+    [Type] => enum('admin','employee','user')
+    [Null] => NO
+    [Key] => 
+    [Default] => user
+    [Extra] => 
+)
+Array
+(
+    [Field] => email_verified
+    [Type] => tinyint(4)
+    [Null] => YES
+    [Key] => 
+    [Default] => 0
+    [Extra] => 
+)
+Array
+(
+    [Field] => v_code
+    [Type] => varchar(255)
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => email
+    [Type] => varchar(255)
+    [Null] => NO
+    [Key] => UNI
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => email_verified_at
+    [Type] => timestamp
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => password
+    [Type] => varchar(255)
+    [Null] => NO
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => remember_token
+    [Type] => varchar(100)
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => cron
+    [Type] => tinyint(1)
+    [Null] => NO
+    [Key] => 
+    [Default] => 0
+    [Extra] => 
+)
+Array
+(
+    [Field] => created_at
+    [Type] => timestamp
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => updated_at
+    [Type] => timestamp
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => google2fa_secret
+    [Type] => text
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => deleted_at
+    [Type] => timestamp
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+
+--- ROLE TABLES CHECK ---
+Table: role_permissions
+Array
+(
+    [Field] => id
+    [Type] => bigint(20) unsigned
+    [Null] => NO
+    [Key] => PRI
+    [Default] => 
+    [Extra] => auto_increment
+)
+Array
+(
+    [Field] => user_id
+    [Type] => bigint(20)
+    [Null] => NO
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => role_id
+    [Type] => bigint(20)
+    [Null] => NO
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => deleted_at
+    [Type] => timestamp
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => created_at
+    [Type] => timestamp
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => updated_at
+    [Type] => timestamp
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Table: user_roles
+Array
+(
+    [Field] => id
+    [Type] => bigint(20) unsigned
+    [Null] => NO
+    [Key] => PRI
+    [Default] => 
+    [Extra] => auto_increment
+)
+Array
+(
+    [Field] => role_name
+    [Type] => varchar(255)
+    [Null] => NO
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => create_user
+    [Type] => tinyint(1)
+    [Null] => NO
+    [Key] => 
+    [Default] => 0
+    [Extra] => 
+)
+Array
+(
+    [Field] => edit_user
+    [Type] => tinyint(1)
+    [Null] => NO
+    [Key] => 
+    [Default] => 0
+    [Extra] => 
+)
+Array
+(
+    [Field] => view_user
+    [Type] => tinyint(1)
+    [Null] => NO
+    [Key] => 
+    [Default] => 0
+    [Extra] => 
+)
+Array
+(
+    [Field] => delete_user
+    [Type] => tinyint(1)
+    [Null] => NO
+    [Key] => 
+    [Default] => 0
+    [Extra] => 
+)
+Array
+(
+    [Field] => create_post
+    [Type] => tinyint(1)
+    [Null] => NO
+    [Key] => 
+    [Default] => 0
+    [Extra] => 
+)
+Array
+(
+    [Field] => view_post_list
+    [Type] => tinyint(1)
+    [Null] => NO
+    [Key] => 
+    [Default] => 1
+    [Extra] => 
+)
+Array
+(
+    [Field] => edit_post
+    [Type] => tinyint(1)
+    [Null] => NO
+    [Key] => 
+    [Default] => 0
+    [Extra] => 
+)
+Array
+(
+    [Field] => delete_post
+    [Type] => tinyint(1)
+    [Null] => NO
+    [Key] => 
+    [Default] => 0
+    [Extra] => 
+)
+Array
+(
+    [Field] => publish_post
+    [Type] => tinyint(1)
+    [Null] => NO
+    [Key] => 
+    [Default] => 0
+    [Extra] => 
+)
+Array
+(
+    [Field] => review_post
+    [Type] => tinyint(1)
+    [Null] => NO
+    [Key] => 
+    [Default] => 0
+    [Extra] => 
+)
+Array
+(
+    [Field] => set_post_priority
+    [Type] => tinyint(1)
+    [Null] => NO
+    [Key] => 
+    [Default] => 0
+    [Extra] => 
+)
+Array
+(
+    [Field] => update_post_seo
+    [Type] => tinyint(1)
+    [Null] => NO
+    [Key] => 
+    [Default] => 0
+    [Extra] => 
+)
+Array
+(
+    [Field] => add_post_comment
+    [Type] => tinyint(1)
+    [Null] => NO
+    [Key] => 
+    [Default] => 1
+    [Extra] => 
+)
+Array
+(
+    [Field] => edit_others_post_comment
+    [Type] => tinyint(1)
+    [Null] => NO
+    [Key] => 
+    [Default] => 0
+    [Extra] => 
+)
+Array
+(
+    [Field] => edit_post_comment
+    [Type] => tinyint(1)
+    [Null] => NO
+    [Key] => 
+    [Default] => 1
+    [Extra] => 
+)
+Array
+(
+    [Field] => delete_post_comment
+    [Type] => tinyint(1)
+    [Null] => NO
+    [Key] => 
+    [Default] => 1
+    [Extra] => 
+)
+Array
+(
+    [Field] => delete_others_post_comment
+    [Type] => tinyint(1)
+    [Null] => NO
+    [Key] => 
+    [Default] => 0
+    [Extra] => 
+)
+Array
+(
+    [Field] => create_page
+    [Type] => tinyint(1)
+    [Null] => NO
+    [Key] => 
+    [Default] => 0
+    [Extra] => 
+)
+Array
+(
+    [Field] => view_page_list
+    [Type] => tinyint(1)
+    [Null] => NO
+    [Key] => 
+    [Default] => 1
+    [Extra] => 
+)
+Array
+(
+    [Field] => edit_page
+    [Type] => tinyint(1)
+    [Null] => NO
+    [Key] => 
+    [Default] => 0
+    [Extra] => 
+)
+Array
+(
+    [Field] => delete_page
+    [Type] => tinyint(1)
+    [Null] => NO
+    [Key] => 
+    [Default] => 0
+    [Extra] => 
+)
+Array
+(
+    [Field] => create_gallery
+    [Type] => tinyint(1)
+    [Null] => NO
+    [Key] => 
+    [Default] => 0
+    [Extra] => 
+)
+Array
+(
+    [Field] => update_gallery
+    [Type] => tinyint(1)
+    [Null] => NO
+    [Key] => 
+    [Default] => 0
+    [Extra] => 
+)
+Array
+(
+    [Field] => delete_gallery
+    [Type] => tinyint(1)
+    [Null] => NO
+    [Key] => 
+    [Default] => 0
+    [Extra] => 
+)
+Array
+(
+    [Field] => create_category
+    [Type] => tinyint(1)
+    [Null] => NO
+    [Key] => 
+    [Default] => 0
+    [Extra] => 
+)
+Array
+(
+    [Field] => edit_category
+    [Type] => tinyint(1)
+    [Null] => NO
+    [Key] => 
+    [Default] => 0
+    [Extra] => 
+)
+Array
+(
+    [Field] => delete_category
+    [Type] => tinyint(1)
+    [Null] => NO
+    [Key] => 
+    [Default] => 0
+    [Extra] => 
+)
+Array
+(
+    [Field] => create_tag
+    [Type] => tinyint(1)
+    [Null] => NO
+    [Key] => 
+    [Default] => 0
+    [Extra] => 
+)
+Array
+(
+    [Field] => edit_tag
+    [Type] => tinyint(1)
+    [Null] => NO
+    [Key] => 
+    [Default] => 0
+    [Extra] => 
+)
+Array
+(
+    [Field] => delete_tag
+    [Type] => tinyint(1)
+    [Null] => NO
+    [Key] => 
+    [Default] => 0
+    [Extra] => 
+)
+Array
+(
+    [Field] => parmanant_delete
+    [Type] => tinyint(1)
+    [Null] => NO
+    [Key] => 
+    [Default] => 0
+    [Extra] => 
+)
+Array
+(
+    [Field] => view_settings
+    [Type] => tinyint(1)
+    [Null] => NO
+    [Key] => 
+    [Default] => 0
+    [Extra] => 
+)
+Array
+(
+    [Field] => update_settings
+    [Type] => tinyint(1)
+    [Null] => NO
+    [Key] => 
+    [Default] => 0
+    [Extra] => 
+)
+Array
+(
+    [Field] => manage_user_settings
+    [Type] => tinyint(1)
+    [Null] => NO
+    [Key] => 
+    [Default] => 0
+    [Extra] => 
+)
+Array
+(
+    [Field] => manage_site_settings
+    [Type] => tinyint(1)
+    [Null] => NO
+    [Key] => 
+    [Default] => 0
+    [Extra] => 
+)
+Array
+(
+    [Field] => manage_post_settings
+    [Type] => tinyint(1)
+    [Null] => NO
+    [Key] => 
+    [Default] => 0
+    [Extra] => 
+)
+Array
+(
+    [Field] => manage_category_settings
+    [Type] => tinyint(1)
+    [Null] => NO
+    [Key] => 
+    [Default] => 0
+    [Extra] => 
+)
+Array
+(
+    [Field] => manage_other_settings
+    [Type] => tinyint(1)
+    [Null] => NO
+    [Key] => 
+    [Default] => 0
+    [Extra] => 
+)
+Array
+(
+    [Field] => manage_menu
+    [Type] => tinyint(1)
+    [Null] => NO
+    [Key] => 
+    [Default] => 0
+    [Extra] => 
+)
+Array
+(
+    [Field] => deleted_at
+    [Type] => timestamp
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => created_at
+    [Type] => timestamp
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+Array
+(
+    [Field] => updated_at
+    [Type] => timestamp
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)

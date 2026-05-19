@@ -59,8 +59,9 @@ Route::get('/v1/monitor/{key}', [\App\Http\Controllers\Api\PublicMonitorControll
 // Newsletter Subscriptions
 Route::post('/v1/subscribe', [\App\Http\Controllers\Api\SubscriberController::class, 'store']);
 
-// RSS Feed for Google News
+// RSS Feed for Google News, MSN, Yahoo
 Route::get('/feed/news', [\App\Http\Controllers\Api\NewsFeedController::class, 'rss']);
+Route::get('/feed/syndication', [\App\Http\Controllers\Api\NewsFeedController::class, 'rss']);
 
 // Interactive Polls
 Route::get('/poll/active', [\App\Http\Controllers\Api\PollController::class, 'active']);

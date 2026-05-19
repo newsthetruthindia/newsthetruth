@@ -1,0 +1,17 @@
+--- POST_METAS KEYS ---
+Key: credit
+Key: place
+Key: pic_credit
+Key: seo_excerpt
+Key: seo_description
+Key: seo_keyword
+Key: img_meta
+Key: seo_title
+Key: add_url
+Key: thumb_cap
+Key: alter_link
+Key: seo_title'
+Key: not
+
+--- SEARCHING FOR 'credit', 'location', 'reporter' IN ALL TABLES ---
+Table: citizen_journalisms | Field: credit | Type: varchar(255)
