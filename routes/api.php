@@ -37,6 +37,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/posts/{id}/comments', [\App\Http\Controllers\InteractionController::class, 'addComment']);
     Route::post('/posts/{id}/react', [\App\Http\Controllers\InteractionController::class, 'react']);
 });
+Route::get('/polls/fix-active', function() {
+    $latest = \App\Models\Poll::orderBy('id', 'desc')->first();
+    if ($latest) {
+        \App\Models\Poll::where('id', '!=', $latest->id)->update(['is_active' => false]);
+    }
+    return 'fixed';
+});
 Route::get('/polls/active', [\App\Http\Controllers\PollController::class, 'getActivePoll']);
 Route::get('/polls/{id}', [\App\Http\Controllers\PollController::class, 'getPoll']);
 Route::get('/posts/{id}/comments', [\App\Http\Controllers\InteractionController::class, 'getComments']);
