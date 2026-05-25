@@ -337,6 +337,67 @@
 
                     <div class="col-xl-3 mt-35 mt-xl-0 mb-10 sidebar-wrap sidebar-wrap-cus">
                         <div class="sidebar-area">
+                            @php
+                                $activePoll = \App\Models\Poll::where('is_active', true)->with(['options' => function($q) { $q->withCount('votes'); }])->withCount('votes')->first();
+                                $hasVoted = false;
+                                if ($activePoll && auth()->check()) {
+                                    $hasVoted = \App\Models\PollVote::where('poll_id', $activePoll->id)->where('user_id', auth()->id())->exists();
+                                }
+                            @endphp
+                            @if($activePoll)
+                            <div class="premium-card p-4 border-0 bg-light rounded-3 mb-4 shadow-sm">
+                                <h3 class="h5 fw-bold mb-3 border-start border-primary border-4 ps-3 text-uppercase tracking-wider">Reader Poll</h3>
+                                <p class="fw-medium text-dark mb-3">{{ $activePoll->title }}</p>
+
+                                @if(session('success'))
+                                    <div class="alert alert-success small py-2">{{ session('success') }}</div>
+                                @endif
+                                @if(session('error'))
+                                    <div class="alert alert-danger small py-2">{{ session('error') }}</div>
+                                @endif
+
+                                @if($hasVoted)
+                                    <div class="poll-results">
+                                        <p class="small text-muted mb-3">Thank you for voting! Current results:</p>
+                                        @foreach($activePoll->options as $option)
+                                            @php
+                                                $percentage = $activePoll->votes_count > 0 ? round(($option->votes_count / $activePoll->votes_count) * 100) : 0;
+                                            @endphp
+                                            <div class="mb-2">
+                                                <div class="d-flex justify-content-between small mb-1">
+                                                    <span>{{ $option->option_text }}</span>
+                                                    <span class="fw-bold">{{ $percentage }}%</span>
+                                                </div>
+                                                <div class="progress" style="height: 6px;">
+                                                    <div class="progress-bar bg-primary" role="progressbar" style="width: {{ $percentage }}%" aria-valuenow="{{ $percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                        <div class="mt-3 small text-muted text-end">{{ $activePoll->votes_count }} total votes</div>
+                                    </div>
+                                @else
+                                    <form action="{{ route('poll.vote', $activePoll->id) }}" method="POST">
+                                        @csrf
+                                        <div class="poll-options d-flex flex-column gap-2 mb-3">
+                                            @foreach($activePoll->options as $option)
+                                                <div class="form-check custom-radio">
+                                                    <input class="form-check-input" type="radio" name="poll_option_id" id="pollOption{{ $option->id }}" value="{{ $option->id }}" required>
+                                                    <label class="form-check-label w-100 p-2 border rounded-2 cursor-pointer transition-all hover:bg-white hover:shadow-sm" for="pollOption{{ $option->id }}">
+                                                        {{ $option->option_text }}
+                                                    </label>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                        @if(auth()->check())
+                                            <button type="submit" class="th-btn style2 w-100 py-2">Vote Now</button>
+                                        @else
+                                            <a href="{{ route('login') }}" class="th-btn style3 w-100 py-2 text-center d-block">Login to Vote</a>
+                                        @endif
+                                    </form>
+                                @endif
+                            </div>
+                            @endif
+
                             <div class="nav tab-menu indicator-active bg-light p-2 rounded-3 mb-4" role="tablist">
                                 @if(isset($others['POLITICS']) && count($others['POLITICS']) > 0)
                                     <button class="tab-btn active border-0 bg-transparent fw-bold text-uppercase small tracking-wider py-2 px-3 transition-all" id="nav3-one-tab" data-bs-toggle="tab"
