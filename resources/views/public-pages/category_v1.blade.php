@@ -65,7 +65,7 @@
                         @endforeach
                         @endif
                     </div>
-                    {!! $posts->links('vendor.pagination.th-pagination') !!}
+                    {!! $posts->links() !!}
                     <h2 class="sec-title has-line mt-30">TOP POSTS</h2>
                     <div class="filter-active">
                         @if( !empty( $top_post ) && count( $top_post ) > 0 )

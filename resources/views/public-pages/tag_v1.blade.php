@@ -62,7 +62,7 @@
                         @endforeach
                         @endif
                     </div>
-                    {!! $posts->links('vendor.pagination.th-pagination') !!}
+                    {!! $posts->links() !!}
                     
                     <h2 class="sec-title has-line pt-5">LATEST NEWS</h2>
                     <div class="filter-active">
