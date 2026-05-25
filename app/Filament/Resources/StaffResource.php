@@ -41,9 +41,9 @@ class StaffResource extends Resource
     {
         return $form->schema([
             Section::make('User Information')->schema([
-                TextInput::make('firstname')->required()->maxLength(255)->trim(),
-                TextInput::make('lastname')->required()->maxLength(255)->trim(),
-                TextInput::make('email')->email()->required()->unique(User::class, 'email', ignoreRecord: true)->trim(),
+                TextInput::make('firstname')->required()->maxLength(255),
+                TextInput::make('lastname')->required()->maxLength(255),
+                TextInput::make('email')->email()->required()->unique(User::class, 'email', ignoreRecord: true),
                 TextInput::make('password')
                     ->password()
                     ->dehydrateStateUsing(fn ($state) => Hash::make(trim($state)))
