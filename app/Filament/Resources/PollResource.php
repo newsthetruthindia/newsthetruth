@@ -24,10 +24,10 @@ class PollResource extends Resource
         return $form->schema([
             Forms\Components\Section::make('Poll Details')
                 ->schema([
-                    Forms\Components\TextInput::make('question')
-                        ->label('Poll Question')
+                    Forms\Components\TextInput::make('title')
+                        ->label('Poll Title')
                         ->required()
-                        ->maxLength(500)
+                        ->maxLength(255)
                         ->placeholder('e.g. Should the government ban single-use plastics?')
                         ->columnSpanFull(),
 
@@ -36,10 +36,7 @@ class PollResource extends Resource
                         ->helperText('Only ONE poll should be active at a time.')
                         ->default(false),
 
-                    Forms\Components\DateTimePicker::make('expires_at')
-                        ->label('Expires At')
-                        ->helperText('Leave blank to keep open indefinitely.')
-                        ->nullable(),
+                    // Removed expires_at as it no longer exists on the new schema
                 ]),
 
             Forms\Components\Section::make('Poll Options')
@@ -52,12 +49,6 @@ class PollResource extends Resource
                                 ->label('Option')
                                 ->required()
                                 ->maxLength(255),
-                            Forms\Components\TextInput::make('votes')
-                                ->label('Current Votes')
-                                ->numeric()
-                                ->default(0)
-                                ->disabled()
-                                ->dehydrated(false),
                         ])
                         ->minItems(2)
                         ->maxItems(6)
@@ -71,7 +62,7 @@ class PollResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('question')
+                Tables\Columns\TextColumn::make('title')
                     ->searchable()
                     ->limit(60)
                     ->weight('bold'),
@@ -82,17 +73,13 @@ class PollResource extends Resource
                     ->trueColor('success')
                     ->falseColor('gray'),
 
-                Tables\Columns\TextColumn::make('options_sum_votes')
+                Tables\Columns\TextColumn::make('votes_count')
                     ->label('Total Votes')
-                    ->sum('options', 'votes')
+                    ->counts('votes')
                     ->badge()
                     ->color('info'),
 
-                Tables\Columns\TextColumn::make('expires_at')
-                    ->label('Expires')
-                    ->dateTime('M j, Y H:i')
-                    ->placeholder('Never')
-                    ->color('gray'),
+                // Removed expires_at column
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Created')
