@@ -37,6 +37,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/posts/{id}/comments', [\App\Http\Controllers\InteractionController::class, 'addComment']);
     Route::post('/posts/{id}/react', [\App\Http\Controllers\InteractionController::class, 'react']);
 });
+Route::get('/polls/active', [\App\Http\Controllers\PollController::class, 'getActivePoll']);
 Route::get('/polls/{id}', [\App\Http\Controllers\PollController::class, 'getPoll']);
 Route::get('/posts/{id}/comments', [\App\Http\Controllers\InteractionController::class, 'getComments']);
 Route::get('/posts/top', [ApiController::class, 'topPosts']);

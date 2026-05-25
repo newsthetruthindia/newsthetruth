@@ -10,6 +10,18 @@ use App\Models\PollVote;
 class PollController extends Controller
 {
     /**
+     * Get the currently active poll.
+     */
+    public function getActivePoll()
+    {
+        $poll = Poll::where('is_active', true)->first();
+        if (!$poll) {
+            return response()->json(['success' => false, 'message' => 'No active poll found'], 404);
+        }
+        return $this->getPoll($poll->id);
+    }
+
+    /**
      * Get a poll with its options and vote counts.
      */
     public function getPoll($id)
