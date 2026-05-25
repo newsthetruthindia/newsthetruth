@@ -9,7 +9,6 @@ use App\Models\JustIn;
 use App\Models\SiteSetting;
 use App\Models\CitizenJournalism;
 use App\Http\Controllers\NotificationController;
-use Illuminate\Support\Str;
 use App\Models\UserCategoryPreference;
 use Illuminate\Support\Facades\Auth;
 
@@ -57,7 +56,12 @@ class ApiController extends Controller
      */
     public function categoryPosts($slug, Request $request)
     {
-        $category = Category::where('slug', $slug)->first();
+        // Case-insensitive search: try both original and uppercase
+        $category = Category::where('slug', $slug)
+            ->orWhere('slug', strtolower($slug))
+            ->orWhere('slug', strtoupper($slug))
+            ->first();
+            
         if (!$category) {
             return response()->json(['success' => false, 'message' => 'Category not found'], 404);
         }
@@ -197,14 +201,33 @@ class ApiController extends Controller
 
         $post->save();
 
-        // Trigger notification
+        // Trigger notification and Email Alert
         try {
+            // DB Notification
             $notification = new NotificationController();
             $notification->description('New API Citizen Report: ' . $post->title);
             $notification->type('users');
             $notification->send();
+
+            // Email Alert to Admin
+            $adminEmail = env('MAIL_FROM_ADDRESS', 'newsthetruthindia@gmail.com');
+            \Illuminate\Support\Facades\Mail::send([], [], function ($message) use ($post, $adminEmail) {
+                $message->to($adminEmail)
+                    ->subject('NEW CITIZEN REPORT: ' . $post->title)
+                    ->html("
+                        <div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:40px 20px;'>
+                            <h2 style='color:#8c0000;'>New Citizen Journalism Report</h2>
+                            <p><strong>Title:</strong> {$post->title}</p>
+                            <p><strong>Location:</strong> {$post->place}</p>
+                            <p><strong>Reporter:</strong> {$post->credit} ({$post->subtitle})</p>
+                            <hr style='border:none;border-top:1px solid #eee;margin:20px 0;'>
+                            <p style='white-space:pre-wrap;'>{$post->description}</p>
+                            " . ($post->attachment_url ? "<p><a href='{$post->attachment_url}' style='background:#111;color:white;padding:10px 20px;text-decoration:none;border-radius:4px;'>View Attachment</a></p>" : "") . "
+                        </div>
+                    ");
+            });
         } catch (\Exception $e) {
-            // Silently fail notification if it errors
+            // Silently fail if mail fails (prevent crashing the API)
         }
 
         return response()->json([
@@ -214,12 +237,29 @@ class ApiController extends Controller
         ]);
     }
 
-    /**
-     * Get all tags.
-     */
     public function tags()
     {
-        $tags = \App\Models\Tag::all();
+        // Get the latest 50 published posts
+        $latestPostIds = \App\Models\Post::where('status', 'published')
+            ->orderBy('created_at', 'desc')
+            ->limit(50)
+            ->pluck('id');
+
+        // Find the most frequently used tags in these latest posts
+        $tagIds = \Illuminate\Support\Facades\DB::table('post_tags')
+            ->whereIn('post_id', $latestPostIds)
+            ->select('tag_id', \Illuminate\Support\Facades\DB::raw('COUNT(*) as count'))
+            ->groupBy('tag_id')
+            ->orderByDesc('count')
+            ->limit(15)
+            ->pluck('tag_id');
+
+        // Fetch tag models and maintain the frequency order
+        $tags = \App\Models\Tag::whereIn('id', $tagIds)->get()
+            ->sortBy(function($tag) use ($tagIds) {
+                return array_search($tag->id, $tagIds->toArray());
+            })->values();
+
         return response()->json([
             'success' => true,
             'data' => $tags
@@ -292,6 +332,80 @@ class ApiController extends Controller
             'success' => true,
             'data' => $videos
         ]);
+    }
+
+    public function archiveSummary()
+    {
+        $total = Post::where('status', 'published')->count();
+        $rounded = floor($total / 100) * 100;
+        
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'total_posts' => $total,
+                'rounded_count' => number_format($rounded) . '+',
+                'years_count' => '3+'
+            ]
+        ]);
+    }
+
+    public function activeReporters()
+    {
+        $reporterNames = Post::where('status', 'published')
+            ->whereNotNull('reporter_name')
+            ->whereNotIn('reporter_name', ['Staff Reporter', 'Citizen Journalist'])
+            ->distinct()
+            ->pluck('reporter_name');
+
+        $reporters = \App\Models\User::where(function($q) use ($reporterNames) {
+                $q->whereIn(\Illuminate\Support\Facades\DB::raw("trim(concat(firstname, ' ', coalesce(lastname, '')))"), $reporterNames)
+                  ->orWhereHas('roles', fn($qr) => $qr->where('name', 'Reporter'));
+            })
+            ->with(['details', 'thumbnails'])
+            ->get();
+
+        $safeData = $reporters->map(fn($u) => [
+            'id'          => $u->id,
+            'firstname'   => $u->firstname,
+            'lastname'    => $u->lastname,
+            'is_reporter' => true,
+            'details'     => [
+                'designation' => $u->details?->designation ?? 'Reporter',
+                'bio'         => $u->details?->bio,
+            ],
+            'thumbnails'  => $u->thumbnails,
+        ]);
+
+        return response()->json(['success' => true, 'data' => $safeData]);
+    }
+
+    /**
+     * Track post views and shares.
+     */
+    public function track(Request $request)
+    {
+        $request->validate([
+            'post_id' => 'required|exists:posts,id',
+            'type'    => 'required|in:view,share'
+        ]);
+
+        $postId = $request->post_id;
+        $type   = $request->type;
+
+        if ($type === 'view') {
+            // Increment view count in post_views table for today
+            $today = now()->format('Y-m-d');
+            
+            \Illuminate\Support\Facades\DB::table('post_views')->updateOrInsert(
+                ['post_id' => $postId, 'created_at' => $today],
+                ['viewer_count' => \Illuminate\Support\Facades\DB::raw('viewer_count + 1'), 'updated_at' => now()]
+            );
+        } else {
+            // Increment share count in posts table
+            Post::where('id', $postId)->increment('shares');
+        }
+
+        return response()->json(['success' => true]);
     }
 
     public function getPreferences(Request $request)
