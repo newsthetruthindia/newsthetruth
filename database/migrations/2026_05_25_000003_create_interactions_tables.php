@@ -8,6 +8,9 @@ class CreateInteractionsTables extends Migration
 {
     public function up()
     {
+        Schema::dropIfExists('reactions');
+        Schema::dropIfExists('comments');
+
         Schema::create('comments', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('post_id');
