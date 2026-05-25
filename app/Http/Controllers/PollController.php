@@ -58,10 +58,19 @@ class PollController extends Controller
             return response()->json(['success' => false, 'message' => 'Poll is not active'], 400);
         }
 
-        $userId = $request->user()->id;
+        $userId = $request->user() ? $request->user()->id : null;
+        $ipAddress = $request->ip();
 
         // Check if already voted
-        $existingVote = PollVote::where('poll_id', $id)->where('user_id', $userId)->first();
+        $existingVote = PollVote::where('poll_id', $id)
+            ->where(function ($query) use ($userId, $ipAddress) {
+                if ($userId) {
+                    $query->where('user_id', $userId);
+                } else {
+                    $query->where('ip_address', $ipAddress);
+                }
+            })->first();
+
         if ($existingVote) {
             return response()->json(['success' => false, 'message' => 'You have already voted on this poll'], 400);
         }
@@ -75,7 +84,8 @@ class PollController extends Controller
         PollVote::create([
             'poll_id' => $id,
             'poll_option_id' => $request->poll_option_id,
-            'user_id' => $userId
+            'user_id' => $userId,
+            'ip_address' => $ipAddress
         ]);
 
         return response()->json(['success' => true, 'message' => 'Vote cast successfully']);

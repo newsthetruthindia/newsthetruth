@@ -9,7 +9,7 @@ class PollVote extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['poll_id', 'poll_option_id', 'user_id'];
+    protected $fillable = ['poll_id', 'poll_option_id', 'user_id', 'ip_address'];
 
     public function poll()
     {

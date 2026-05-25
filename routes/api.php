@@ -33,10 +33,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/user/preferences', [ApiController::class, 'savePreferences']);
     Route::get('/posts/feed', [ApiController::class, 'personalizedFeed']);
     Route::post('/user/push-token', [ApiController::class, 'updatePushToken']);
-    Route::post('/polls/{id}/vote', [\App\Http\Controllers\PollController::class, 'vote']);
     Route::post('/posts/{id}/comments', [\App\Http\Controllers\InteractionController::class, 'addComment']);
     Route::post('/posts/{id}/react', [\App\Http\Controllers\InteractionController::class, 'react']);
 });
+Route::post('/polls/{id}/vote', [\App\Http\Controllers\PollController::class, 'vote']);
 Route::get('/polls/active', [\App\Http\Controllers\PollController::class, 'getActivePoll']);
 Route::get('/polls/{id}', [\App\Http\Controllers\PollController::class, 'getPoll']);
 Route::get('/posts/{id}/comments', [\App\Http\Controllers\InteractionController::class, 'getComments']);
