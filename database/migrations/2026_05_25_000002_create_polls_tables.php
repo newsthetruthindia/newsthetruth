@@ -8,6 +8,10 @@ class CreatePollsTables extends Migration
 {
     public function up()
     {
+        Schema::dropIfExists('poll_votes');
+        Schema::dropIfExists('poll_options');
+        Schema::dropIfExists('polls');
+
         Schema::create('polls', function (Blueprint $table) {
             $table->id();
             $table->string('title');
