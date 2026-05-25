@@ -11,6 +11,16 @@ class Poll extends Model
 
     protected $fillable = ['title', 'post_id', 'is_active'];
 
+    protected static function booted()
+    {
+        static::saving(function ($poll) {
+            if ($poll->is_active) {
+                // Deactivate all other polls
+                Poll::where('id', '!=', $poll->id)->update(['is_active' => false]);
+            }
+        });
+    }
+
     public function options()
     {
         return $this->hasMany(PollOption::class);
