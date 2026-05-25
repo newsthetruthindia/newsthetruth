@@ -14,7 +14,7 @@ class PollController extends Controller
      */
     public function getActivePoll()
     {
-        $poll = Poll::where('is_active', true)->first();
+        $poll = Poll::where('is_active', true)->orderBy('updated_at', 'desc')->first();
         if (!$poll) {
             return response()->json(['success' => false, 'message' => 'No active poll found'], 404);
         }
