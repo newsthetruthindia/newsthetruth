@@ -9,6 +9,9 @@ use App\Models\JustIn;
 use App\Models\SiteSetting;
 use App\Models\CitizenJournalism;
 use App\Http\Controllers\NotificationController;
+use Illuminate\Support\Str;
+use App\Models\UserCategoryPreference;
+use Illuminate\Support\Facades\Auth;
 
 class ApiController extends Controller
 {
@@ -54,12 +57,7 @@ class ApiController extends Controller
      */
     public function categoryPosts($slug, Request $request)
     {
-        // Case-insensitive search: try both original and uppercase
-        $category = Category::where('slug', $slug)
-            ->orWhere('slug', strtolower($slug))
-            ->orWhere('slug', strtoupper($slug))
-            ->first();
-            
+        $category = Category::where('slug', $slug)->first();
         if (!$category) {
             return response()->json(['success' => false, 'message' => 'Category not found'], 404);
         }
@@ -199,33 +197,14 @@ class ApiController extends Controller
 
         $post->save();
 
-        // Trigger notification and Email Alert
+        // Trigger notification
         try {
-            // DB Notification
             $notification = new NotificationController();
             $notification->description('New API Citizen Report: ' . $post->title);
             $notification->type('users');
             $notification->send();
-
-            // Email Alert to Admin
-            $adminEmail = env('MAIL_FROM_ADDRESS', 'newsthetruthindia@gmail.com');
-            \Illuminate\Support\Facades\Mail::send([], [], function ($message) use ($post, $adminEmail) {
-                $message->to($adminEmail)
-                    ->subject('NEW CITIZEN REPORT: ' . $post->title)
-                    ->html("
-                        <div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:40px 20px;'>
-                            <h2 style='color:#8c0000;'>New Citizen Journalism Report</h2>
-                            <p><strong>Title:</strong> {$post->title}</p>
-                            <p><strong>Location:</strong> {$post->place}</p>
-                            <p><strong>Reporter:</strong> {$post->credit} ({$post->subtitle})</p>
-                            <hr style='border:none;border-top:1px solid #eee;margin:20px 0;'>
-                            <p style='white-space:pre-wrap;'>{$post->description}</p>
-                            " . ($post->attachment_url ? "<p><a href='{$post->attachment_url}' style='background:#111;color:white;padding:10px 20px;text-decoration:none;border-radius:4px;'>View Attachment</a></p>" : "") . "
-                        </div>
-                    ");
-            });
         } catch (\Exception $e) {
-            // Silently fail if mail fails (prevent crashing the API)
+            // Silently fail notification if it errors
         }
 
         return response()->json([
@@ -235,29 +214,12 @@ class ApiController extends Controller
         ]);
     }
 
+    /**
+     * Get all tags.
+     */
     public function tags()
     {
-        // Get the latest 50 published posts
-        $latestPostIds = \App\Models\Post::where('status', 'published')
-            ->orderBy('created_at', 'desc')
-            ->limit(50)
-            ->pluck('id');
-
-        // Find the most frequently used tags in these latest posts
-        $tagIds = \Illuminate\Support\Facades\DB::table('post_tags')
-            ->whereIn('post_id', $latestPostIds)
-            ->select('tag_id', \Illuminate\Support\Facades\DB::raw('COUNT(*) as count'))
-            ->groupBy('tag_id')
-            ->orderByDesc('count')
-            ->limit(15)
-            ->pluck('tag_id');
-
-        // Fetch tag models and maintain the frequency order
-        $tags = \App\Models\Tag::whereIn('id', $tagIds)->get()
-            ->sortBy(function($tag) use ($tagIds) {
-                return array_search($tag->id, $tagIds->toArray());
-            })->values();
-
+        $tags = \App\Models\Tag::all();
         return response()->json([
             'success' => true,
             'data' => $tags
@@ -332,77 +294,82 @@ class ApiController extends Controller
         ]);
     }
 
-    public function archiveSummary()
+    public function getPreferences(Request $request)
     {
-        $total = Post::where('status', 'published')->count();
-        $rounded = floor($total / 100) * 100;
-        
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'total_posts' => $total,
-                'rounded_count' => number_format($rounded) . '+',
-                'years_count' => '3+'
-            ]
-        ]);
-    }
-
-    public function activeReporters()
-    {
-        $reporterNames = Post::where('status', 'published')
-            ->whereNotNull('reporter_name')
-            ->whereNotIn('reporter_name', ['Staff Reporter', 'Citizen Journalist'])
-            ->distinct()
-            ->pluck('reporter_name');
-
-        $reporters = \App\Models\User::where(function($q) use ($reporterNames) {
-                $q->whereIn(\Illuminate\Support\Facades\DB::raw("trim(concat(firstname, ' ', coalesce(lastname, '')))"), $reporterNames)
-                  ->orWhereHas('roles', fn($qr) => $qr->where('name', 'Reporter'));
-            })
-            ->with(['details', 'thumbnails'])
+        $prefs = UserCategoryPreference::where('user_id', $request->user()->id)
+            ->with('category')
             ->get();
-
-        $safeData = $reporters->map(fn($u) => [
-            'id'          => $u->id,
-            'firstname'   => $u->firstname,
-            'lastname'    => $u->lastname,
-            'is_reporter' => true,
-            'details'     => [
-                'designation' => $u->details?->designation ?? 'Reporter',
-                'bio'         => $u->details?->bio,
-            ],
-            'thumbnails'  => $u->thumbnails,
-        ]);
-
-        return response()->json(['success' => true, 'data' => $safeData]);
+        return response()->json($prefs);
     }
 
-    /**
-     * Track post views and shares.
-     */
-    public function track(Request $request)
+    public function updatePushToken(Request $request)
     {
         $request->validate([
-            'post_id' => 'required|exists:posts,id',
-            'type'    => 'required|in:view,share'
+            'token' => 'required|string'
         ]);
 
-        $postId = $request->post_id;
-        $type   = $request->type;
+        $user = $request->user();
+        $setting = \App\Models\UserSetting::firstOrCreate(
+            ['user_id' => $user->id]
+        );
+        $setting->push_token = $request->token;
+        $setting->save();
 
-        if ($type === 'view') {
-            // Increment view count in post_views table for today
-            $today = now()->format('Y-m-d');
-            
-            \Illuminate\Support\Facades\DB::table('post_views')->updateOrInsert(
-                ['post_id' => $postId, 'created_at' => $today],
-                ['viewer_count' => \Illuminate\Support\Facades\DB::raw('viewer_count + 1'), 'updated_at' => now()]
-            );
-        } else {
-            // Increment share count in posts table
-            Post::where('id', $postId)->increment('shares');
+        return response()->json(['success' => true, 'message' => 'Token updated']);
+    }
+
+    public function savePreferences(Request $request)
+    {
+        $request->validate([
+            'category_ids' => 'required|array',
+            'category_ids.*' => 'integer|exists:categories,id'
+        ]);
+
+        $userId = $request->user()->id;
+
+        // Clear old
+        UserCategoryPreference::where('user_id', $userId)->delete();
+
+        // Insert new
+        $data = [];
+        foreach ($request->category_ids as $catId) {
+            $data[] = [
+                'user_id' => $userId,
+                'category_id' => $catId,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }
+        UserCategoryPreference::insert($data);
+
+        return response()->json(['message' => 'Preferences saved successfully.']);
+    }
+
+    public function personalizedFeed(Request $request)
+    {
+        $userId = $request->user()->id;
+        $categoryIds = UserCategoryPreference::where('user_id', $userId)->pluck('category_id')->toArray();
+
+        $query = Post::where('status', 'published')->orderBy('id', 'desc');
+
+        if (!empty($categoryIds)) {
+            // Join with post_categories pivot
+            $query->whereHas('categories', function($q) use ($categoryIds) {
+                $q->whereIn('categories.id', $categoryIds);
+            });
         }
 
-        return response()->json(['success' => true]);
+        $posts = $query->paginate(20);
+
+        foreach( $posts as $post ){
+            if( !empty($post->thumbnail->media) ){
+                $post->thumbnail_url = $post->thumbnail->media->url;
+            } else {
+                $post->thumbnail_url = null;
+            }
+            $post->category_list = $post->categories;
+        }
+
+        return response()->json($posts);
     }
 }

@@ -19,8 +19,6 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
     use SoftDeletes;
 
-    protected $appends = ['is_reporter'];
-
     public function getFilamentAvatarUrl(): ?string
     {
         $media = $this->details?->media;
@@ -31,7 +29,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
         $path = ltrim($media->url, '/');
         
         // Use the standardized storage proxy for consistency
-        return asset('storage/' . ltrim($path, '/'));
+        return asset('storage/' . $path);
     }
 
     public function canAccessPanel(Panel $panel): bool
@@ -42,11 +40,6 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
     public function getNameAttribute(): string
     {
         return trim(($this->firstname ?? '') . ' ' . ($this->lastname ?? ''));
-    }
-
-    public function getIsReporterAttribute(): bool
-    {
-        return $this->hasRole('Reporter') || $this->hasRole('Reporter', 'web') || $this->roles()->where('name', 'Reporter')->exists();
     }
 
     /**
@@ -60,7 +53,6 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
         'email',
         'password',
         'type',
-        'google_id',
     ];
 
     /**
@@ -72,6 +64,21 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
         'password',
         'remember_token',
     ];
+
+    protected $appends = ['is_top_contributor'];
+
+    public function getIsTopContributorAttribute(): bool
+    {
+        // Simple logic: if they have submitted more than 5 citizen journalism posts
+        // Alternatively, we can just check if they have posts. Assuming CitizenJournalism model exists and has user_id.
+        // For now, we return false or logic based on their CitizenJournalism entries.
+        // We will just check their post count on the CitizenJournalism table.
+        if (class_exists(\App\Models\CitizenJournalism::class)) {
+            $count = \App\Models\CitizenJournalism::where('user_id', $this->id)->count();
+            return $count >= 5;
+        }
+        return false;
+    }
 
     /**
      * The attributes that should be cast.

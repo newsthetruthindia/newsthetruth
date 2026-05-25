@@ -18,25 +18,32 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // Auth Routes
 Route::post('/auth/register', [ApiAuthController::class, 'register']);
 Route::post('/auth/login', [ApiAuthController::class, 'login']);
-Route::post('/auth/google', [ApiAuthController::class, 'googleLogin']);
 Route::post('/auth/forgot-password', [ApiAuthController::class, 'forgotPassword']);
 Route::post('/auth/reset-password', [ApiAuthController::class, 'resetPassword']);
-Route::post('/auth/verify-email', [ApiAuthController::class, 'verifyEmail']);
 Route::middleware('auth:sanctum')->post('/auth/logout', [ApiAuthController::class, 'logout']);
-Route::middleware('auth:sanctum')->post('/auth/resend-verification', [ApiAuthController::class, 'resendVerification']);
 
 // Post & User Routes
 Route::get('/user/{id}', [ApiController::class, 'user']);
 Route::get('/posts/user/{id}', [ApiController::class, 'userPosts']);
 Route::get('/posts/latest', [ApiController::class, 'latestPosts']);
+
+// Personalized feed & preferences (Auth required)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/user/preferences', [ApiController::class, 'getPreferences']);
+    Route::post('/user/preferences', [ApiController::class, 'savePreferences']);
+    Route::get('/posts/feed', [ApiController::class, 'personalizedFeed']);
+    Route::post('/user/push-token', [ApiController::class, 'updatePushToken']);
+    Route::post('/polls/{id}/vote', [\App\Http\Controllers\PollController::class, 'vote']);
+    Route::post('/posts/{id}/comments', [\App\Http\Controllers\InteractionController::class, 'addComment']);
+    Route::post('/posts/{id}/react', [\App\Http\Controllers\InteractionController::class, 'react']);
+});
+Route::get('/polls/{id}', [\App\Http\Controllers\PollController::class, 'getPoll']);
+Route::get('/posts/{id}/comments', [\App\Http\Controllers\InteractionController::class, 'getComments']);
 Route::get('/posts/top', [ApiController::class, 'topPosts']);
 Route::get('/posts/category/{slug}', [ApiController::class, 'categoryPosts']);
 Route::get('/post/{slug}', [ApiController::class, 'post']);
 Route::get('/posts/search', [ApiController::class, 'searchPosts']);
 Route::get('/posts/archive', [ApiController::class, 'archivePosts']);
-Route::get('/archive/stats', [ApiController::class, 'archiveSummary']);
-Route::get('/reporters', [ApiController::class, 'activeReporters']);
-Route::post('/posts/track', [ApiController::class, 'track']);
 
 // Category & Settings Routes
 Route::get('/categories', [ApiController::class, 'categories']);
@@ -52,18 +59,3 @@ Route::post('/citizen-report', [ApiController::class, 'citizenReport']);
 // Sponsor Ads
 Route::get('/sponsors', [\App\Http\Controllers\Api\SponsorController::class, 'index']);
 Route::get('/sponsor/{type?}', [\App\Http\Controllers\Api\SponsorController::class, 'getRandom']);
-
-// Public News Monitor (for TV)
-Route::get('/v1/monitor/{key}', [\App\Http\Controllers\Api\PublicMonitorController::class, 'show']);
-
-// Newsletter Subscriptions
-Route::post('/v1/subscribe', [\App\Http\Controllers\Api\SubscriberController::class, 'store']);
-
-// RSS Feed for Google News, MSN, Yahoo
-Route::get('/feed/news', [\App\Http\Controllers\Api\NewsFeedController::class, 'rss']);
-Route::get('/feed/syndication', [\App\Http\Controllers\Api\NewsFeedController::class, 'rss']);
-
-// Interactive Polls
-Route::get('/poll/active', [\App\Http\Controllers\Api\PollController::class, 'active']);
-Route::post('/poll/vote',  [\App\Http\Controllers\Api\PollController::class, 'vote']);
-

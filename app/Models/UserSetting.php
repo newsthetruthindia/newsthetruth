@@ -15,6 +15,7 @@ class UserSetting extends Model
         'show_profile_pic_to_employee',
         'enable_message_notification',
         'enable_notification_notification',
+        'push_token',
     ];
 
     public function user(){
