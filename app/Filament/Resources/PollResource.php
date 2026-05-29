@@ -49,6 +49,9 @@ class PollResource extends Resource
                                 ->label('Option')
                                 ->required()
                                 ->maxLength(255),
+                            Forms\Components\Placeholder::make('votes_count')
+                                ->label('Votes Received')
+                                ->content(fn ($record) => $record ? $record->votes()->count() : 0),
                         ])
                         ->minItems(2)
                         ->maxItems(6)
@@ -65,7 +68,13 @@ class PollResource extends Resource
                 Tables\Columns\TextColumn::make('title')
                     ->searchable()
                     ->limit(60)
-                    ->weight('bold'),
+                    ->weight('bold')
+                    ->description(function (Poll $record) {
+                        return $record->options->map(function ($opt) {
+                            $count = $opt->votes()->count();
+                            return "{$opt->option_text}: {$count} votes";
+                        })->join(' | ');
+                    }),
 
                 Tables\Columns\IconColumn::make('is_active')
                     ->label('Active')

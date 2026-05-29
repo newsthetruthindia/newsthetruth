@@ -41,12 +41,44 @@ class SendDailyNewsletter extends Command
      */
     public function handle()
     {
-        $this->info('Fetching top 5 recent posts...');
+        $this->info('Selecting top 5 trending articles for the daily newsletter...');
         
-        $posts = Post::where('status', 'published') // assuming 'status' column, will check later
-                     ->orderBy('id', 'desc')
-                     ->take(5)
-                     ->get();
+        $topViewedPosts = collect();
+        $limit = 5;
+        
+        $topViews = \Illuminate\Support\Facades\DB::table('post_views')
+            ->select('post_id', \Illuminate\Support\Facades\DB::raw('SUM(viewer_count) as total_views'))
+            ->where('created_at', '>=', now()->subHours(24))
+            ->groupBy('post_id')
+            ->orderByDesc('total_views')
+            ->take($limit)
+            ->get();
+            
+        $topViewIds = $topViews->pluck('post_id')->toArray();
+        
+        if (!empty($topViewIds)) {
+            $placeholders = implode(',', array_fill(0, count($topViewIds), '?'));
+            $topViewedPosts = Post::whereIn('id', $topViewIds)
+                ->where('status', 'published')
+                ->orderByRaw("FIELD(id, {$placeholders})", $topViewIds)
+                ->get();
+        }
+        
+        // Fallback: If not enough views recorded today, grab recent posts
+        if ($topViewedPosts->count() < $limit) {
+            $existingIds = $topViewedPosts->pluck('id')->toArray();
+            $extraCount = $limit - $topViewedPosts->count();
+            
+            $fallbackPosts = Post::where('status', 'published')
+                ->whereNotIn('id', $existingIds)
+                ->orderBy('id', 'desc')
+                ->take($extraCount)
+                ->get();
+                
+            $topViewedPosts = $topViewedPosts->merge($fallbackPosts);
+        }
+
+        $posts = $topViewedPosts;
 
         if ($posts->isEmpty()) {
             $this->info('No recent posts to send.');
@@ -67,7 +99,22 @@ class SendDailyNewsletter extends Command
             }
         }
 
-        $this->info("Successfully sent $count newsletters.");
+        // Log the sent newsletter
+        $snapshot = $posts->map(function($p) {
+            return [
+                'id' => $p->id,
+                'title' => $p->title,
+                'reporter_name' => $p->reporter_name
+            ];
+        })->toArray();
+
+        \App\Models\NewsletterLog::create([
+            'sent_date' => now()->toDateString(),
+            'recipients_count' => $count,
+            'posts_snapshot' => $snapshot
+        ]);
+
+        $this->info("Successfully sent $count newsletters and logged history.");
         return 0;
     }
 }

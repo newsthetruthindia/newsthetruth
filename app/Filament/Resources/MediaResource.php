@@ -36,6 +36,7 @@ class MediaResource extends Resource
                     ->directory('uploads/media')
                     ->imagePreviewHeight('250')
                     ->maxSize(10240)
+                    ->helperText('Recommended Ad Sizes: Banner (1200x300), Sidebar (500x500)')
                     ->columnSpanFull(),
 
                 TextInput::make('alt')->label('Alt Text / Description')->maxLength(255)->columnSpanFull(),

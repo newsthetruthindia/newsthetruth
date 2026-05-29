@@ -33,7 +33,7 @@ class DailyNewsletterMail extends Mailable
      */
     public function build()
     {
-        return $this->subject('News The Truth - Your Daily Digest')
+        return $this->subject('The Evening Truth: Today\'s Top 5 Stories')
                     ->view('emails.newsletter');
     }
 }

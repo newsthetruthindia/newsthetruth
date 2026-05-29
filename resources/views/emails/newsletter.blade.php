@@ -13,14 +13,14 @@
         <h2 style="font-size: 20px; color: #111827; margin-bottom: 16px;">Hello {{ $user->firstname }},</h2>
         
         <p style="color: #4b5563; font-size: 15px; line-height: 1.6; margin-bottom: 24px;">
-            Here are the top trending stories you might have missed today:
+            Here are the top 5 trending stories you might have missed today:
         </p>
 
         @foreach($posts as $post)
         <div style="margin-bottom: 24px; border-bottom: 1px solid #e5e7eb; padding-bottom: 16px;">
             <h3 style="font-size: 18px; margin-bottom: 8px; color: #111827;">{{ $post->title }}</h3>
             <p style="color: #4b5563; font-size: 14px; line-height: 1.5; margin-bottom: 12px;">
-                {{ \Illuminate\Support\Str::limit(strip_tags($post->content ?? $post->body), 120) }}
+                {{ \Illuminate\Support\Str::limit(strip_tags($post->excerpt ?? $post->description), 120) }}
             </p>
             <a href="{{ env('FRONTEND_URL', 'https://newsthetruth.com') }}/news/{{ $post->slug }}" style="color: #8c0000; font-weight: bold; text-decoration: none; font-size: 14px;">Read More &rarr;</a>
         </div>

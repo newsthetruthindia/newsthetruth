@@ -81,6 +81,20 @@ class YouTubeSyncService
 
                 if ($video->wasRecentlyCreated) {
                     $syncedCount++;
+
+                    // Only send if we haven't sent a video alert today (limit to 1 per day)
+                    if (!\Illuminate\Support\Facades\Cache::has('video_alert_sent_today')) {
+                        $subscribers = \App\Models\User::where('type', 'user')->get();
+                        $url = 'https://www.youtube.com/watch?v=' . $video->youtube_id;
+
+                        \Illuminate\Support\Facades\Notification::send(
+                            $subscribers,
+                            new \App\Notifications\BroadcastNotification($video->title, $url)
+                        );
+
+                        // Lock the alert for the rest of the day
+                        \Illuminate\Support\Facades\Cache::put('video_alert_sent_today', true, now()->endOfDay());
+                    }
                 }
             }
 
