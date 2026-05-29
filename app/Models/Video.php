@@ -15,5 +15,10 @@ class Video extends Model
         'type',
         'is_featured',
         'sort_order',
+        'published_at',
+    ];
+
+    protected $casts = [
+        'published_at' => 'datetime',
     ];
 }

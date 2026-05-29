@@ -58,6 +58,7 @@ class YouTubeSyncService
                 $videoData[$detail['id']] = [
                     'title' => $detail['snippet']['title'],
                     'duration' => $detail['contentDetails']['duration'],
+                    'published_at' => $detail['snippet']['publishedAt'] ?? null,
                 ];
             }
 
@@ -73,6 +74,7 @@ class YouTubeSyncService
                     [
                         'title' => $data['title'],
                         'type' => $isReel ? 'reel' : 'video',
+                        'published_at' => isset($data['published_at']) ? \Carbon\Carbon::parse($data['published_at'])->toDateTimeString() : null,
                         'sort_order' => 0
                     ]
                 );

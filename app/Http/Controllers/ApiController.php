@@ -326,7 +326,7 @@ class ApiController extends Controller
     public function videos()
     {
         $videos = \App\Models\Video::orderBy('sort_order', 'ASC')
-            ->orderBy('created_at', 'DESC')
+            ->orderByRaw('COALESCE(published_at, created_at) DESC')
             ->get();
         return response()->json([
             'success' => true,
