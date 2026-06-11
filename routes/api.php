@@ -62,3 +62,6 @@ Route::get('/sponsors', [\App\Http\Controllers\Api\SponsorController::class, 'in
 Route::get('/sponsor/{type?}', [\App\Http\Controllers\Api\SponsorController::class, 'getRandom']);
 
 Route::get('/reporters', [ApiController::class, 'activeReporters']);
+
+// RSS Feed Proxy Routes
+Route::get('/feed/news', [\App\Http\Controllers\Api\NewsFeedController::class, 'rss']);
