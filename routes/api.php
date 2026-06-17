@@ -43,6 +43,7 @@ Route::get('/posts/{id}/comments', [\App\Http\Controllers\InteractionController:
 Route::get('/posts/top', [ApiController::class, 'topPosts']);
 Route::get('/posts/category/{slug}', [ApiController::class, 'categoryPosts']);
 Route::get('/post/{slug}', [ApiController::class, 'post']);
+Route::post('/posts/track', [ApiController::class, 'track']);
 Route::get('/posts/search', [ApiController::class, 'searchPosts']);
 Route::get('/posts/archive', [ApiController::class, 'archivePosts']);
 

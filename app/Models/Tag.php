@@ -19,4 +19,13 @@ class Tag extends Model
         'description',
         'thumbnail',
     ];
+
+    protected static function booted()
+    {
+        static::creating(function ($tag) {
+            if (empty($tag->user_id)) {
+                $tag->user_id = auth()->id() ?? 0;
+            }
+        });
+    }
 }
