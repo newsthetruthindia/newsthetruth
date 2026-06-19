@@ -32,6 +32,35 @@ class PollController extends Controller
     }
 
     /**
+     * Get the currently active poll (latest one).
+     */
+    public function getActivePoll()
+    {
+        $poll = Poll::with('options')
+            ->where('is_active', true)
+            ->latest()
+            ->first();
+
+        if (!$poll) {
+            return response()->json(['success' => false, 'data' => null], 404);
+        }
+
+        // Add vote counts to options
+        $options = $poll->options->map(function ($option) {
+            $option->vote_count = $option->votes()->count();
+            return $option;
+        });
+
+        $poll->setRelation('options', $options);
+        $poll->total_votes = $poll->votes()->count();
+
+        return response()->json([
+            'success' => true,
+            'data' => $poll
+        ]);
+    }
+
+    /**
      * Vote on a poll.
      */
     public function vote(Request $request, $id)
