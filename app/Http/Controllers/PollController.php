@@ -10,23 +10,11 @@ use App\Models\PollVote;
 class PollController extends Controller
 {
     /**
-     * Get the currently active poll.
-     */
-    public function getActivePoll()
-    {
-        $poll = Poll::where('is_active', true)->orderBy('updated_at', 'desc')->first();
-        if (!$poll) {
-            return response()->json(['success' => false, 'message' => 'No active poll found'], 404);
-        }
-        return $this->getPoll($poll->id);
-    }
-
-    /**
      * Get a poll with its options and vote counts.
      */
     public function getPoll($id)
     {
-        $poll = Poll::with('options')->findOrFail($id);
+        $poll = Poll::with('options')->where('is_active', true)->findOrFail($id);
 
         // Add vote counts to options
         $options = $poll->options->map(function ($option) {
@@ -58,19 +46,10 @@ class PollController extends Controller
             return response()->json(['success' => false, 'message' => 'Poll is not active'], 400);
         }
 
-        $userId = $request->user() ? $request->user()->id : null;
-        $ipAddress = $request->ip();
+        $userId = $request->user()->id;
 
         // Check if already voted
-        $existingVote = PollVote::where('poll_id', $id)
-            ->where(function ($query) use ($userId, $ipAddress) {
-                if ($userId) {
-                    $query->where('user_id', $userId);
-                } else {
-                    $query->where('ip_address', $ipAddress);
-                }
-            })->first();
-
+        $existingVote = PollVote::where('poll_id', $id)->where('user_id', $userId)->first();
         if ($existingVote) {
             return response()->json(['success' => false, 'message' => 'You have already voted on this poll'], 400);
         }
@@ -84,52 +63,9 @@ class PollController extends Controller
         PollVote::create([
             'poll_id' => $id,
             'poll_option_id' => $request->poll_option_id,
-            'user_id' => $userId,
-            'ip_address' => $ipAddress
-        ]);
-
-        return response()->json(['success' => true, 'message' => 'Vote cast successfully']);
-    }
-
-    /**
-     * Vote on a poll from the frontend web interface.
-     */
-    public function webVote(Request $request, $id)
-    {
-        $request->validate([
-            'poll_option_id' => 'required|exists:poll_options,id'
-        ]);
-
-        $poll = Poll::findOrFail($id);
-
-        if (!$poll->is_active) {
-            return back()->with('error', 'Poll is not active.');
-        }
-
-        if (!auth()->check()) {
-            return back()->with('error', 'You must be logged in to vote.');
-        }
-
-        $userId = auth()->id();
-
-        // Check if already voted
-        $existingVote = PollVote::where('poll_id', $id)->where('user_id', $userId)->first();
-        if ($existingVote) {
-            return back()->with('error', 'You have already voted on this poll.');
-        }
-
-        // Verify option belongs to this poll
-        $option = PollOption::where('id', $request->poll_option_id)->where('poll_id', $id)->first();
-        if (!$option) {
-            return back()->with('error', 'Invalid poll option.');
-        }
-
-        PollVote::create([
-            'poll_id' => $id,
-            'poll_option_id' => $request->poll_option_id,
             'user_id' => $userId
         ]);
 
-        return back()->with('success', 'Your vote has been recorded!');
+        return response()->json(['success' => true, 'message' => 'Vote cast successfully']);
     }
 }
