@@ -586,7 +586,9 @@ class PostResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
-            ->defaultSort('created_at', 'desc');
+            ->defaultSort('created_at', 'desc')
+            ->defaultPaginationPageOption(12)
+            ->paginationPageOptions([12, 24, 48]);
     }
 
     public static function getRelations(): array
