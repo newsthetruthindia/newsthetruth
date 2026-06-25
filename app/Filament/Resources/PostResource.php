@@ -409,6 +409,21 @@ class PostResource extends Resource
                                 ->color('gray')
                                 ->icon('heroicon-m-calendar')
                                 ->iconColor('gray'),
+
+                            TextColumn::make('user.firstname')
+                                ->label('Published By')
+                                ->formatStateUsing(function ($record) {
+                                    $name = $record->user 
+                                        ? trim(($record->user->firstname ?? '') . ' ' . ($record->user->lastname ?? ''))
+                                        : 'Unknown';
+                                    return $name ?: 'Unknown';
+                                })
+                                ->size('xs')
+                                ->weight('bold')
+                                ->color('danger')
+                                ->icon('heroicon-m-shield-check')
+                                ->iconColor('danger')
+                                ->prefix('PUBLISHED BY: '),
                         ])->space(1),
                     ])->extraAttributes(['class' => 'p-4 flex flex-col flex-1 justify-between'])->space(2),
                 ])->extraAttributes([
