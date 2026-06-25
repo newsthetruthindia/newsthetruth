@@ -44,6 +44,7 @@ class CreatePost extends CreateRecord
             $data['thumbnail'] = $media->id;
         }
         unset($data['new_thumbnail_upload']);
+        $data['published_by'] = auth()->id();
         return $data;
     }
 }

@@ -410,11 +410,12 @@ class PostResource extends Resource
                                 ->icon('heroicon-m-calendar')
                                 ->iconColor('gray'),
 
-                            TextColumn::make('user.firstname')
+                            TextColumn::make('publishedByUser.firstname')
                                 ->label('Published By')
                                 ->formatStateUsing(function ($record) {
-                                    $name = $record->user 
-                                        ? trim(($record->user->firstname ?? '') . ' ' . ($record->user->lastname ?? ''))
+                                    $user = $record->publishedByUser;
+                                    $name = $user 
+                                        ? trim(($user->firstname ?? '') . ' ' . ($user->lastname ?? ''))
                                         : 'Unknown';
                                     return $name ?: 'Unknown';
                                 })

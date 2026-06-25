@@ -36,9 +36,14 @@ class Post extends Model
         'video_url',
         'x_embed_url',
         'gallery_position',
+        'published_by',
     ];
     public function user(){
         return $this->belongsTo( User::class );
+    }
+
+    public function publishedByUser(){
+        return $this->belongsTo(User::class, 'published_by');
     }
 
     public function metas(){
@@ -73,6 +78,11 @@ class Post extends Model
     protected static function booted()
     {
         static::saving(function ($post) {
+            // Capture the actual admin/editor who is publishing this post
+            if (auth()->check() && empty($post->published_by)) {
+                $post->published_by = auth()->id();
+            }
+
             // Automatically resolve user_id from reporter_name if mismatch found
             if (!empty($post->reporter_name)) {
                 $name = trim($post->reporter_name);
