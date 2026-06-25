@@ -58,6 +58,7 @@ class AdminPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
                 Widgets\AccountWidget::class,
+                \App\Filament\Widgets\QuickCreatePostWidget::class,
                 \App\Filament\Widgets\PostStatsWidget::class,
                 \App\Filament\Widgets\PublishedPostsChartWidget::class,
                 \App\Filament\Widgets\PostViewsChartWidget::class,
